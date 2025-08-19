@@ -1,0 +1,8 @@
+{
+  "/products/page": "app/products/page.js",
+  "/page": "app/page.js",
+  "/products/[id]/page": "app/products/[id]/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/templates/page": "app/admin/templates/page.js",
+  "/contact/page": "app/contact/page.js"
+}
