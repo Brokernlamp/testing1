@@ -2,7 +2,15 @@
 'use client'
 import { Mail } from 'lucide-react'
 
-export default function GetQuotationButton({ product }) {
+interface Product {
+  name: string
+  category?: string | null
+  size?: string | null
+  material?: string | null
+  quantity?: number
+}
+
+export default function GetQuotationButton({ product }: { product: Product }) {
   const handleGetQuotation = () => {
     const subject = `Quotation Request for ${product.name}`
     const body = `

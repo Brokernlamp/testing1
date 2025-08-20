@@ -2,11 +2,15 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 
-export default function ImageUpload({ onUploadSuccess }) {
-  const [uploading, setUploading] = useState(false)
-  const [preview, setPreview] = useState(null)
+interface ImageUploadProps {
+  onUploadSuccess: (url: string) => void
+}
 
-  const handleFileChange = (e) => {
+export default function ImageUpload({ onUploadSuccess }: ImageUploadProps) {
+  const [uploading, setUploading] = useState(false)
+  const [preview, setPreview] = useState<string | null>(null)
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files[0]
     if (file) {
       // Validate file
@@ -25,9 +29,10 @@ export default function ImageUpload({ onUploadSuccess }) {
     }
   }
 
-  const handleUpload = async (e) => {
+  const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const file = e.target.image.files[0]
+    const formData = new FormData(e.currentTarget)
+    const file = formData.get('image') as File
     if (!file) return
 
     setUploading(true)
