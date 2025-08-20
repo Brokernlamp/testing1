@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 // import { getOptimizedImageUrl } from '@/lib/imagekit'
 import toast from 'react-hot-toast'
+import { addItem } from '@/components/cart/CartProvider'
 
 interface Product {
   id: string
@@ -93,130 +94,27 @@ export default function ProductDetailPage() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!formData.department.trim()) {
-      toast.error('Department is required')
-      return
-    }
 
-    if (!formData.size && (!formData.custom_size_height || !formData.custom_size_width)) {
-      toast.error('Please select a size or enter custom dimensions')
-      return
-    }
+    if (!product) return
+    const finalSize = formData.size || `${formData.custom_size_height}*${formData.custom_size_width}`
+    const finalMaterial = formData.material || formData.custom_material
 
-    if (!formData.material && !formData.custom_material) {
-      toast.error('Please select a material or enter custom material')
-      return
-    }
-
-    if (!formData.delivery_date) {
-      toast.error('Delivery date is required')
-      return
-    }
-
-    try {
-      // First, create or find customer
-      let customerId: string
-      
-      const { data: existingCustomer, error: customerError } = await supabase
-        .from('customers')
-        .select('id')
-        .eq('company_name', formData.department.trim())
-        .single()
-
-      if (existingCustomer) {
-        customerId = existingCustomer.id
-      } else {
-        // Create new customer
-        const { data: newCustomer, error: createError } = await supabase
-          .from('customers')
-          .insert({
-            company_name: formData.department.trim(),
-            phone: formData.contact_phone.trim() || null,
-            source: 'website'
-          })
-          .select('id')
-          .single()
-
-        if (createError) throw createError
-        customerId = newCustomer.id
-      }
-
-      // Create enquiry
-      const finalSize = formData.size || `${formData.custom_size_height} × ${formData.custom_size_width}`
-      const finalMaterial = formData.material || formData.custom_material
-
-      const { error: enquiryError } = await supabase
-        .from('enquiries')
-        .insert({
-          customer_id: customerId,
-          product_id: product!.id,
-          size: finalSize,
-          quantity: formData.quantity,
-          material: finalMaterial,
-          delivery_date: formData.delivery_date,
-          comments: formData.comments.trim() || null,
-          status: 'pending'
-        })
-
-      if (enquiryError) throw enquiryError
-
-      // Send email with quotation request (with attachments)
-      const emailSubject = `Quotation Request - ${product!.name}`
-      const emailBody = `
-Dear Shree Krishna Signs Team,
-
-I would like to request a quotation for the following product:
-
-Product: ${product!.name}
-Category: ${product!.category.name}
-Size: ${finalSize}
-Quantity: ${formData.quantity}
-Material: ${finalMaterial}
-Delivery Date: ${formData.delivery_date}
-
-Department: ${formData.department}
-Contact Number: ${formData.contact_phone || 'Not provided'}
-
-Additional Comments: ${formData.comments.trim() || 'None'}
-
-Please provide a detailed quotation including pricing and delivery timeline.
-
-Best regards,
-${formData.department}
-      `.trim()
-      const fd = new FormData()
-      fd.append('subject', emailSubject)
-      fd.append('body', emailBody)
-      fd.append('to', 'shreekrishnasigns@gmail.com')
-      uploadFiles.forEach((file, idx) => fd.append(`file_${idx}`, file, file.name))
-      const res = await fetch('/api/send-quotation-email', { method: 'POST', body: fd })
-      if (!res.ok) throw new Error('Email send failed')
-
-      toast.success('Quotation request submitted successfully! Email client opened.')
-      
-      // Reset form
-      setFormData({
-        department: '',
-        contact_phone: '',
-        size: '',
-        custom_size_height: '',
-        custom_size_width: '',
-        quantity: 1,
-        material: '',
-        custom_material: '',
-        delivery_date: '',
-        comments: ''
-      })
-      setUploadFiles([])
-      
-      setShowQuotationForm(false)
-    } catch (error) {
-      console.error('Error submitting quotation:', error)
-      toast.error('Failed to submit quotation request')
-    }
+    addItem({
+      id: product.id + ':' + Date.now(),
+      type: 'product',
+      name: product.name,
+      category: product.category?.name || null,
+      size: finalSize || null,
+      quantity: formData.quantity,
+      material: finalMaterial || null,
+      delivery_date: formData.delivery_date || null,
+      comments: formData.comments || null,
+      images: uploadFiles,
+    })
+    toast.success('Added to cart')
+    setShowQuotationForm(false)
   }
 
   if (loading) {
@@ -374,7 +272,7 @@ ${formData.department}
                   </button>
                 </div>
                 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleAddToCart} className="space-y-4">
                   {/* Upload reference images (optional) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Photos (optional)</label>
@@ -550,11 +448,12 @@ ${formData.department}
                   
                   <div className="flex space-x-3 pt-4">
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={handleAddToCart}
                       className="btn-primary flex-1 flex items-center justify-center space-x-2"
                     >
                       <Send className="w-4 h-4" />
-                      <span>Submit Quotation Request</span>
+                      <span>Add to Cart</span>
                     </button>
                     <button
                       type="button"

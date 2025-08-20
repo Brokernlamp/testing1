@@ -7,11 +7,19 @@ export async function POST(req: Request) {
 	try {
 		const formData = await req.formData()
 		const subject = formData.get('subject') as string
-		const body = formData.get('body') as string
+		let body = formData.get('body') as string
 		const to = (formData.get('to') as string) || 'shreekrishnasigns@gmail.com'
 
 		if (!subject || !body) {
 			return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+		}
+
+		const cartManifest = formData.get('cart_manifest') as string | null
+		if (cartManifest) {
+			try {
+				const parsed = JSON.parse(cartManifest)
+				body += `\n\nCart Manifest:\n${JSON.stringify(parsed, null, 2)}`
+			} catch {}
 		}
 
 		// Validate SMTP configuration
@@ -34,11 +42,14 @@ export async function POST(req: Request) {
 
 		const attachments: any[] = []
 		for (const [key, value] of Array.from(formData.entries())) {
-			// Accept File-like values that support arrayBuffer()
 			const fileLike: any = value
+			if (/^item\d+_file_\d+$/.test(key) && fileLike && typeof fileLike.arrayBuffer === 'function') {
+				const buf = Buffer.from(await fileLike.arrayBuffer())
+				attachments.push({ filename: fileLike.name || key, content: buf })
+			}
 			if (key.startsWith('file_') && fileLike && typeof fileLike.arrayBuffer === 'function') {
 				const buf = Buffer.from(await fileLike.arrayBuffer())
-				attachments.push({ filename: fileLike.name || 'attachment', content: buf })
+				attachments.push({ filename: fileLike.name || key, content: buf })
 			}
 		}
 

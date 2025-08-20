@@ -114,28 +114,11 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-gray-600 hover:text-primary-600">
-                <ArrowLeft className="w-6 h-6" />
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Products & Services</h1>
-                <p className="text-sm text-gray-600">Find your perfect signage solution</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-gray-700 hover:text-primary-600 font-medium">
-                Home
-              </Link>
-              <Link href="/about" className="text-gray-700 hover:text-primary-600 font-medium">
-                About
-              </Link>
-              <Link href="/contact" className="text-gray-700 hover:text-primary-600 font-medium">
-                Contact
-              </Link>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <h1 className="text-xl font-semibold text-gray-900">Products</h1>
+          <div className="flex items-center gap-3">
+            <Link href="/custom-order" className="btn-secondary">Custom Order</Link>
+            <Link href="/cart" className="btn-primary">Cart</Link>
           </div>
         </div>
       </header>

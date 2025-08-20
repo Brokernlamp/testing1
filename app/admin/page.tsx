@@ -33,6 +33,9 @@ export default function AdminLoginPage() {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error || 'Invalid credentials')
       }
+      // Set client flag for existing pages that rely on it
+      localStorage.setItem('adminAuthenticated', 'true')
+      localStorage.setItem('adminUser', username)
       toast.success('Login successful!')
       router.push('/admin/dashboard')
     } catch (error) {
