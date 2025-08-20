@@ -46,6 +46,7 @@ interface ProductForm {
 export default function AdminProductsPage() {
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
+  const [search, setSearch] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -356,6 +357,24 @@ export default function AdminProductsPage() {
           </button>
         </div>
 
+        {/* Search */}
+        <div className="card mb-6">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Search by ID or Name</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  className="input-field pl-10"
+                  value={search}
+                  onChange={(e)=>setSearch(e.target.value)}
+                  placeholder="Type part of product id or name..."
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Add/Edit Product Form */}
         {showAddForm && (
           <motion.div
@@ -592,7 +611,7 @@ export default function AdminProductsPage() {
 
         {/* Products Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
+          {products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase())).map((product) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}

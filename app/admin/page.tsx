@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Lock, User, Eye, EyeOff } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 
 export default function AdminLoginPage() {
@@ -25,18 +24,17 @@ export default function AdminLoginPage() {
     setLoading(true)
 
     try {
-      // For demo purposes, using hardcoded credentials
-      // In production, you should implement proper authentication
-      if (username === 'sks' && password === 'Swar@1234') {
-        // Set admin session
-        localStorage.setItem('adminAuthenticated', 'true')
-        localStorage.setItem('adminUser', username)
-        
-        toast.success('Login successful!')
-        router.push('/admin/dashboard')
-      } else {
-        toast.error('Invalid credentials')
+      const res = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Invalid credentials')
       }
+      toast.success('Login successful!')
+      router.push('/admin/dashboard')
     } catch (error) {
       console.error('Login error:', error)
       toast.error('Login failed. Please try again.')
@@ -115,14 +113,7 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 className="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</h3>
-            <div className="text-xs text-blue-700 space-y-1">
-              <p><strong>Username:</strong> sks</p>
-              <p><strong>Password:</strong> Swar@1234</p>
-            </div>
-          </div>
+          
 
           {/* Footer */}
           <div className="mt-8 text-center">

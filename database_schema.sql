@@ -66,9 +66,10 @@ CREATE TABLE enquiries (
     material VARCHAR(100),
     delivery_date DATE,
     comments TEXT,
-    status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'replied', 'completed'
+    status VARCHAR(50) DEFAULT 'pending', -- e.g. 'pending','replied','po_pending','order_confirmed','incorrect_po','artwork_sent','wip','completed','cancelled'
     reply_template_id UUID,
     quotation_amount DECIMAL(10,2),
+    invoice_number TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -158,3 +159,15 @@ CREATE TRIGGER update_enquiries_updated_at BEFORE UPDATE ON enquiries FOR EACH R
 CREATE TRIGGER update_inventory_updated_at BEFORE UPDATE ON inventory FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_supplier_orders_updated_at BEFORE UPDATE ON supplier_orders FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_templates_updated_at BEFORE UPDATE ON templates FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Activity log for enquiries
+CREATE TABLE IF NOT EXISTS enquiry_activity (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    enquiry_id UUID REFERENCES enquiries(id) ON DELETE CASCADE,
+    action VARCHAR(100) NOT NULL, -- e.g. status_change, note, reply
+    note TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_enquiry_activity_enquiry ON enquiry_activity(enquiry_id);
+CREATE INDEX IF NOT EXISTS idx_enquiry_activity_created_at ON enquiry_activity(created_at);

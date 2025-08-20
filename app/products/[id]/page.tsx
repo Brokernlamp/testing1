@@ -37,6 +37,7 @@ interface QuotationForm {
   custom_material: string
   delivery_date: string
   comments: string
+  files?: File[]
 }
 
 export default function ProductDetailPage() {
@@ -57,6 +58,7 @@ export default function ProductDetailPage() {
     delivery_date: '',
     comments: ''
   })
+  const [uploadFiles, setUploadFiles] = useState<File[]>([])
 
   useEffect(() => {
     if (params.id) {
@@ -161,7 +163,7 @@ export default function ProductDetailPage() {
 
       if (enquiryError) throw enquiryError
 
-      // Send email with quotation request
+      // Send email with quotation request (with attachments)
       const emailSubject = `Quotation Request - ${product!.name}`
       const emailBody = `
 Dear Shree Krishna Signs Team,
@@ -185,10 +187,13 @@ Please provide a detailed quotation including pricing and delivery timeline.
 Best regards,
 ${formData.department}
       `.trim()
-
-      // Open email client with prefilled message
-      const mailtoLink = `mailto:shreekrishnasigns@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`
-      window.open(mailtoLink)
+      const fd = new FormData()
+      fd.append('subject', emailSubject)
+      fd.append('body', emailBody)
+      fd.append('to', 'shreekrishnasigns@gmail.com')
+      uploadFiles.forEach((file, idx) => fd.append(`file_${idx}`, file, file.name))
+      const res = await fetch('/api/send-quotation-email', { method: 'POST', body: fd })
+      if (!res.ok) throw new Error('Email send failed')
 
       toast.success('Quotation request submitted successfully! Email client opened.')
       
@@ -205,6 +210,7 @@ ${formData.department}
         delivery_date: '',
         comments: ''
       })
+      setUploadFiles([])
       
       setShowQuotationForm(false)
     } catch (error) {
@@ -335,6 +341,11 @@ ${formData.department}
               )}
             </div>
 
+            {/* Dispatch Note */}
+            <div className="mb-4 p-3 rounded-md bg-yellow-50 text-yellow-900 border border-yellow-200 text-sm">
+              <strong>Note:</strong> We will proceed order dispatch after purchase order only.
+            </div>
+
             {/* Get Quotation Button */}
             <button
               onClick={() => setShowQuotationForm(true)}
@@ -364,6 +375,14 @@ ${formData.department}
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Upload reference images (optional) */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Photos (optional)</label>
+                    <input type="file" multiple accept="image/*" onChange={(e)=> setUploadFiles(Array.from(e.target.files || []))} />
+                    {uploadFiles.length > 0 && (
+                      <p className="text-xs text-gray-500 mt-1">{uploadFiles.length} file(s) selected. They will be sent as attachments.</p>
+                    )}
+                  </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -449,6 +468,17 @@ ${formData.department}
                             placeholder="Width"
                           />
                         </div>
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                          <select className="input-field" onChange={(e)=>handleInputChange('size', `${formData.custom_size_height}*${formData.custom_size_width} ${e.target.value}`)}>
+                            <option value="">Select unit</option>
+                            <option value="inch">inch</option>
+                            <option value="cm">cm</option>
+                            <option value="mm">mm</option>
+                            <option value="ft">ft</option>
+                          </select>
+                          <button type="button" className="btn-secondary" onClick={()=>handleInputChange('size', '34*23 inch')}>Example 34*23 inch</button>
+                          <div></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -502,6 +532,7 @@ ${formData.department}
                       min={new Date().toISOString().split('T')[0]}
                       required
                     />
+                    <p className="text-xs text-yellow-700 mt-2">We will proceed order dispatch after purchase order only.</p>
                   </div>
 
                   <div>

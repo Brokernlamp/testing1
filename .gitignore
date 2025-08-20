@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Next.js build outputs
+.next/
+out/
+
+# Build tools and caches
+.turbo/
+.cache/
+coverage/
+dist/
+build/
+
+# Hosting/platform folders
+.vercel/
+.netlify/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Env files (never commit secrets)
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# IDE/editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Misc
+.tmp/
+**/*.swp

@@ -3,10 +3,22 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { MessageSquare, Plus, Search, Eye, Edit, Trash2, Reply, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { MessageSquare, Plus, Search, Eye, Edit, Trash2, Reply, CheckCircle, Clock, AlertCircle, Download, RefreshCw } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import toast from 'react-hot-toast'
+
+const STATUS_OPTIONS = [
+  'pending',
+  'po_pending',
+  'order_confirmed',
+  'incorrect_po',
+  'artwork_sent',
+  'wip',
+  'replied',
+  'completed',
+  'cancelled'
+]
 
 interface Enquiry {
   id: string
@@ -46,6 +58,9 @@ export default function AdminEnquiriesPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [showInvoicePrompt, setShowInvoicePrompt] = useState<{ open: boolean, id: string | null}>({ open: false, id: null })
+  const [invoiceNumber, setInvoiceNumber] = useState('')
   const [showReplyForm, setShowReplyForm] = useState(false)
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null)
   const [replyData, setReplyData] = useState({
@@ -240,6 +255,9 @@ export default function AdminEnquiriesPage() {
 
       if (error) throw error
 
+      // log activity
+      await supabase.from('enquiry_activity').insert({ enquiry_id: selectedEnquiry.id, action: 'reply', note: `status: ${replyData.status}${replyData.template_id ? `, template: ${replyData.template_id}` : ''}${replyData.quotation_amount ? `, quotation: ${replyData.quotation_amount}` : ''}` })
+
       toast.success('Enquiry updated successfully')
       setShowReplyForm(false)
       setSelectedEnquiry(null)
@@ -252,6 +270,10 @@ export default function AdminEnquiriesPage() {
 
   const handleStatusChange = async (enquiryId: string, newStatus: string) => {
     try {
+      if (newStatus === 'completed') {
+        setShowInvoicePrompt({ open: true, id: enquiryId })
+        return
+      }
       const { error } = await supabase
         .from('enquiries')
         .update({ 
@@ -261,12 +283,105 @@ export default function AdminEnquiriesPage() {
         .eq('id', enquiryId)
 
       if (error) throw error
+
+      // log activity
+      await supabase.from('enquiry_activity').insert({ enquiry_id: enquiryId, action: 'status_change', note: newStatus })
       toast.success('Status updated successfully')
       fetchEnquiries()
     } catch (error) {
       console.error('Error updating status:', error)
       toast.error('Failed to update status')
     }
+  }
+
+  const confirmCompleteWithInvoice = async () => {
+    if (!showInvoicePrompt.id) return
+    try {
+      const { error } = await supabase
+        .from('enquiries')
+        .update({ status: 'completed', invoice_number: invoiceNumber, updated_at: new Date().toISOString() })
+        .eq('id', showInvoicePrompt.id)
+      if (error) throw error
+      await supabase.from('enquiry_activity').insert({ enquiry_id: showInvoicePrompt.id, action: 'status_change', note: `completed with invoice ${invoiceNumber}` })
+      toast.success('Marked as completed')
+    } catch (e) {
+      toast.error('Failed to complete enquiry')
+    } finally {
+      setShowInvoicePrompt({ open: false, id: null })
+      setInvoiceNumber('')
+      fetchEnquiries()
+    }
+  }
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  const bulkUpdateStatus = async (status: string) => {
+    if (selectedIds.size === 0) return toast.error('Select enquiries first')
+    try {
+      const { error } = await supabase
+        .from('enquiries')
+        .update({ status, updated_at: new Date().toISOString() })
+        .in('id', Array.from(selectedIds))
+      if (error) throw error
+      toast.success('Status updated')
+      setSelectedIds(new Set())
+      fetchEnquiries()
+    } catch (e) {
+      toast.error('Bulk update failed')
+    }
+  }
+
+  const bulkDelete = async () => {
+    if (selectedIds.size === 0) return toast.error('Select enquiries first')
+    if (!confirm('Delete selected enquiries?')) return
+    try {
+      const { error } = await supabase
+        .from('enquiries')
+        .delete()
+        .in('id', Array.from(selectedIds))
+      if (error) throw error
+      toast.success('Deleted selected')
+      setSelectedIds(new Set())
+      fetchEnquiries()
+    } catch (e) {
+      toast.error('Bulk delete failed')
+    }
+  }
+
+  const exportCsv = () => {
+    const rows = [
+      ['ID','Customer','Email','Phone','Product','Size','Quantity','Material','Delivery Date','Status','Quotation','Created At']
+    ]
+    for (const e of enquiries) {
+      rows.push([
+        e.id,
+        e.customer.company_name,
+        e.customer.email || '',
+        e.customer.phone || '',
+        e.product.name,
+        e.size || '',
+        String(e.quantity),
+        e.material || '',
+        e.delivery_date || '',
+        e.status,
+        e.quotation_amount ? String(e.quotation_amount) : '',
+        e.created_at,
+      ])
+    }
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'enquiries.csv'
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const handleDelete = async (enquiryId: string) => {
@@ -292,6 +407,16 @@ export default function AdminEnquiriesPage() {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800'
+      case 'po_pending':
+        return 'bg-amber-100 text-amber-800'
+      case 'order_confirmed':
+        return 'bg-indigo-100 text-indigo-800'
+      case 'incorrect_po':
+        return 'bg-orange-100 text-orange-800'
+      case 'artwork_sent':
+        return 'bg-purple-100 text-purple-800'
+      case 'wip':
+        return 'bg-sky-100 text-sky-800'
       case 'replied':
         return 'bg-blue-100 text-blue-800'
       case 'completed':
@@ -433,10 +558,9 @@ export default function AdminEnquiriesPage() {
                 className="input-field"
               >
                 <option value="">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="replied">Replied</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                {STATUS_OPTIONS.map(s => (
+                  <option key={s} value={s}>{s.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase())}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -444,10 +568,21 @@ export default function AdminEnquiriesPage() {
 
         {/* Enquiries Table */}
         <div className="card">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center space-x-2">
+              <button onClick={() => bulkUpdateStatus('pending')} className="btn-secondary text-sm flex items-center space-x-1"><RefreshCw className="w-4 h-4" /><span>Mark Pending</span></button>
+              <button onClick={() => bulkUpdateStatus('completed')} className="btn-secondary text-sm">Mark Completed</button>
+              <button onClick={bulkDelete} className="btn-secondary text-sm text-red-700">Delete Selected</button>
+            </div>
+            <button onClick={exportCsv} className="btn-primary text-sm flex items-center space-x-1"><Download className="w-4 h-4" /><span>Export CSV</span></button>
+          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-3">
+                    <input type="checkbox" onChange={(e)=> setSelectedIds(e.target.checked ? new Set(filteredEnquiries.map(e=>e.id)) : new Set())} />
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Customer
                   </th>
@@ -471,6 +606,9 @@ export default function AdminEnquiriesPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredEnquiries.map((enquiry) => (
                   <tr key={enquiry.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input type="checkbox" checked={selectedIds.has(enquiry.id)} onChange={()=>toggleSelect(enquiry.id)} />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
@@ -520,6 +658,15 @@ export default function AdminEnquiriesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
+                        <select
+                          className="input-field text-xs"
+                          value={enquiry.status}
+                          onChange={(e) => handleStatusChange(enquiry.id, e.target.value)}
+                        >
+                          {STATUS_OPTIONS.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
                         <button
                           onClick={() => handleReply(enquiry)}
                           className="text-blue-600 hover:text-blue-900"
@@ -527,13 +674,8 @@ export default function AdminEnquiriesPage() {
                         >
                           <Reply className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => handleStatusChange(enquiry.id, 'completed')}
-                          className="text-green-600 hover:text-green-900"
-                          title="Mark Complete"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                        </button>
+                        <button onClick={() => handleStatusChange(enquiry.id, 'pending')} className="text-gray-600 hover:text-gray-900" title="Mark Pending"><Clock className="w-4 h-4" /></button>
+                        <button onClick={() => handleStatusChange(enquiry.id, 'completed')} className="text-green-600 hover:text-green-900" title="Mark Complete"><CheckCircle className="w-4 h-4" /></button>
                         <button
                           onClick={() => handleDelete(enquiry.id)}
                           className="text-red-600 hover:text-red-900"
@@ -800,6 +942,27 @@ export default function AdminEnquiriesPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Invoice Prompt Modal */}
+      {showInvoicePrompt.open && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Enter Invoice Number</h3>
+              <input
+                className="input-field w-full"
+                value={invoiceNumber}
+                onChange={(e) => setInvoiceNumber(e.target.value)}
+                placeholder="Invoice #"
+              />
+              <div className="flex space-x-3 pt-4">
+                <button className="btn-primary flex-1" onClick={confirmCompleteWithInvoice}>Confirm</button>
+                <button className="btn-secondary flex-1" onClick={() => { setShowInvoicePrompt({ open: false, id: null }); setInvoiceNumber('') }}>Cancel</button>
+              </div>
             </div>
           </div>
         </div>
