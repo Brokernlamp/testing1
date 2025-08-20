@@ -44,10 +44,13 @@ export default function CartPage() {
 			if (email) form.append('reply_to', email)
 			// attach a JSON manifest describing items to avoid confusion
 			form.append('cart_manifest', JSON.stringify(items.map(({ images, ...rest }) => rest)))
-			// attach images grouped per item index
+			// attach images grouped per item index (only real File/Blob)
+			const isBlobLike = (v: any) => (typeof File !== 'undefined' && v instanceof File) || (typeof Blob !== 'undefined' && v instanceof Blob)
 			items.forEach((item, idx) => {
-				(item.images || []).forEach((file, fidx) => {
-					form.append(`item${idx}_file_${fidx}`, file, `${item.type}-${item.id}-${fidx}-${file.name}`)
+				(item.images || []).forEach((file: any, fidx) => {
+					if (!isBlobLike(file)) return
+					const filename = `${item.type}-${item.id}-${fidx}-${(file as any).name || 'image'}`
+					form.append(`item${idx}_file_${fidx}`, file as Blob, filename)
 				})
 			})
 			const res = await fetch('/api/send-quotation-email', { method: 'POST', body: form })

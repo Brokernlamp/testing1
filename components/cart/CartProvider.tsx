@@ -37,7 +37,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		try {
-			localStorage.setItem('cartItems', JSON.stringify(items))
+			// Do not persist File objects to localStorage
+			const sanitized = items.map(({ images, ...rest }) => rest)
+			localStorage.setItem('cartItems', JSON.stringify(sanitized))
 		} catch {}
 	}, [items])
 
