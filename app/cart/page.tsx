@@ -7,6 +7,8 @@ import toast from 'react-hot-toast'
 export default function CartPage() {
 	const { items, removeItem, clear, updateItem } = useCart()
 	const [submitting, setSubmitting] = useState(false)
+	const [company, setCompany] = useState('')
+	const [email, setEmail] = useState('')
 	const [department, setDepartment] = useState('')
 	const [contact, setContact] = useState('')
 	const [delivery, setDelivery] = useState('')
@@ -14,13 +16,32 @@ export default function CartPage() {
 
 	const submitAll = async () => {
 		if (items.length === 0) return toast.error('Cart is empty')
+		if (!company.trim()) return toast.error('Please enter Company Name')
 		if (!department.trim()) return toast.error('Please enter Department')
 		setSubmitting(true)
 		try {
+			// 1) Create enquiries in DB (so they appear on dashboard)
+			const createPayload = {
+				company_name: company.trim(),
+				email: email.trim() || null,
+				department: department.trim(),
+				contact: contact.trim(),
+				delivery,
+				comments,
+				items: items.map(({ id, type, name, size, quantity, material, comments: itemComments }) => ({ id, type, name, size, quantity, material, comments: itemComments })),
+			}
+			const dbRes = await fetch('/api/cart-enquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(createPayload) })
+			if (!dbRes.ok) {
+				let msg = 'Failed to create enquiries in database'
+				try { const data = await dbRes.json(); msg = data?.error || msg } catch {}
+				throw new Error(msg)
+			}
+
 			const form = new FormData()
 			form.append('subject', `Quotation Request - ${items.length} item(s)`) 
-			form.append('body', `Department: ${department}\nContact: ${contact}\nDelivery: ${delivery}\nComments: ${comments}`)
+			form.append('body', `Company: ${company}\nEmail: ${email}\nDepartment: ${department}\nContact: ${contact}\nDelivery: ${delivery}\nComments: ${comments}`)
 			form.append('to', 'shreekrishnasigns@gmail.com')
+			if (email) form.append('reply_to', email)
 			// attach a JSON manifest describing items to avoid confusion
 			form.append('cart_manifest', JSON.stringify(items.map(({ images, ...rest }) => rest)))
 			// attach images grouped per item index
@@ -82,7 +103,9 @@ export default function CartPage() {
 							</li>
 						))}
 					</ul>
-					<div className="grid md:grid-cols-3 gap-3 mb-4">
+					<div className="grid md:grid-cols-5 gap-3 mb-4">
+						<input className="input-field" placeholder="Company Name" value={company} onChange={(e)=>setCompany(e.target.value)} />
+						<input className="input-field" type="email" placeholder="Customer Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
 						<input className="input-field" placeholder="Department" value={department} onChange={(e)=>setDepartment(e.target.value)} />
 						<input className="input-field" placeholder="Contact Number" value={contact} onChange={(e)=>setContact(e.target.value)} />
 						<input className="input-field" type="date" value={delivery} onChange={(e)=>setDelivery(e.target.value)} />

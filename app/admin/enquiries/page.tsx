@@ -63,6 +63,7 @@ export default function AdminEnquiriesPage() {
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [showReplyForm, setShowReplyForm] = useState(false)
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null)
+  const [bulkReply, setBulkReply] = useState(false)
   const [replyData, setReplyData] = useState({
     template_id: '',
     quotation_amount: '',
@@ -226,41 +227,40 @@ export default function AdminEnquiriesPage() {
       quotation_amount: '',
       status: 'replied'
     })
+    setBulkReply(false)
+    setShowReplyForm(true)
+  }
+
+  const handleReplySelected = () => {
+    if (selectedIds.size === 0) return toast.error('Select enquiries first')
+    const chosen = enquiries.filter(e => selectedIds.has(e.id))
+    const companies = new Set(chosen.map(e => e.customer.company_name || ''))
+    if (companies.size > 1) return toast.error('Different companies selected. Select a single company.')
+    setSelectedEnquiry(chosen[0] || null)
+    setReplyData({ template_id: '', quotation_amount: '', status: 'replied' })
+    setBulkReply(true)
     setShowReplyForm(true)
   }
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!selectedEnquiry) return
+    if (!selectedEnquiry && !bulkReply) return
 
     try {
-      const updateData: any = {
-        status: replyData.status,
-        updated_at: new Date().toISOString()
+      const ids = bulkReply ? Array.from(selectedIds) : [selectedEnquiry!.id]
+      const res = await fetch('/api/admin-send-reply', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enquiryIds: ids, templateId: replyData.template_id, status: replyData.status }) })
+      if (!res.ok) {
+        let msg = 'Send failed'
+        try { const d = await res.json(); msg = d?.error || msg } catch {}
+        throw new Error(msg)
       }
-
-      if (replyData.quotation_amount) {
-        updateData.quotation_amount = parseFloat(replyData.quotation_amount)
-      }
-
-      if (replyData.template_id) {
-        updateData.reply_template_id = replyData.template_id
-      }
-
-      const { error } = await supabase
-        .from('enquiries')
-        .update(updateData)
-        .eq('id', selectedEnquiry.id)
-
-      if (error) throw error
-
-      // log activity
-      await supabase.from('enquiry_activity').insert({ enquiry_id: selectedEnquiry.id, action: 'reply', note: `status: ${replyData.status}${replyData.template_id ? `, template: ${replyData.template_id}` : ''}${replyData.quotation_amount ? `, quotation: ${replyData.quotation_amount}` : ''}` })
 
       toast.success('Enquiry updated successfully')
       setShowReplyForm(false)
       setSelectedEnquiry(null)
+      setBulkReply(false)
+      setSelectedIds(new Set())
       fetchEnquiries()
     } catch (error) {
       console.error('Error updating enquiry:', error)
@@ -443,6 +443,14 @@ export default function AdminEnquiriesPage() {
     }
   }
 
+  // Deterministic color per company for visual grouping
+  const getCompanyColor = (name: string) => {
+    const palette = ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#06b6d4','#84cc16','#f97316']
+    let hash = 0
+    for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0
+    return palette[hash % palette.length]
+  }
+
   const filteredEnquiries = enquiries.filter(enquiry => {
     const matchesSearch = 
       enquiry.customer.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -570,9 +578,14 @@ export default function AdminEnquiriesPage() {
         <div className="card">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center space-x-2">
-              <button onClick={() => bulkUpdateStatus('pending')} className="btn-secondary text-sm flex items-center space-x-1"><RefreshCw className="w-4 h-4" /><span>Mark Pending</span></button>
-              <button onClick={() => bulkUpdateStatus('completed')} className="btn-secondary text-sm">Mark Completed</button>
-              <button onClick={bulkDelete} className="btn-secondary text-sm text-red-700">Delete Selected</button>
+              <select className="input-field text-sm" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') bulkDelete(); else bulkUpdateStatus(v); e.currentTarget.selectedIndex=0}}>
+                <option value="">Bulk actions</option>
+                <option value="pending">Mark Pending</option>
+                <option value="completed">Mark Completed</option>
+                <option value="cancelled">Mark Cancelled</option>
+                <option value="delete">Delete Selected</option>
+              </select>
+              <button onClick={handleReplySelected} className="btn-secondary text-sm">Reply to customer</button>
             </div>
             <button onClick={exportCsv} className="btn-primary text-sm flex items-center space-x-1"><Download className="w-4 h-4" /><span>Export CSV</span></button>
           </div>
@@ -584,7 +597,7 @@ export default function AdminEnquiriesPage() {
                     <input type="checkbox" onChange={(e)=> setSelectedIds(e.target.checked ? new Set(filteredEnquiries.map(e=>e.id)) : new Set())} />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
+                    Customer/Company
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Product
@@ -605,7 +618,7 @@ export default function AdminEnquiriesPage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredEnquiries.map((enquiry) => (
-                  <tr key={enquiry.id} className="hover:bg-gray-50">
+                  <tr key={enquiry.id} className="hover:bg-gray-50 border-l-4" style={{ borderLeftColor: getCompanyColor(enquiry.customer.company_name) }}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input type="checkbox" checked={selectedIds.has(enquiry.id)} onChange={()=>toggleSelect(enquiry.id)} />
                     </td>
@@ -658,31 +671,12 @@ export default function AdminEnquiriesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <select
-                          className="input-field text-xs"
-                          value={enquiry.status}
-                          onChange={(e) => handleStatusChange(enquiry.id, e.target.value)}
-                        >
-                          {STATUS_OPTIONS.map(s => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
+                        <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='reply') handleReply(enquiry); else if(v==='delete') handleDelete(enquiry.id); else handleStatusChange(enquiry.id, v); e.currentTarget.selectedIndex=0}}>
+                          <option value="">Actions</option>
+                          {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
+                          <option value="reply">Reply</option>
+                          <option value="delete">Delete</option>
                         </select>
-                        <button
-                          onClick={() => handleReply(enquiry)}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Reply"
-                        >
-                          <Reply className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleStatusChange(enquiry.id, 'pending')} className="text-gray-600 hover:text-gray-900" title="Mark Pending"><Clock className="w-4 h-4" /></button>
-                        <button onClick={() => handleStatusChange(enquiry.id, 'completed')} className="text-green-600 hover:text-green-900" title="Mark Complete"><CheckCircle className="w-4 h-4" /></button>
-                        <button
-                          onClick={() => handleDelete(enquiry.id)}
-                          className="text-red-600 hover:text-red-900"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </div>
                     </td>
                   </tr>

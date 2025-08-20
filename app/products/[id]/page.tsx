@@ -37,6 +37,10 @@ export default function ProductDetailPage() {
   const [showAddToCart, setShowAddToCart] = useState(false)
   const [quantity, setQuantity] = useState<number>(1)
   const [uploadFiles, setUploadFiles] = useState<File[]>([])
+  const [size, setSize] = useState<string>('')
+  const [material, setMaterial] = useState<string>('')
+  const [customSize, setCustomSize] = useState<{h: string; w: string; unit: string}>({ h: '', w: '', unit: 'inch' })
+  const [customMaterial, setCustomMaterial] = useState<string>('')
 
   useEffect(() => {
     if (params.id) {
@@ -74,14 +78,17 @@ export default function ProductDetailPage() {
 
     if (!product) return
 
+    const resolvedSize = size === 'custom' ? `${customSize.h}x${customSize.w} ${customSize.unit}`.trim() : size || null
+    const resolvedMaterial = material === 'custom' ? (customMaterial || null) : (material || null)
+
     addItem({
       id: product.id + ':' + Date.now(),
       type: 'product',
       name: product.name,
       category: product.category?.name || null,
-      size: null,
+      size: resolvedSize,
       quantity: quantity,
-      material: null,
+      material: resolvedMaterial,
       delivery_date: null,
       comments: null,
       images: uploadFiles,
@@ -244,6 +251,48 @@ export default function ProductDetailPage() {
                 </div>
                 
                 <form onSubmit={handleAddToCart} className="space-y-4">
+                  {/* Size selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      <select className="input-field" value={size} onChange={(e)=>setSize(e.target.value)}>
+                        <option value="">Select size</option>
+                        {(product.sizes||[]).map((s, i)=> (
+                          <option key={i} value={s}>{s}</option>
+                        ))}
+                        <option value="custom">Custom size</option>
+                      </select>
+                      {size === 'custom' && (
+                        <div className="grid grid-cols-5 gap-2">
+                          <input className="input-field col-span-2" placeholder="H" value={customSize.h} onChange={(e)=>setCustomSize({...customSize, h:e.target.value})} />
+                          <input className="input-field col-span-2" placeholder="W" value={customSize.w} onChange={(e)=>setCustomSize({...customSize, w:e.target.value})} />
+                          <select className="input-field" value={customSize.unit} onChange={(e)=>setCustomSize({...customSize, unit:e.target.value})}>
+                            <option value="inch">inch</option>
+                            <option value="cm">cm</option>
+                            <option value="mm">mm</option>
+                            <option value="ft">ft</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Material selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Material</label>
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      <select className="input-field" value={material} onChange={(e)=>setMaterial(e.target.value)}>
+                        <option value="">Select material</option>
+                        {(product.materials||[]).map((m, i)=> (
+                          <option key={i} value={m}>{m}</option>
+                        ))}
+                        <option value="custom">Custom material</option>
+                      </select>
+                      {material === 'custom' && (
+                        <input className="input-field" placeholder="Enter custom material" value={customMaterial} onChange={(e)=>setCustomMaterial(e.target.value)} />
+                      )}
+                    </div>
+                  </div>
                   {/* Upload reference images (optional) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Photos (optional)</label>

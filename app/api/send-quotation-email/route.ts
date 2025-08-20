@@ -9,16 +9,18 @@ export async function POST(req: Request) {
 		const subject = formData.get('subject') as string
 		let body = formData.get('body') as string
 		const to = (formData.get('to') as string) || 'shreekrishnasigns@gmail.com'
+		const replyTo = (formData.get('reply_to') as string) || undefined
 
 		if (!subject || !body) {
 			return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 		}
 
 		const cartManifest = formData.get('cart_manifest') as string | null
+		let manifest: any[] | null = null
 		if (cartManifest) {
 			try {
-				const parsed = JSON.parse(cartManifest)
-				body += `\n\nCart Manifest:\n${JSON.stringify(parsed, null, 2)}`
+				manifest = JSON.parse(cartManifest)
+				body += `\n\nCart Manifest:\n${JSON.stringify(manifest, null, 2)}`
 			} catch {}
 		}
 
@@ -40,12 +42,20 @@ export async function POST(req: Request) {
 			auth: { user: smtpUser, pass: smtpPass },
 		})
 
+		const sanitize = (s: string) => s.replace(/[^a-z0-9\- _]/gi, ' ').replace(/\s+/g, ' ').trim()
 		const attachments: any[] = []
 		for (const [key, value] of Array.from(formData.entries())) {
 			const fileLike: any = value
-			if (/^item\d+_file_\d+$/.test(key) && fileLike && typeof fileLike.arrayBuffer === 'function') {
+			if (/^item(\d+)_file_(\d+)$/.test(key) && fileLike && typeof fileLike.arrayBuffer === 'function') {
+				const [, idxStr, fidxStr] = key.match(/^item(\d+)_file_(\d+)$/) as RegExpMatchArray
+				const idx = Number(idxStr)
+				const seq = String(Number(fidxStr) + 1).padStart(2, '0')
+				const baseName = manifest?.[idx]?.name ? sanitize(String(manifest[idx].name)) : 'Item'
+				const original = fileLike.name || 'image'
+				const ext = original.includes('.') ? `.${original.split('.').pop()}` : ''
+				const filename = `${baseName} ${seq}${ext}`
 				const buf = Buffer.from(await fileLike.arrayBuffer())
-				attachments.push({ filename: fileLike.name || key, content: buf })
+				attachments.push({ filename, content: buf })
 			}
 			if (key.startsWith('file_') && fileLike && typeof fileLike.arrayBuffer === 'function') {
 				const buf = Buffer.from(await fileLike.arrayBuffer())
@@ -56,6 +66,7 @@ export async function POST(req: Request) {
 		await transporter.sendMail({
 			from: smtpFrom,
 			to,
+			replyTo,
 			subject,
 			text: body,
 			attachments,
