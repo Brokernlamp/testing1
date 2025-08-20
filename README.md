@@ -12,7 +12,7 @@ A comprehensive business automation system for Shree Krishna Signs, featuring a 
 - **Client Section**: Floating/gliding client logos below About Us
 
 ### Admin CRM Panel (`/admin`)
-- **Secure Login**: Admin authentication (Username: `sks`, Password: `Swar@1234`)
+- **Secure Login**: Admin authentication (credentials managed securely in database)
 - **Dashboard**: Overview of customers, enquiries, and inventory status
 - **Product Management**: Add, edit, and manage products and categories
 - **CRM Management**: Handle customer enquiries and quotations
@@ -58,10 +58,10 @@ yarn install
 ### 3. Environment Setup
 Create a `.env.local` file in the root directory:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://kyexepgjksrrdnubxkax.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt5ZXhlcGdqa3NycmRudWJ4a2F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MjU3NDQsImV4cCI6MjA3MTAwMTc0NH0.a4UPmwFqcAFDHfz11eqpslG-tAj5kShNLqQ7LTuRSRs
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
-DATABASE_URL=postgresql://postgres:Swarom#1811@db.kyexepgjksrrdnubxkax.supabase.co:5432/postgres
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLIC_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
 ```
 
 ### 4. Database Setup
@@ -95,8 +95,7 @@ The system includes the following tables:
 ## 🔐 Admin Access
 
 - **URL**: `/admin`
-- **Username**: `sks`
-- **Password**: `Swar@1234`
+- Credentials are stored securely and validated server-side.
 
 ## 📱 Pages Structure
 

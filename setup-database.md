@@ -3,10 +3,10 @@
 ## Step 1: Supabase Project Setup
 
 1. Go to [https://supabase.com/dashboard](https://supabase.com/dashboard)
-2. Select your project: `kyexepgjksrrdnubxkax`
+2. Select your project: `YOUR_PROJECT_REF`
 3. Go to **Settings** → **API**
 4. Copy these values:
-   - **Project URL**: `https://kyexepgjksrrdnubxkax.supabase.co`
+   - **Project URL**: `https://YOUR_PROJECT_REF.supabase.co`
    - **anon public**: (copy the actual key)
    - **service_role**: (copy the actual key)
 
@@ -21,10 +21,10 @@
 Create a file named `.env.local` in your project root with:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://kyexepgjksrrdnubxkax.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_actual_anon_key_here
-SUPABASE_SERVICE_ROLE_KEY=your_actual_service_role_key_here
-DATABASE_URL=postgresql://postgres:Swarom#1811@db.kyexepgjksrrdnubxkax.supabase.co:5432/postgres
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLIC_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
 ```
 
 ## Step 4: Test Connection
@@ -59,6 +59,6 @@ The schema will create these tables:
 ## Default Data
 
 The schema also inserts:
-- Default admin user (sks/Swar@1234)
+- Default admin user (set credentials in DB)
 - Sample categories
 - Sample templates
