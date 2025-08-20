@@ -5,7 +5,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 
 export default function CartPage() {
-	const { items, removeItem, clear } = useCart()
+	const { items, removeItem, clear, updateItem } = useCart()
 	const [submitting, setSubmitting] = useState(false)
 	const [department, setDepartment] = useState('')
 	const [contact, setContact] = useState('')
@@ -30,11 +30,15 @@ export default function CartPage() {
 				})
 			})
 			const res = await fetch('/api/send-quotation-email', { method: 'POST', body: form })
-			if (!res.ok) throw new Error('Send failed')
+			if (!res.ok) {
+				let msg = 'Send failed'
+				try { const data = await res.json(); msg = data?.error || msg } catch {}
+				throw new Error(msg)
+			}
 			toast.success('Quotation request sent!')
 			clear()
-		} catch (e) {
-			toast.error('Failed to send quotation')
+		} catch (e: any) {
+			toast.error(e?.message || 'Failed to send quotation')
 		} finally {
 			setSubmitting(false)
 		}
@@ -42,7 +46,10 @@ export default function CartPage() {
 
 	return (
 		<div className="max-w-5xl mx-auto px-4 py-8">
-			<h1 className="text-2xl font-bold mb-4">Your Cart</h1>
+			<div className="flex items-center justify-between mb-4">
+				<h1 className="text-2xl font-bold">Your Cart</h1>
+				{items.length > 0 && <button className="text-sm text-red-600" onClick={clear}>Clear all</button>}
+			</div>
 			{items.length === 0 ? (
 				<p className="text-gray-600">No items added.</p>
 			) : (
@@ -56,6 +63,18 @@ export default function CartPage() {
 										<p className="text-sm text-gray-600">Qty: {i.quantity} {i.size ? `| Size: ${i.size}` : ''} {i.material ? `| Material: ${i.material}` : ''}</p>
 									</div>
 									<button className="text-red-600" onClick={() => removeItem(i.id)}>Remove</button>
+								</div>
+								<div className="grid md:grid-cols-4 gap-2 mt-3">
+									<input className="input-field" placeholder="Size (e.g. 34*23 inch)" value={i.size || ''} onChange={(e)=>updateItem(i.id,{size:e.target.value})} />
+									<input className="input-field" placeholder="Material" value={i.material || ''} onChange={(e)=>updateItem(i.id,{material:e.target.value})} />
+									<input className="input-field" type="number" min={1} value={i.quantity} onChange={(e)=>updateItem(i.id,{quantity:parseInt(e.target.value||'1')})} />
+									<input className="input-field" placeholder="Comments" value={i.comments || ''} onChange={(e)=>updateItem(i.id,{comments:e.target.value})} />
+								</div>
+								<div className="mt-2">
+									<input type="file" multiple accept="image/*" onChange={(e)=>{
+										const more = Array.from(e.target.files||[])
+										updateItem(i.id,{ images: [...(i.images||[]), ...more] })
+									}} />
 								</div>
 								{i.images && i.images.length > 0 && (
 									<p className="text-xs text-gray-500 mt-2">{i.images.length} attachment(s) will be sent with this item</p>

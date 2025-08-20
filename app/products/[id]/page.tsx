@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { ArrowLeft, ShoppingCart, Calendar, Package, MessageSquare, Send, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Package, Send, ChevronLeft, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 // import { getOptimizedImageUrl } from '@/lib/imagekit'
@@ -27,19 +26,7 @@ interface Product {
   }
 }
 
-interface QuotationForm {
-  department: string
-  contact_phone: string
-  size: string
-  custom_size_height: string
-  custom_size_width: string
-  quantity: number
-  material: string
-  custom_material: string
-  delivery_date: string
-  comments: string
-  files?: File[]
-}
+// No form interface here anymore; details are collected in Cart
 
 export default function ProductDetailPage() {
   const params = useParams()
@@ -47,19 +34,8 @@ export default function ProductDetailPage() {
   const { addItem } = useCart()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showQuotationForm, setShowQuotationForm] = useState(false)
-  const [formData, setFormData] = useState<QuotationForm>({
-    department: '',
-    contact_phone: '',
-    size: '',
-    custom_size_height: '',
-    custom_size_width: '',
-    quantity: 1,
-    material: '',
-    custom_material: '',
-    delivery_date: '',
-    comments: ''
-  })
+  const [showAddToCart, setShowAddToCart] = useState(false)
+  const [quantity, setQuantity] = useState<number>(1)
   const [uploadFiles, setUploadFiles] = useState<File[]>([])
 
   useEffect(() => {
@@ -91,31 +67,27 @@ export default function ProductDetailPage() {
     }
   }
 
-  const handleInputChange = (field: keyof QuotationForm, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-  }
+  // Product page now only collects quantity and optional reference photos; all other details are asked in Cart
 
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!product) return
-    const finalSize = formData.size || `${formData.custom_size_height}*${formData.custom_size_width}`
-    const finalMaterial = formData.material || formData.custom_material
 
     addItem({
       id: product.id + ':' + Date.now(),
       type: 'product',
       name: product.name,
       category: product.category?.name || null,
-      size: finalSize || null,
-      quantity: formData.quantity,
-      material: finalMaterial || null,
-      delivery_date: formData.delivery_date || null,
-      comments: formData.comments || null,
+      size: null,
+      quantity: quantity,
+      material: null,
+      delivery_date: null,
+      comments: null,
       images: uploadFiles,
     })
     toast.success('Added to cart')
-    setShowQuotationForm(false)
+    setShowAddToCart(false)
   }
 
   if (loading) {
@@ -160,7 +132,7 @@ export default function ProductDetailPage() {
               </button>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">Product Details</h1>
-                <p className="text-sm text-gray-600">Get quotation for this product</p>
+                <p className="text-sm text-gray-600">Add this product to your cart</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -205,7 +177,7 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {/* Product Specifications */}
+            {/* Product Specifications (read-only badges) */}
             <div className="space-y-4 mb-8">
               {product.sizes && product.sizes.length > 0 && (
                 <div>
@@ -247,26 +219,24 @@ export default function ProductDetailPage() {
 
             {/* Get Quotation Button */}
             <button
-              onClick={() => setShowQuotationForm(true)}
+              onClick={() => setShowAddToCart(true)}
               className="btn-primary w-full flex items-center justify-center space-x-2 py-4 text-lg"
             >
               <ShoppingCart className="w-5 h-5" />
-              <span>Get Quotation</span>
+              <span>Add to Cart</span>
             </button>
           </div>
         </div>
 
-        {/* Quotation Form Modal */}
-        {showQuotationForm && (
+        {/* Add To Cart Modal (minimal fields) */}
+        {showAddToCart && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
             <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
               <div className="mt-3">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Request Quotation for {product.name}
-                  </h3>
+                  <h3 className="text-lg font-medium text-gray-900">Add {product.name} to Cart</h3>
                   <button
-                    onClick={() => setShowQuotationForm(false)}
+                    onClick={() => setShowAddToCart(false)}
                     className="text-gray-400 hover:text-gray-600"
                   >
                     ×
@@ -282,171 +252,17 @@ export default function ProductDetailPage() {
                       <p className="text-xs text-gray-500 mt-1">{uploadFiles.length} file(s) selected. They will be sent as attachments.</p>
                     )}
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Department *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.department}
-                        onChange={(e) => handleInputChange('department', e.target.value)}
-                        className="input-field"
-                        placeholder="Department / Team"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Contact Number
-                      </label>
-                      <input
-                        type="tel"
-                        value={formData.contact_phone}
-                        onChange={(e) => handleInputChange('contact_phone', e.target.value)}
-                        className="input-field"
-                        placeholder="e.g. +91 98xxxxxxxx"
-                      />
-                    </div>
-                  </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Quantity *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
                     <input
                       type="number"
                       min="1"
-                      value={formData.quantity}
-                      onChange={(e) => handleInputChange('quantity', parseInt(e.target.value))}
+                      value={quantity}
+                      onChange={(e) => setQuantity(parseInt(e.target.value || '1'))}
                       className="input-field"
                       required
                     />
                   </div>
-
-                  {/* Size Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Size *
-                    </label>
-                    <div className="space-y-3">
-                      {product.sizes && product.sizes.length > 0 && (
-                        <div>
-                          <label className="text-sm text-gray-600">Select from available sizes:</label>
-                          <select
-                            value={formData.size}
-                            onChange={(e) => handleInputChange('size', e.target.value)}
-                            className="input-field mt-1"
-                          >
-                            <option value="">Choose a size</option>
-                            {product.sizes.map((size, index) => (
-                              <option key={index} value={size}>
-                                {size}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                      
-                      <div>
-                        <label className="text-sm text-gray-600">Or enter custom dimensions:</label>
-                        <div className="grid grid-cols-2 gap-2 mt-1">
-                          <input
-                            type="text"
-                            value={formData.custom_size_height}
-                            onChange={(e) => handleInputChange('custom_size_height', e.target.value)}
-                            className="input-field"
-                            placeholder="Height"
-                          />
-                          <input
-                            type="text"
-                            value={formData.custom_size_width}
-                            onChange={(e) => handleInputChange('custom_size_width', e.target.value)}
-                            className="input-field"
-                            placeholder="Width"
-                          />
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 mt-2">
-                          <select className="input-field" onChange={(e)=>handleInputChange('size', `${formData.custom_size_height}*${formData.custom_size_width} ${e.target.value}`)}>
-                            <option value="">Select unit</option>
-                            <option value="inch">inch</option>
-                            <option value="cm">cm</option>
-                            <option value="mm">mm</option>
-                            <option value="ft">ft</option>
-                          </select>
-                          <button type="button" className="btn-secondary" onClick={()=>handleInputChange('size', '34*23 inch')}>Example 34*23 inch</button>
-                          <div></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Material Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Material *
-                    </label>
-                    <div className="space-y-3">
-                      {product.materials && product.materials.length > 0 && (
-                        <div>
-                          <label className="text-sm text-gray-600">Select from available materials:</label>
-                          <select
-                            value={formData.material}
-                            onChange={(e) => handleInputChange('material', e.target.value)}
-                            className="input-field mt-1"
-                          >
-                            <option value="">Choose a material</option>
-                            {product.materials.map((material, index) => (
-                              <option key={index} value={material}>
-                                {material}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                      
-                      <div>
-                        <label className="text-sm text-gray-600">Or enter custom material:</label>
-                        <input
-                          type="text"
-                          value={formData.custom_material}
-                          onChange={(e) => handleInputChange('custom_material', e.target.value)}
-                          className="input-field"
-                          placeholder="Enter custom material"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Delivery Date *
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.delivery_date}
-                      onChange={(e) => handleInputChange('delivery_date', e.target.value)}
-                      className="input-field"
-                      min={new Date().toISOString().split('T')[0]}
-                      required
-                    />
-                    <p className="text-xs text-yellow-700 mt-2">We will proceed order dispatch after purchase order only.</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Additional Comments
-                    </label>
-                    <textarea
-                      value={formData.comments}
-                      onChange={(e) => handleInputChange('comments', e.target.value)}
-                      className="input-field"
-                      rows={3}
-                      placeholder="Any special requirements or additional information..."
-                    />
-                  </div>
-                  
                   <div className="flex space-x-3 pt-4">
                     <button
                       type="button"
@@ -458,7 +274,7 @@ export default function ProductDetailPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setShowQuotationForm(false)}
+                      onClick={() => setShowAddToCart(false)}
                       className="btn-secondary flex-1"
                     >
                       Cancel
