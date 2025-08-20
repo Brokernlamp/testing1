@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, ShoppingCart, Package, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Package, ChevronLeft, ChevronRight, Send } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 
@@ -294,6 +294,8 @@ export default function ProductDetailPage() {
                     </div>
                   </div>
 
+                  {/* Quantity */}
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
                     <input
                       type="number"
