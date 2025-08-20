@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 // import { getOptimizedImageUrl } from '@/lib/imagekit'
 import toast from 'react-hot-toast'
-import { addItem } from '@/components/cart/CartProvider'
+import { useCart } from '@/components/cart/CartProvider'
 
 interface Product {
   id: string
@@ -44,6 +44,7 @@ interface QuotationForm {
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { addItem } = useCart()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [showQuotationForm, setShowQuotationForm] = useState(false)
