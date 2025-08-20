@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, ShoppingCart, Package, ChevronLeft, ChevronRight, Send } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-
-
 import toast from 'react-hot-toast'
 import { useCart } from '@/components/cart/CartProvider'
+import ImageUpload from '@/components/ImageUpload'
+import GetQuotationButton from '@/components/GetQuotationButton'
 
 interface Product {
   id: string
@@ -41,6 +41,7 @@ export default function ProductDetailPage() {
   const [material, setMaterial] = useState<string>('')
   const [customSize, setCustomSize] = useState<{h: string; w: string; unit: string}>({ h: '', w: '', unit: 'inch' })
   const [customMaterial, setCustomMaterial] = useState<string>('')
+  const [uploadedImages, setUploadedImages] = useState<string[]>([])
 
   useEffect(() => {
     if (params.id) {
@@ -73,6 +74,10 @@ export default function ProductDetailPage() {
 
   // Product page now only collects quantity and optional reference photos; all other details are asked in Cart
 
+  const handleImageUploadSuccess = (imageUrl: string) => {
+    setUploadedImages(prev => [...prev, imageUrl])
+  }
+
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -91,7 +96,7 @@ export default function ProductDetailPage() {
       material: resolvedMaterial,
       delivery_date: null,
       comments: null,
-
+      images: uploadedImages,
     })
     toast.success('Added to cart')
     setShowAddToCart(false)
@@ -294,35 +299,67 @@ export default function ProductDetailPage() {
                     </div>
                   </div>
 
-                  {/* Quantity */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={quantity}
-                      onChange={(e) => setQuantity(parseInt(e.target.value || '1'))}
-                      className="input-field"
-                      required
-                    />
-                  </div>
-                  <div className="flex space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={handleAddToCart}
-                      className="btn-primary flex-1 flex items-center justify-center space-x-2"
-                    >
-                      <Send className="w-4 h-4" />
-                      <span>Add to Cart</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddToCart(false)}
-                      className="btn-secondary flex-1"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                                     {/* Quantity */}
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                     <input
+                       type="number"
+                       min="1"
+                       value={quantity}
+                       onChange={(e) => setQuantity(parseInt(e.target.value || '1'))}
+                       className="input-field"
+                       required
+                     />
+                   </div>
+
+                   {/* Image Upload */}
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Images (optional)</label>
+                     <ImageUpload onUploadSuccess={handleImageUploadSuccess} />
+                     {uploadedImages.length > 0 && (
+                       <div className="mt-2">
+                         <p className="text-sm text-gray-600 mb-2">Uploaded Images:</p>
+                         <div className="flex flex-wrap gap-2">
+                           {uploadedImages.map((imageUrl, index) => (
+                             <img 
+                               key={index}
+                               src={imageUrl} 
+                               alt={`Reference ${index + 1}`} 
+                               className="w-20 h-20 object-cover rounded border"
+                             />
+                           ))}
+                         </div>
+                       </div>
+                     )}
+                   </div>
+                                     <div className="flex space-x-3 pt-4">
+                     <button
+                       type="button"
+                       onClick={handleAddToCart}
+                       className="btn-primary flex-1 flex items-center justify-center space-x-2"
+                     >
+                       <Send className="w-4 h-4" />
+                       <span>Add to Cart</span>
+                     </button>
+                     <button
+                       type="button"
+                       onClick={() => setShowAddToCart(false)}
+                       className="btn-secondary flex-1"
+                     >
+                       Cancel
+                     </button>
+                   </div>
+                   
+                   {/* Alternative: Direct Quotation Button */}
+                   <div className="mt-4 pt-4 border-t border-gray-200">
+                     <GetQuotationButton product={{
+                       name: product.name,
+                       category: product.category?.name,
+                       size: size === 'custom' ? `${customSize.h}x${customSize.w} ${customSize.unit}`.trim() : size || null,
+                       material: material === 'custom' ? customMaterial : material || null,
+                       quantity: quantity
+                     }} />
+                   </div>
                 </form>
               </div>
             </div>
