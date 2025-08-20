@@ -12,7 +12,7 @@ export type CartItem = {
 	material?: string | null
 	delivery_date?: string | null
 	comments?: string | null
-	images?: File[] // optional, for custom orders or references
+	images?: string[] // URLs instead of File objects
 }
 
 type CartContextType = {
@@ -37,9 +37,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		try {
-			// Do not persist File objects to localStorage
-			const sanitized = items.map(({ images, ...rest }) => rest)
-			localStorage.setItem('cartItems', JSON.stringify(sanitized))
+			// Now we can safely persist everything since images are URLs
+			localStorage.setItem('cartItems', JSON.stringify(items))
 		} catch {}
 	}, [items])
 

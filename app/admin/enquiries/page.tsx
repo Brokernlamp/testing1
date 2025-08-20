@@ -32,6 +32,7 @@ interface Enquiry {
   status: string
   reply_template_id: string | null
   quotation_amount: number | null
+  invoice_number: string | null
   created_at: string
   updated_at: string
   customer: {
@@ -63,11 +64,9 @@ export default function AdminEnquiriesPage() {
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [showReplyForm, setShowReplyForm] = useState(false)
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null)
-  const [bulkReply, setBulkReply] = useState(false)
   const [replyData, setReplyData] = useState({
     template_id: '',
-    quotation_amount: '',
-    status: 'replied'
+    quotation_amount: ''
   })
   const [showManualEnquiryForm, setShowManualEnquiryForm] = useState(false)
   const [manualEnquiryData, setManualEnquiryData] = useState({
@@ -224,43 +223,43 @@ export default function AdminEnquiriesPage() {
     setSelectedEnquiry(enquiry)
     setReplyData({
       template_id: '',
-      quotation_amount: '',
-      status: 'replied'
+      quotation_amount: ''
     })
-    setBulkReply(false)
-    setShowReplyForm(true)
-  }
-
-  const handleReplySelected = () => {
-    if (selectedIds.size === 0) return toast.error('Select enquiries first')
-    const chosen = enquiries.filter(e => selectedIds.has(e.id))
-    const companies = new Set(chosen.map(e => e.customer.company_name || ''))
-    if (companies.size > 1) return toast.error('Different companies selected. Select a single company.')
-    setSelectedEnquiry(chosen[0] || null)
-    setReplyData({ template_id: '', quotation_amount: '', status: 'replied' })
-    setBulkReply(true)
     setShowReplyForm(true)
   }
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!selectedEnquiry && !bulkReply) return
+    if (!selectedEnquiry) return
 
     try {
-      const ids = bulkReply ? Array.from(selectedIds) : [selectedEnquiry!.id]
-      const res = await fetch('/api/admin-send-reply', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enquiryIds: ids, templateId: replyData.template_id, status: replyData.status }) })
-      if (!res.ok) {
-        let msg = 'Send failed'
-        try { const d = await res.json(); msg = d?.error || msg } catch {}
-        throw new Error(msg)
+      const updateData: any = {
+        status: 'replied',
+        updated_at: new Date().toISOString()
       }
+
+      if (replyData.quotation_amount) {
+        updateData.quotation_amount = parseFloat(replyData.quotation_amount)
+      }
+
+      if (replyData.template_id) {
+        updateData.reply_template_id = replyData.template_id
+      }
+
+      const { error } = await supabase
+        .from('enquiries')
+        .update(updateData)
+        .eq('id', selectedEnquiry.id)
+
+      if (error) throw error
+
+      // log activity
+      await supabase.from('enquiry_activity').insert({ enquiry_id: selectedEnquiry.id, action: 'reply', note: `template: ${replyData.template_id}${replyData.quotation_amount ? `, quotation: ${replyData.quotation_amount}` : ''}` })
 
       toast.success('Enquiry updated successfully')
       setShowReplyForm(false)
       setSelectedEnquiry(null)
-      setBulkReply(false)
-      setSelectedIds(new Set())
       fetchEnquiries()
     } catch (error) {
       console.error('Error updating enquiry:', error)
@@ -356,7 +355,7 @@ export default function AdminEnquiriesPage() {
 
   const exportCsv = () => {
     const rows = [
-      ['ID','Customer','Email','Phone','Product','Size','Quantity','Material','Delivery Date','Status','Quotation','Created At']
+      ['ID','Customer','Email','Phone','Product','Size','Quantity','Material','Delivery Date','Status','Quotation','Invoice Number','Created At']
     ]
     for (const e of enquiries) {
       rows.push([
@@ -371,6 +370,7 @@ export default function AdminEnquiriesPage() {
         e.delivery_date || '',
         e.status,
         e.quotation_amount ? String(e.quotation_amount) : '',
+        e.invoice_number || '',
         e.created_at,
       ])
     }
@@ -580,12 +580,9 @@ export default function AdminEnquiriesPage() {
             <div className="flex items-center space-x-2">
               <select className="input-field text-sm" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') bulkDelete(); else bulkUpdateStatus(v); e.currentTarget.selectedIndex=0}}>
                 <option value="">Bulk actions</option>
-                <option value="pending">Mark Pending</option>
-                <option value="completed">Mark Completed</option>
-                <option value="cancelled">Mark Cancelled</option>
+                {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
                 <option value="delete">Delete Selected</option>
               </select>
-              <button onClick={handleReplySelected} className="btn-secondary text-sm">Reply to customer</button>
             </div>
             <button onClick={exportCsv} className="btn-primary text-sm flex items-center space-x-1"><Download className="w-4 h-4" /><span>Export CSV</span></button>
           </div>
@@ -653,6 +650,11 @@ export default function AdminEnquiriesPage() {
                             {formatCurrency(enquiry.quotation_amount)}
                           </div>
                         )}
+                        {enquiry.invoice_number && (
+                          <div className="font-medium text-blue-600">
+                            Invoice: {enquiry.invoice_number}
+                          </div>
+                        )}
                       </div>
                       {enquiry.comments && (
                         <div className="text-sm text-gray-500 mt-1">
@@ -712,8 +714,9 @@ export default function AdminEnquiriesPage() {
                     value={replyData.template_id}
                     onChange={(e) => setReplyData(prev => ({ ...prev, template_id: e.target.value }))}
                     className="input-field"
+                    required
                   >
-                    <option value="">Select template (optional)</option>
+                    <option value="">Select template</option>
                     {templates.map((template) => (
                       <option key={template.id} value={template.id}>
                         {template.title}
@@ -736,27 +739,12 @@ export default function AdminEnquiriesPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={replyData.status}
-                    onChange={(e) => setReplyData(prev => ({ ...prev, status: e.target.value }))}
-                    className="input-field"
-                  >
-                    <option value="replied">Replied</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-
                 <div className="flex space-x-3 pt-4">
                   <button
                     type="submit"
                     className="btn-primary flex-1"
                   >
-                    Update Enquiry
+                    Send Reply
                   </button>
                   <button
                     type="button"

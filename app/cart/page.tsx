@@ -37,22 +37,36 @@ export default function CartPage() {
 				throw new Error(msg)
 			}
 
+			// 2) Send email with image URLs in body
+			const emailBody = [
+				`Company: ${company}`,
+				`Email: ${email}`,
+				`Department: ${department}`,
+				`Contact: ${contact}`,
+				`Delivery: ${delivery}`,
+				`Comments: ${comments}`,
+				'',
+				'Items:',
+				...items.map((item, idx) => [
+					`${idx + 1}. ${item.type === 'product' ? item.name : `Custom: ${item.name}`}`,
+					`   Size: ${item.size || 'Not specified'}`,
+					`   Material: ${item.material || 'Not specified'}`,
+					`   Quantity: ${item.quantity}`,
+					`   Comments: ${item.comments || 'None'}`,
+					...(item.images && item.images.length > 0 ? [
+						`   Images:`,
+						...item.images.map((img, imgIdx) => `      ${imgIdx + 1}. ${img}`)
+					] : []),
+					''
+				].join('\n'))
+			].join('\n')
+
 			const form = new FormData()
 			form.append('subject', `Quotation Request - ${items.length} item(s)`) 
-			form.append('body', `Company: ${company}\nEmail: ${email}\nDepartment: ${department}\nContact: ${contact}\nDelivery: ${delivery}\nComments: ${comments}`)
+			form.append('body', emailBody)
 			form.append('to', 'shreekrishnasigns@gmail.com')
 			if (email) form.append('reply_to', email)
-			// attach a JSON manifest describing items to avoid confusion
-			form.append('cart_manifest', JSON.stringify(items.map(({ images, ...rest }) => rest)))
-			// attach images grouped per item index (only real File/Blob)
-			const isBlobLike = (v: any) => (typeof File !== 'undefined' && v instanceof File) || (typeof Blob !== 'undefined' && v instanceof Blob)
-			items.forEach((item, idx) => {
-				(item.images || []).forEach((file: any, fidx) => {
-					if (!isBlobLike(file)) return
-					const filename = `${item.type}-${item.id}-${fidx}-${(file as any).name || 'image'}`
-					form.append(`item${idx}_file_${fidx}`, file as Blob, filename)
-				})
-			})
+			
 			const res = await fetch('/api/send-quotation-email', { method: 'POST', body: form })
 			if (!res.ok) {
 				let msg = 'Send failed'
@@ -94,14 +108,22 @@ export default function CartPage() {
 									<input className="input-field" type="number" min={1} value={i.quantity} onChange={(e)=>updateItem(i.id,{quantity:parseInt(e.target.value||'1')})} />
 									<input className="input-field" placeholder="Comments" value={i.comments || ''} onChange={(e)=>updateItem(i.id,{comments:e.target.value})} />
 								</div>
-								<div className="mt-2">
-									<input type="file" multiple accept="image/*" onChange={(e)=>{
-										const more = Array.from(e.target.files||[])
-										updateItem(i.id,{ images: [...(i.images||[]), ...more] })
-									}} />
-								</div>
+								
+								{/* Display image URLs */}
 								{i.images && i.images.length > 0 && (
-									<p className="text-xs text-gray-500 mt-2">{i.images.length} attachment(s) will be sent with this item</p>
+									<div className="mt-3">
+										<p className="text-sm font-medium mb-2">Reference Images:</p>
+										<div className="flex flex-wrap gap-2">
+											{i.images.map((imageUrl, index) => (
+												<img 
+													key={index}
+													src={imageUrl} 
+													alt={`Reference ${index + 1}`} 
+													className="w-20 h-20 object-cover rounded border"
+												/>
+											))}
+										</div>
+									</div>
 								)}
 							</li>
 						))}
