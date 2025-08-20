@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, ShoppingCart, Package, Send, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Package, ChevronLeft, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { formatDate } from '@/lib/utils'
-// import { getOptimizedImageUrl } from '@/lib/imagekit'
+
+
 import toast from 'react-hot-toast'
 import { useCart } from '@/components/cart/CartProvider'
 
@@ -14,7 +14,7 @@ interface Product {
   name: string
   description: string | null
   category_id: string
-  images: string[] | null
+
   image_url: string | null
   sizes: string[] | null
   materials: string[] | null
@@ -36,7 +36,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true)
   const [showAddToCart, setShowAddToCart] = useState(false)
   const [quantity, setQuantity] = useState<number>(1)
-  const [uploadFiles, setUploadFiles] = useState<File[]>([])
+
   const [size, setSize] = useState<string>('')
   const [material, setMaterial] = useState<string>('')
   const [customSize, setCustomSize] = useState<{h: string; w: string; unit: string}>({ h: '', w: '', unit: 'inch' })
@@ -91,7 +91,7 @@ export default function ProductDetailPage() {
       material: resolvedMaterial,
       delivery_date: null,
       comments: null,
-      images: uploadFiles,
+
     })
     toast.success('Added to cart')
     setShowAddToCart(false)
@@ -293,15 +293,7 @@ export default function ProductDetailPage() {
                       )}
                     </div>
                   </div>
-                  {/* Upload reference images (optional) */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Photos (optional)</label>
-                    <input type="file" multiple accept="image/*" onChange={(e)=> setUploadFiles(Array.from(e.target.files || []))} />
-                    {uploadFiles.length > 0 && (
-                      <p className="text-xs text-gray-500 mt-1">{uploadFiles.length} file(s) selected. They will be sent as attachments.</p>
-                    )}
-                  </div>
-                  <div>
+
                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
                     <input
                       type="number"
