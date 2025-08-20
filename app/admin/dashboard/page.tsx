@@ -74,37 +74,31 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      
-      // Fetch customers count
-      const { count: customersCount } = await supabase
+
+      const customersCountPromise = supabase
         .from('customers')
         .select('*', { count: 'exact', head: true })
 
-      // Fetch enquiries count
-      const { count: enquiriesCount } = await supabase
+      const enquiriesCountPromise = supabase
         .from('enquiries')
         .select('*', { count: 'exact', head: true })
 
-      // Fetch pending enquiries count
-      const { count: pendingCount } = await supabase
+      const pendingCountPromise = supabase
         .from('enquiries')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'pending')
 
-      // Fetch completed enquiries count
-      const { count: completedCount } = await supabase
+      const completedCountPromise = supabase
         .from('enquiries')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'completed')
 
-      // Fetch low inventory items count
-      const { count: lowInventoryCount } = await supabase
+      // Column-to-column comparison not supported by supabase-js filter; fetch minimal columns and compute
+      const lowInventoryPromise = supabase
         .from('inventory')
-        .select('*', { count: 'exact', head: true })
-        .lt('quantity', 'threshold')
+        .select('quantity,threshold', { count: 'exact' })
 
-      // Fetch recent enquiries
-      const { data: enquiries } = await supabase
+      const recentEnquiriesPromise = supabase
         .from('enquiries')
         .select(`
           *,
@@ -114,15 +108,26 @@ export default function AdminDashboard() {
         .order('created_at', { ascending: false })
         .limit(10)
 
+      const [customersCountRes, enquiriesCountRes, pendingCountRes, completedCountRes, lowInventoryRes, recentEnquiriesRes] = await Promise.all([
+        customersCountPromise,
+        enquiriesCountPromise,
+        pendingCountPromise,
+        completedCountPromise,
+        lowInventoryPromise,
+        recentEnquiriesPromise
+      ])
+
+      const lowInventoryItems = (lowInventoryRes.data || []).filter((row: any) => (row.quantity ?? 0) < (row.threshold ?? 0)).length
+
       setStats({
-        totalCustomers: customersCount || 0,
-        totalEnquiries: enquiriesCount || 0,
-        pendingEnquiries: pendingCount || 0,
-        completedEnquiries: completedCount || 0,
-        lowInventoryItems: lowInventoryCount || 0
+        totalCustomers: customersCountRes.count || 0,
+        totalEnquiries: enquiriesCountRes.count || 0,
+        pendingEnquiries: pendingCountRes.count || 0,
+        completedEnquiries: completedCountRes.count || 0,
+        lowInventoryItems
       })
 
-      setRecentEnquiries(enquiries || [])
+      setRecentEnquiries(recentEnquiriesRes.data || [])
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
       toast.error('Failed to load dashboard data')
