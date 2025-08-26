@@ -314,26 +314,15 @@ export default function ProductDetailPage() {
                      />
                    </div>
 
-                   {/* Image Upload */}
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Images (optional)</label>
-                     <ImageUpload onUploadSuccess={handleImageUploadSuccess} />
-                     {uploadedImages.length > 0 && (
-                       <div className="mt-2">
-                         <p className="text-sm text-gray-600 mb-2">Uploaded Images:</p>
-                         <div className="flex flex-wrap gap-2">
-                           {uploadedImages.map((imageUrl, index) => (
-                             <img 
-                               key={index}
-                               src={imageUrl} 
-                               alt={`Reference ${index + 1}`} 
-                               className="w-20 h-20 object-cover rounded border"
-                             />
-                           ))}
-                         </div>
-                       </div>
-                     )}
-                   </div>
+                                       {/* Image Upload */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Images (optional)</label>
+                      <ImageUpload 
+                        onUploadSuccess={handleImageUploadSuccess} 
+                        multiple={true}
+                        maxFiles={5}
+                      />
+                    </div>
                                      <div className="flex space-x-3 pt-4">
                      <button
                        type="button"

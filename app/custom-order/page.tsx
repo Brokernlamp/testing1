@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import toast from 'react-hot-toast'
 import CartButton from '@/components/CartButton'
+import ImageUpload from '@/components/ImageUpload'
 
 export default function CustomOrderPage() {
 	const { addItem } = useCart()
@@ -18,36 +19,10 @@ export default function CustomOrderPage() {
 	const update = (id: string, patch: Partial<{ name: string; size: string; unit: string; material: string; quantity: number; images: string[] }>) =>
 		setItems(prev => prev.map(i => (i.id === id ? { ...i, ...patch } : i)))
 
-	const handleImageUpload = async (id: string, files: FileList | null) => {
-		if (!files || files.length === 0) return
+	const handleImageUpload = async (id: string, imageUrls: string[]) => {
+		if (imageUrls.length === 0) return
 		
-		const imageUrls: string[] = []
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i]
-			try {
-				const formData = new FormData()
-				formData.append('file', file)
-				
-				const response = await fetch('/api/imagekit-upload', {
-					method: 'POST',
-					body: formData
-				})
-				
-				if (response.ok) {
-					const result = await response.json()
-					imageUrls.push(result.url)
-				} else {
-					toast.error(`Failed to upload ${file.name}`)
-				}
-			} catch (error) {
-				toast.error(`Error uploading ${file.name}`)
-			}
-		}
-		
-		if (imageUrls.length > 0) {
-			update(id, { images: [...(items.find(item => item.id === id)?.images || []), ...imageUrls] })
-			toast.success(`Uploaded ${imageUrls.length} image(s)`)
-		}
+		update(id, { images: [...(items.find(item => item.id === id)?.images || []), ...imageUrls] })
 	}
 
 	const removeImage = (itemId: string, imageIndex: number) => {
@@ -102,7 +77,14 @@ export default function CustomOrderPage() {
 							</select>
 							<input className="input-field" placeholder="Custom material" value={row.material} onChange={(e)=>update(row.id,{material:e.target.value})} />
 							<input className="input-field" type="number" min={1} value={row.quantity} onChange={(e)=>update(row.id,{quantity:parseInt(e.target.value||'1')})} />
-							<input className="" type="file" multiple accept="image/*" onChange={(e)=>handleImageUpload(row.id, e.target.files)} />
+							<div className="col-span-2">
+								<ImageUpload 
+									onUploadSuccess={(url) => handleImageUpload(row.id, [url])}
+									multiple={true}
+									required={true}
+									maxFiles={3}
+								/>
+							</div>
 						</div>
 						<div className="mt-2 flex items-center justify-between">
 							<button className="text-red-600" onClick={()=>removeRow(row.id)}>Remove</button>
@@ -111,29 +93,7 @@ export default function CustomOrderPage() {
 							</div>
 						</div>
 						
-						{/* Display uploaded images */}
-						{row.images.length > 0 && (
-							<div className="mt-3">
-								<p className="text-sm font-medium mb-2">Uploaded Images:</p>
-								<div className="flex flex-wrap gap-2">
-									{row.images.map((imageUrl, index) => (
-										<div key={index} className="relative">
-											<img 
-												src={imageUrl} 
-												alt={`Item ${index + 1}`} 
-												className="w-20 h-20 object-cover rounded border"
-											/>
-											<button
-												onClick={() => removeImage(row.id, index)}
-												className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
-											>
-												×
-											</button>
-										</div>
-									))}
-								</div>
-							</div>
-						)}
+
 					</div>
 				))}
 			</div>

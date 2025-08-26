@@ -1,15 +1,13 @@
-import { NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
-import { v4 as uuid } from 'uuid'
+import { NextRequest, NextResponse } from 'next/server'
+import imagekit from '@/lib/imagekit'
 
 export const runtime = 'nodejs'
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const formData = await req.formData()
+    const formData = await request.formData()
     const file = formData.get('file') as File
-    
+
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
     }
@@ -19,36 +17,50 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 })
     }
 
-    // Generate unique filename
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    const fileExtension = file.name.split('.').pop()
-    const fileName = `${uuid()}.${fileExtension}`
-    
-    // Save to public/uploads (temporary storage)
-    const uploadDir = join(process.cwd(), 'public', 'uploads')
-    const filePath = join(uploadDir, fileName)
-    
-    try {
-      await writeFile(filePath, buffer)
-    } catch (error) {
-      // Create directory if it doesn't exist
-      const { mkdir } = await import('fs/promises')
-      await mkdir(uploadDir, { recursive: true })
-      await writeFile(filePath, buffer)
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 })
     }
 
-    // Return the public URL (this will be replaced with ImageKit URL in production)
-    const publicUrl = `/uploads/${fileName}`
-    
+    console.log(`📁 Uploading file: ${file.name} (${file.size} bytes)`)
+
+    // Convert file to base64
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+    const base64 = buffer.toString('base64')
+
+    // Upload to ImageKit
+    const result = await imagekit.upload({
+      file: base64,
+      fileName: `product_${Date.now()}_${file.name}`,
+      folder: 'products',
+      useUniqueFileName: true,
+      responseFields: ['url', 'fileId', 'name']
+    })
+
+    console.log('✅ Upload successful:', result.url)
+
     return NextResponse.json({
       success: true,
-      url: publicUrl,
-      fileId: fileName,
-      name: file.name
+      url: result.url,
+      fileId: result.fileId,
+      name: result.name
     })
+
   } catch (error: any) {
-    console.error('ImageKit upload error:', error)
-    return NextResponse.json({ error: error.message || 'Upload failed' }, { status: 500 })
+    console.error('❌ Upload error:', error)
+    
+    let errorMessage = 'Upload failed'
+    if (error.message) {
+      if (error.message.includes('authorization')) {
+        errorMessage = 'Your request is missing authorization parameters. Check your API keys.'
+      } else if (error.message.includes('authenticated')) {
+        errorMessage = 'Your account cannot be authenticated. Verify your API keys.'
+      } else {
+        errorMessage = error.message
+      }
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }

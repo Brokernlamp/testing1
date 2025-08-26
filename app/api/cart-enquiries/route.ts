@@ -72,6 +72,7 @@ export async function POST(req: Request) {
           material: item.material || null,
           delivery_date: body.delivery || null,
           comments: [body.comments || '', item.comments || ''].filter(Boolean).join(' | ') || null,
+          images: item.images || [],
           status: 'pending',
         })
       } else {

@@ -74,6 +74,9 @@ CREATE TABLE enquiries (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Add images column to enquiries table for storing product reference images
+ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
+
 -- Inventory table
 CREATE TABLE inventory (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
