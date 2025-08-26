@@ -16,83 +16,16 @@ export default function CartPage() {
 	const [delivery, setDelivery] = useState('')
 	const [comments, setComments] = useState('')
 
-	const handleGetQuotation = () => {
+	const handleGetQuotation = async () => {
 		if (items.length === 0) return toast.error('Cart is empty')
 		if (!company.trim()) return toast.error('Please enter Company Name')
 		if (!department.trim()) return toast.error('Please enter Department')
 		if (!email.trim()) return toast.error('Please enter Customer Email')
 
-		// Generate order IDs
-		const regularOrders = items.filter(item => item.type === 'product')
-		const customOrders = items.filter(item => item.type === 'custom')
-		
-		const regularOrderIds = regularOrders.map((_, index) => `ORD-${Date.now()}-${index + 1}`)
-		const customOrderIds = customOrders.map((_, index) => `CUST-${Date.now()}-${index + 1}`)
-
-		// Create email content
-		const subject = `Quotation Request - ${items.length} item(s) from ${company}`
-		
-		const emailBody = [
-			`Dear Shree Krishna Signs,`,
-			``,
-			`I would like to request a quotation for the following items:`,
-			``,
-			`**Customer Details:**`,
-			`Company: ${company}`,
-			`Department: ${department}`,
-			`Email: ${email}`,
-			`Contact: ${contact || 'Not provided'}`,
-			`Delivery Date: ${delivery || 'Not specified'}`,
-			``,
-			`**Order Summary:**`,
-			`Total Items: ${items.length}`,
-			`Regular Products: ${regularOrders.length}`,
-			`Custom Orders: ${customOrders.length}`,
-			``,
-			`**Items Details:**`,
-			``,
-			...items.map((item, idx) => {
-				const orderId = item.type === 'product' 
-					? regularOrderIds[regularOrders.findIndex(p => p.id === item.id)] 
-					: customOrderIds[customOrders.findIndex(c => c.id === item.id)]
-				
-				return [
-					`${idx + 1}. ${item.type === 'product' ? 'Product' : 'Custom Order'}`,
-					`   Order ID: ${orderId}`,
-					`   Name: ${item.name}`,
-					`   Size: ${item.size || 'Not specified'}`,
-					`   Material: ${item.material || 'Not specified'}`,
-					`   Quantity: ${item.quantity}`,
-					`   Comments: ${item.comments || 'None'}`,
-					...(item.images && item.images.length > 0 ? [
-						`   Reference Images:`,
-						...item.images.map((img, imgIdx) => `      ${imgIdx + 1}. ${img}`)
-					] : []),
-					``
-				].join('\n')
-			}),
-			`**Additional Comments:**`,
-			comments || 'None',
-			``,
-			`Please provide pricing and availability for these items.`,
-			``,
-			`Thank you!`,
-			`${company}`,
-			`${department}`
-		].join('\n')
-
-		// Create mailto link
-		const mailtoLink = `mailto:shreekrishnasigns@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`
-		window.open(mailtoLink, '_blank')
-	}
-
-	const submitToDatabase = async () => {
-		if (items.length === 0) return toast.error('Cart is empty')
-		if (!company.trim()) return toast.error('Please enter Company Name')
-		if (!department.trim()) return toast.error('Please enter Department')
-		
 		setSubmitting(true)
+		
 		try {
+			// 1) Save to database first
 			const createPayload = {
 				company_name: company.trim(),
 				email: email.trim() || null,
@@ -112,20 +45,88 @@ export default function CartPage() {
 			})
 			
 			if (!dbRes.ok) {
-				let msg = 'Failed to create enquiries in database'
+				let msg = 'Failed to save order to database'
 				try { const data = await dbRes.json(); msg = data?.error || msg } catch {}
 				throw new Error(msg)
 			}
 
 			const result = await dbRes.json()
-			toast.success(`Order saved! ${result.regularOrders} regular orders, ${result.customOrders} custom orders`)
+			
+			// 2) Generate order IDs for email
+			const regularOrders = items.filter(item => item.type === 'product')
+			const customOrders = items.filter(item => item.type === 'custom')
+			
+			const regularOrderIds = regularOrders.map((_, index) => `ORD-${Date.now()}-${index + 1}`)
+			const customOrderIds = customOrders.map((_, index) => `CUST-${Date.now()}-${index + 1}`)
+
+			// 3) Create email content
+			const subject = `Quotation Request - ${items.length} item(s) from ${company}`
+			
+			const emailBody = [
+				`Dear Shree Krishna Signs,`,
+				``,
+				`I would like to request a quotation for the following items:`,
+				``,
+				`**Customer Details:**`,
+				`Company: ${company}`,
+				`Department: ${department}`,
+				`Email: ${email}`,
+				`Contact: ${contact || 'Not provided'}`,
+				`Delivery Date: ${delivery || 'Not specified'}`,
+				``,
+				`**Order Summary:**`,
+				`Total Items: ${items.length}`,
+				`Regular Products: ${regularOrders.length}`,
+				`Custom Orders: ${customOrders.length}`,
+				``,
+				`**Items Details:**`,
+				``,
+				...items.map((item, idx) => {
+					const orderId = item.type === 'product' 
+						? regularOrderIds[regularOrders.findIndex(p => p.id === item.id)] 
+						: customOrderIds[customOrders.findIndex(c => c.id === item.id)]
+					
+					return [
+						`${idx + 1}. ${item.type === 'product' ? 'Product' : 'Custom Order'}`,
+						`   Order ID: ${orderId}`,
+						`   Name: ${item.name}`,
+						`   Size: ${item.size || 'Not specified'}`,
+						`   Material: ${item.material || 'Not specified'}`,
+						`   Quantity: ${item.quantity}`,
+						`   Comments: ${item.comments || 'None'}`,
+						...(item.images && item.images.length > 0 ? [
+							`   Reference Images:`,
+							...item.images.map((img, imgIdx) => `      ${imgIdx + 1}. ${img}`)
+						] : []),
+						``
+					].join('\n')
+				}),
+				`**Additional Comments:**`,
+				comments || 'None',
+				``,
+				`Please provide pricing and availability for these items.`,
+				``,
+				`Thank you!`,
+				`${company}`,
+				`${department}`
+			].join('\n')
+
+			// 4) Open email client
+			const mailtoLink = `mailto:shreekrishnasigns@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`
+			window.open(mailtoLink, '_blank')
+			
+			// 5) Show success message and clear cart
+			toast.success(`Order saved! ${result.regularOrders} regular orders, ${result.customOrders} custom orders. Email client opened.`)
 			clear()
+			
 		} catch (e: any) {
-			toast.error(e?.message || 'Failed to save order')
+			toast.error(e?.message || 'Failed to process quotation request')
 		} finally {
 			setSubmitting(false)
 		}
 	}
+
+
 
 	return (
 		<div className="max-w-5xl mx-auto px-4 py-8">
@@ -290,21 +291,15 @@ export default function CartPage() {
 						/>
 					</div>
 
-					{/* Action Buttons */}
-					<div className="flex gap-4 justify-center">
+					{/* Action Button */}
+					<div className="flex justify-center">
 						<button 
-							className="btn-secondary" 
-							onClick={submitToDatabase} 
+							className="btn-primary flex items-center gap-2 px-8 py-3 text-lg" 
+							onClick={handleGetQuotation}
 							disabled={submitting}
 						>
-							{submitting ? 'Saving...' : 'Save to Database'}
-						</button>
-						<button 
-							className="btn-primary flex items-center gap-2" 
-							onClick={handleGetQuotation}
-						>
 							<Mail className="h-5 w-5" />
-							Get Quotation via Email
+							{submitting ? 'Processing...' : 'Get Quotation'}
 						</button>
 					</div>
 				</>
