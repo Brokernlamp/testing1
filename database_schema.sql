@@ -171,3 +171,26 @@ CREATE TABLE IF NOT EXISTS enquiry_activity (
 
 CREATE INDEX IF NOT EXISTS idx_enquiry_activity_enquiry ON enquiry_activity(enquiry_id);
 CREATE INDEX IF NOT EXISTS idx_enquiry_activity_created_at ON enquiry_activity(created_at);
+
+-- Create custom_orders table for storing custom order details
+CREATE TABLE IF NOT EXISTS custom_orders (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    customer_id UUID REFERENCES customers(id) ON DELETE CASCADE,
+    order_id TEXT UNIQUE NOT NULL DEFAULT 'CUST-' || EXTRACT(EPOCH FROM NOW())::BIGINT,
+    name TEXT NOT NULL,
+    size TEXT,
+    material TEXT,
+    quantity INTEGER DEFAULT 1,
+    images TEXT[], -- Array of image URLs
+    delivery_date DATE,
+    comments TEXT,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create index for order_id lookups
+CREATE INDEX IF NOT EXISTS idx_custom_orders_order_id ON custom_orders(order_id);
+
+-- Create index for customer lookups
+CREATE INDEX IF NOT EXISTS idx_custom_orders_customer_id ON custom_orders(customer_id);

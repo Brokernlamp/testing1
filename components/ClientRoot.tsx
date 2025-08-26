@@ -8,10 +8,17 @@ export default function ClientRoot({ children }: { children: React.ReactNode }) 
 		<CartProvider>
 			{children}
 			<Toaster 
-				position="top-right"
+				position="top-center"
 				toastOptions={{
 					duration: 4000,
-					style: { background: '#363636', color: '#fff' },
+					style: { 
+						background: '#363636', 
+						color: '#fff',
+						borderRadius: '8px',
+						padding: '12px 16px',
+						fontSize: '14px',
+						fontWeight: '500'
+					},
 				}}
 			/>
 		</CartProvider>

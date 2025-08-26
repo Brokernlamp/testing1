@@ -18,6 +18,7 @@ type CartPayload = {
     quantity: number
     material: string | null
     comments?: string | null
+    images?: string[]
   }>
 }
 
@@ -55,73 +56,57 @@ export async function POST(req: Request) {
 
     if (!customerId) throw new Error('Failed to resolve customer')
 
-    // 2) Ensure a "Custom Orders" category exists for custom items
-    const ensureCustomProduct = async (name: string) => {
-      const categoryName = 'Custom Orders'
-      let categoryId: string
-      {
-        const { data: cat } = await admin
-          .from('categories')
-          .select('id')
-          .eq('name', categoryName)
-          .single()
-        if (cat) categoryId = cat.id
-        else {
-          const { data: newCat, error: catErr } = await admin
-            .from('categories')
-            .insert({ name: categoryName })
-            .select('id')
-            .single()
-          if (catErr) throw catErr
-          categoryId = newCat.id
-        }
-      }
+    // 2) Process items - create enquiries for products, custom_orders for custom items
+    const enquiryInserts: any[] = []
+    const customOrderInserts: any[] = []
 
-      // find or create product by name within Custom Orders
-      const { data: prod } = await admin
-        .from('products')
-        .select('id')
-        .eq('name', name)
-        .single()
-      if (prod) return prod.id
-      const { data: newProd, error: prodErr } = await admin
-        .from('products')
-        .insert({ name, category_id: categoryId, is_active: true })
-        .select('id')
-        .single()
-      if (prodErr) throw prodErr
-      return newProd.id
-    }
-
-    // 3) Insert enquiries for each item
-    const inserts: any[] = []
     for (const item of body.items) {
-      let productId: string
       if (item.type === 'product') {
-        // item.id format is "<productId>:timestamp"; recover productId
-        productId = item.id.split(':')[0]
+        // Regular product - create enquiry
+        const productId = item.id.split(':')[0] // item.id format is "<productId>:timestamp"
+        enquiryInserts.push({
+          customer_id: customerId,
+          product_id: productId,
+          size: item.size || null,
+          quantity: item.quantity || 1,
+          material: item.material || null,
+          delivery_date: body.delivery || null,
+          comments: [body.comments || '', item.comments || ''].filter(Boolean).join(' | ') || null,
+          status: 'pending',
+        })
       } else {
-        productId = await ensureCustomProduct(item.name.trim())
+        // Custom order - create custom_order record
+        customOrderInserts.push({
+          customer_id: customerId,
+          name: item.name.trim(),
+          size: item.size || null,
+          material: item.material || null,
+          quantity: item.quantity || 1,
+          images: item.images || [],
+          delivery_date: body.delivery || null,
+          comments: [body.comments || '', item.comments || ''].filter(Boolean).join(' | ') || null,
+          status: 'pending',
+        })
       }
-
-      inserts.push({
-        customer_id: customerId,
-        product_id: productId,
-        size: item.size || null,
-        quantity: item.quantity || 1,
-        material: item.material || null,
-        delivery_date: body.delivery || null,
-        comments: [body.comments || '', item.comments || ''].filter(Boolean).join(' | ') || null,
-        status: 'pending',
-      })
     }
 
-    if (inserts.length > 0) {
-      const { error: insErr } = await admin.from('enquiries').insert(inserts)
+    // 3) Insert enquiries for regular products
+    if (enquiryInserts.length > 0) {
+      const { error: insErr } = await admin.from('enquiries').insert(enquiryInserts)
       if (insErr) throw insErr
     }
 
-    return NextResponse.json({ ok: true })
+    // 4) Insert custom orders
+    if (customOrderInserts.length > 0) {
+      const { error: custErr } = await admin.from('custom_orders').insert(customOrderInserts)
+      if (custErr) throw custErr
+    }
+
+    return NextResponse.json({ 
+      ok: true, 
+      regularOrders: enquiryInserts.length,
+      customOrders: customOrderInserts.length
+    })
   } catch (e: any) {
     console.error('cart-enquiries error', e)
     return NextResponse.json({ error: e?.message || 'Failed' }, { status: 500 })

@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { useCart } from '@/components/cart/CartProvider'
 import ImageUpload from '@/components/ImageUpload'
 import GetQuotationButton from '@/components/GetQuotationButton'
+import CartButton from '@/components/CartButton'
 
 interface Product {
   id: string
@@ -154,6 +155,7 @@ export default function ProductDetailPage() {
               <a href="/products" className="text-gray-700 hover:text-primary-600 font-medium">
                 Products
               </a>
+              <CartButton />
             </div>
           </div>
         </div>

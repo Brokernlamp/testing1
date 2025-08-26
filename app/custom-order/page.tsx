@@ -4,6 +4,7 @@ import { useCart } from '@/components/cart/CartProvider'
 import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import toast from 'react-hot-toast'
+import CartButton from '@/components/CartButton'
 
 export default function CustomOrderPage() {
 	const { addItem } = useCart()
@@ -79,8 +80,13 @@ export default function CustomOrderPage() {
 
 	return (
 		<div className="max-w-5xl mx-auto px-4 py-8">
-			<h1 className="text-2xl font-bold mb-2">Custom Order</h1>
-			<p className="text-gray-600 mb-6">Add multiple custom items with size units and photos. All will be grouped per item in the quotation email.</p>
+			<div className="flex items-center justify-between mb-6">
+				<div>
+					<h1 className="text-2xl font-bold mb-2">Custom Order</h1>
+					<p className="text-gray-600">Add multiple custom items with size units and photos. All will be grouped per item in the quotation email.</p>
+				</div>
+				<CartButton />
+			</div>
 			<div className="space-y-4">
 				{items.map((row) => (
 					<div key={row.id} className="p-4 border rounded-md bg-white">

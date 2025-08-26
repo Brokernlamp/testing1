@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { Search, Filter, ShoppingCart, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
+import CartButton from '@/components/CartButton'
 // import { getOptimizedImageUrl } from '@/lib/imagekit'
 
 interface Product {
@@ -118,7 +119,7 @@ export default function ProductsPage() {
           <h1 className="text-xl font-semibold text-gray-900">Products</h1>
           <div className="flex items-center gap-3">
             <Link href="/custom-order" className="btn-secondary">Custom Order</Link>
-            <Link href="/cart" className="btn-primary">Cart</Link>
+            <CartButton />
           </div>
         </div>
       </header>
