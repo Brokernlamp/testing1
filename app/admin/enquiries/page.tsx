@@ -58,6 +58,7 @@ export default function AdminEnquiriesPage() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([])
   const [templates, setTemplates] = useState<Template[]>([])
   const [products, setProducts] = useState<any[]>([])
+  const [customOrders, setCustomOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -101,6 +102,7 @@ export default function AdminEnquiriesPage() {
     fetchEnquiries()
     fetchTemplates()
     fetchProducts()
+    fetchCustomOrders()
   }, [router])
 
   const fetchEnquiries = async () => {
@@ -152,6 +154,19 @@ export default function AdminEnquiriesPage() {
       setProducts(data || [])
     } catch (error) {
       console.error('Error fetching products:', error)
+    }
+  }
+
+  const fetchCustomOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('custom_orders')
+        .select(`*, customer:customers(company_name, email, phone)`) 
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      setCustomOrders(data || [])
+    } catch (error) {
+      console.error('Error fetching custom orders:', error)
     }
   }
 
@@ -531,6 +546,15 @@ export default function AdminEnquiriesPage() {
     return matchesSearch && matchesStatus
   })
 
+  const filteredCustomOrders = customOrders.filter(order => {
+    const matchesSearch = 
+      (order.customer?.company_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (order.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (order.comments || '').toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = !statusFilter || order.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -796,6 +820,78 @@ export default function AdminEnquiriesPage() {
               <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">No enquiries found</p>
             </div>
+          )}
+        </div>
+
+        {/* Custom Orders Table */}
+        <div className="card mt-6">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900">Custom Orders</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer/Company</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Images</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredCustomOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50 border-l-4" style={{ borderLeftColor: getCompanyColor(order.customer?.company_name || '') }}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{order.customer?.company_name}</div>
+                        <div className="text-sm text-gray-500">{order.customer?.email}</div>
+                        <div className="text-sm text-gray-500">{order.customer?.phone}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{order.name}</div>
+                      <div className="text-sm text-gray-500">Qty: {order.quantity}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900">
+                        {order.size && <div>Size: {order.size}</div>}
+                        {order.material && <div>Material: {order.material}</div>}
+                        {order.delivery_date && (<div>Delivery: {formatDate(order.delivery_date)}</div>)}
+                      </div>
+                      {order.comments && (<div className="text-sm text-gray-500 mt-1">{order.comments}</div>)}
+                    </td>
+                    <td className="px-6 py-4 align-top">
+                      {Array.isArray(order.images) && order.images.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {order.images.slice(0, 3).map((url: string, idx: number) => (
+                            <a key={idx} href={url} target="_blank" rel="noreferrer">
+                              <img src={url} alt="ref" className="h-12 w-12 object-cover rounded border" />
+                            </a>
+                          ))}
+                          {order.images.length > 3 && (
+                            <span className="text-xs text-gray-500">+{order.images.length - 3} more</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-500 italic">No custom image for this order</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                        {getStatusIcon(order.status)}
+                        <span className="ml-1">{order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(order.created_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {filteredCustomOrders.length === 0 && (
+            <div className="text-center py-8 text-gray-500">No custom orders found</div>
           )}
         </div>
       </div>

@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import imagekit from '@/lib/imagekit'
+import ImageKit from 'imagekit'
 
 export const runtime = 'nodejs'
 
+export async function GET() {
+  return NextResponse.json({ ok: true, route: 'imagekit-upload' })
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY
+    const privateKey = process.env.IMAGEKIT_PRIVATE_KEY
+    const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT
+    if (!publicKey || !privateKey || !urlEndpoint) {
+      return NextResponse.json({ error: 'ImageKit env vars missing' }, { status: 500 })
+    }
+    const imagekit = new ImageKit({ publicKey, privateKey, urlEndpoint })
+
     const formData = await request.formData()
     const file = formData.get('file') as File
 

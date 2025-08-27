@@ -72,7 +72,14 @@ export default function ImageUpload({
         body: formData,
       })
 
-      const result = await response.json()
+      const contentType = response.headers.get('content-type') || ''
+      let result: any = null
+      if (contentType.includes('application/json')) {
+        result = await response.json()
+      } else {
+        const text = await response.text()
+        throw new Error(text?.slice(0, 200) || 'Unexpected non-JSON response from server')
+      }
 
       if (response.ok) {
         const imageUrl = result.url
