@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 import { useCart } from '@/components/cart/CartProvider'
 import ImageUpload from '@/components/ImageUpload'
-import GetQuotationButton from '@/components/GetQuotationButton'
 import CartButton from '@/components/CartButton'
 
 interface Product {
@@ -231,7 +230,7 @@ export default function ProductDetailPage() {
               <strong>Note:</strong> We will proceed order dispatch after purchase order only.
             </div>
 
-            {/* Get Quotation Button */}
+            {/* Add to Cart */}
             <button
               onClick={() => setShowAddToCart(true)}
               className="btn-primary w-full flex items-center justify-center space-x-2 py-4 text-lg"
@@ -239,6 +238,9 @@ export default function ProductDetailPage() {
               <ShoppingCart className="w-5 h-5" />
               <span>Add to Cart</span>
             </button>
+            <p className="text-xs text-gray-500 mt-2">
+              To place order, add items to cart and complete checkout from the cart page.
+            </p>
           </div>
         </div>
 
@@ -341,16 +343,7 @@ export default function ProductDetailPage() {
                      </button>
                    </div>
                    
-                   {/* Alternative: Direct Quotation Button */}
-                   <div className="mt-4 pt-4 border-t border-gray-200">
-                     <GetQuotationButton product={{
-                       name: product.name,
-                       category: product.category?.name,
-                       size: size === 'custom' ? `${customSize.h}x${customSize.w} ${customSize.unit}`.trim() : size || null,
-                       material: material === 'custom' ? customMaterial : material || null,
-                       quantity: quantity
-                     }} />
-                   </div>
+                   {/* Quotation happens via Cart only */}
                 </form>
               </div>
             </div>

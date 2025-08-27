@@ -10,6 +10,7 @@ type Payload = {
   status: string
   extraImages?: string[]
   extraComment?: string
+  customOrderIds?: string[]
 }
 
 const fillTemplate = (tmpl: string, ctx: Record<string, string>) =>
@@ -17,9 +18,9 @@ const fillTemplate = (tmpl: string, ctx: Record<string, string>) =>
 
 export async function POST(req: Request) {
   try {
-    const { enquiryIds, templateId, status, extraImages = [], extraComment = '' } = (await req.json()) as Payload
-    if (!enquiryIds?.length || !templateId) {
-      return NextResponse.json({ error: 'Missing enquiryIds or templateId' }, { status: 400 })
+    const { enquiryIds = [], templateId, status, extraImages = [], extraComment = '', customOrderIds = [] } = (await req.json()) as Payload
+    if ((!enquiryIds?.length && !customOrderIds?.length) || !templateId) {
+      return NextResponse.json({ error: 'Missing item ids or templateId' }, { status: 400 })
     }
 
     // SMTP config
@@ -37,14 +38,61 @@ export async function POST(req: Request) {
     const { data: template, error: tmplErr } = await admin.from('templates').select('id, title, content').eq('id', templateId).single()
     if (tmplErr || !template) throw new Error('Template not found')
 
-    // Load enquiries with joins
-    const { data, error: eqErr } = await admin
-      .from('enquiries')
-      .select('id, size, quantity, material, delivery_date, comments, customer:customers(company_name, email, phone), product:products(name)')
-      .in('id', enquiryIds)
+    const rows: Array<{
+      id: string
+      size: string | null
+      quantity: number
+      material: string | null
+      delivery_date: string | null
+      comments: string | null
+      customer: { company_name: string; email: string | null; phone: string | null } | null
+      productName: string
+      type: 'product' | 'custom'
+    }> = []
 
-    if (eqErr) throw eqErr
-    if (!data || data.length === 0) throw new Error('Enquiries not found')
+    if (enquiryIds.length) {
+      const { data, error: eqErr } = await admin
+        .from('enquiries')
+        .select('id, size, quantity, material, delivery_date, comments, customer:customers(company_name, email, phone), product:products(name)')
+        .in('id', enquiryIds)
+      if (eqErr) throw eqErr
+      for (const r of (data || [])) {
+        rows.push({
+          id: (r as any).id,
+          size: (r as any).size,
+          quantity: (r as any).quantity,
+          material: (r as any).material,
+          delivery_date: (r as any).delivery_date,
+          comments: (r as any).comments,
+          customer: (r as any).customer,
+          productName: (r as any).product?.name || 'Product',
+          type: 'product'
+        })
+      }
+    }
+
+    if (customOrderIds.length) {
+      const { data, error: coErr } = await admin
+        .from('custom_orders')
+        .select('id, size, quantity, material, delivery_date, comments, name, customer:customers(company_name, email, phone)')
+        .in('id', customOrderIds)
+      if (coErr) throw coErr
+      for (const r of (data || [])) {
+        rows.push({
+          id: (r as any).id,
+          size: (r as any).size,
+          quantity: (r as any).quantity,
+          material: (r as any).material,
+          delivery_date: (r as any).delivery_date,
+          comments: (r as any).comments,
+          customer: (r as any).customer,
+          productName: `Custom: ${(r as any).name}`,
+          type: 'custom'
+        })
+      }
+    }
+
+    if (!rows.length) throw new Error('No matching items')
 
     interface EnquiryRow {
       id: string
@@ -56,8 +104,6 @@ export async function POST(req: Request) {
       customer: { company_name: string; email: string | null; phone: string | null } | null
       product: { name: string } | null
     }
-    const rows = data as unknown as EnquiryRow[]
-
     // Ensure all same company/email
     const companySet = new Set(rows.map(r => r.customer?.company_name || ''))
     const emailSet = new Set(rows.map(r => r.customer?.email || ''))
@@ -72,7 +118,7 @@ export async function POST(req: Request) {
     const sections = rows.map((r, idx) => {
       const ctx = {
         customer_name: r.customer?.company_name || '',
-        product_name: r.product?.name || '',
+        product_name: r.productName || '',
         quotation_id: r.id,
         delivery_date: r.delivery_date || '',
         size: r.size || '',
@@ -80,7 +126,7 @@ export async function POST(req: Request) {
         quantity: String(r.quantity || ''),
       }
       const text = fillTemplate(template.content, ctx)
-      return `Item ${idx + 1} (${ctx.product_name})\n${text}`
+      return `Item ${idx + 1} (${ctx.product_name})${r.type==='custom' ? ' [Custom]':''}\n${text}`
     })
 
     const subject = `${rows[0].customer?.company_name || 'Customer'} - Enquiry Update (${rows.length} item${rows.length>1?'s':''})`
@@ -96,10 +142,18 @@ export async function POST(req: Request) {
 
     // Update statuses and log
     if (status) {
-      const { error: upErr } = await admin.from('enquiries').update({ status, reply_template_id: templateId, updated_at: new Date().toISOString() }).in('id', enquiryIds)
-      if (upErr) throw upErr
+      if (enquiryIds.length) {
+        const { error: upErr } = await admin.from('enquiries').update({ status, reply_template_id: templateId, updated_at: new Date().toISOString() }).in('id', enquiryIds)
+        if (upErr) throw upErr
+      }
+      if (customOrderIds.length) {
+        const { error: upErr2 } = await admin.from('custom_orders').update({ status, updated_at: new Date().toISOString() }).in('id', customOrderIds)
+        if (upErr2) throw upErr2
+      }
     }
-    await admin.from('enquiry_activity').insert(enquiryIds.map(id => ({ enquiry_id: id, action: 'reply_email', note: `template:${templateId}; status:${status}; images:${(extraImages||[]).length}; comment:${extraComment ? 'y' : 'n'}` })))
+    if (enquiryIds.length) {
+      await admin.from('enquiry_activity').insert(enquiryIds.map(id => ({ enquiry_id: id, action: 'reply_email', note: `template:${templateId}; status:${status}; images:${(extraImages||[]).length}; comment:${extraComment ? 'y' : 'n'}` })))
+    }
 
     return NextResponse.json({ ok: true })
   } catch (e: any) {

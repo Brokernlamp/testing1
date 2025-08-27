@@ -47,6 +47,21 @@ interface Enquiry {
   }
 }
 
+type UnifiedItem = {
+  id: string
+  type: 'product' | 'custom'
+  customer: { company_name: string; email: string | null; phone: string | null }
+  productName: string
+  size: string | null
+  quantity: number
+  material: string | null
+  delivery_date: string | null
+  comments: string | null
+  images?: string[] | null
+  status: string
+  created_at: string
+}
+
 interface Template {
   id: string
   title: string
@@ -555,6 +570,37 @@ export default function AdminEnquiriesPage() {
     return matchesSearch && matchesStatus
   })
 
+  const unified: UnifiedItem[] = [
+    ...filteredEnquiries.map(e => ({
+      id: e.id,
+      type: 'product' as const,
+      customer: e.customer,
+      productName: e.product.name,
+      size: e.size,
+      quantity: e.quantity,
+      material: e.material,
+      delivery_date: e.delivery_date,
+      comments: e.comments,
+      images: e.images || [],
+      status: e.status,
+      created_at: e.created_at
+    })),
+    ...filteredCustomOrders.map((o: any) => ({
+      id: o.id,
+      type: 'custom' as const,
+      customer: { company_name: o.customer?.company_name || '', email: o.customer?.email || null, phone: o.customer?.phone || null },
+      productName: `Custom: ${o.name}`,
+      size: o.size,
+      quantity: o.quantity,
+      material: o.material,
+      delivery_date: o.delivery_date,
+      comments: o.comments,
+      images: o.images || [],
+      status: o.status,
+      created_at: o.created_at
+    }))
+  ].sort((a, b) => (a.created_at > b.created_at ? -1 : 1))
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -726,64 +772,40 @@ export default function AdminEnquiriesPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredEnquiries.map((enquiry) => (
-                  <tr key={enquiry.id} className="hover:bg-gray-50 border-l-4" style={{ borderLeftColor: getCompanyColor(enquiry.customer.company_name) }}>
+                {unified.map((row) => (
+                  <tr key={`${row.type}-${row.id}`} className={`hover:bg-gray-50 border-l-4 ${row.type==='custom' ? 'bg-red-50/40' : ''}`} style={{ borderLeftColor: getCompanyColor(row.customer.company_name) }}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <input type="checkbox" checked={selectedIds.has(enquiry.id)} onChange={()=>toggleSelect(enquiry.id)} />
+                      <input type="checkbox" checked={selectedIds.has(row.id)} onChange={()=>toggleSelect(row.id)} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {enquiry.customer.company_name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {enquiry.customer.email}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {enquiry.customer.phone}
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{row.customer.company_name}</div>
+                        <div className="text-sm text-gray-500">{row.customer.email}</div>
+                        <div className="text-sm text-gray-500">{row.customer.phone}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{enquiry.product.name}</div>
-                      <div className="text-sm text-gray-500">
-                        Qty: {enquiry.quantity}
-                      </div>
+                      <div className="text-sm text-gray-900">{row.productName}</div>
+                      <div className="text-sm text-gray-500">Qty: {row.quantity}</div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900">
-                        {enquiry.size && <div>Size: {enquiry.size}</div>}
-                        {enquiry.material && <div>Material: {enquiry.material}</div>}
-                        {enquiry.delivery_date && (
-                          <div>Delivery: {formatDate(enquiry.delivery_date)}</div>
-                        )}
-                        {enquiry.quotation_amount && (
-                          <div className="font-medium text-green-600">
-                            {formatCurrency(enquiry.quotation_amount)}
-                          </div>
-                        )}
-                        {enquiry.invoice_number && (
-                          <div className="font-medium text-blue-600">
-                            Invoice: {enquiry.invoice_number}
-                          </div>
-                        )}
+                        {row.size && <div>Size: {row.size}</div>}
+                        {row.material && <div>Material: {row.material}</div>}
+                        {row.delivery_date && (<div>Delivery: {formatDate(row.delivery_date)}</div>)}
                       </div>
-                      {enquiry.comments && (
-                        <div className="text-sm text-gray-500 mt-1">
-                          {enquiry.comments}
-                        </div>
-                      )}
+                      {row.comments && (<div className="text-sm text-gray-500 mt-1">{row.comments}</div>)}
                     </td>
                     <td className="px-6 py-4 align-top">
-                      {Array.isArray(enquiry.images) && enquiry.images.length > 0 ? (
+                      {Array.isArray(row.images) && row.images.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
-                          {enquiry.images.slice(0, 3).map((url, idx) => (
+                          {row.images.slice(0, 3).map((url, idx) => (
                             <a key={idx} href={url} target="_blank" rel="noreferrer">
                               <img src={url} alt="ref" className="h-12 w-12 object-cover rounded border" />
                             </a>
                           ))}
-                          {enquiry.images.length > 3 && (
-                            <span className="text-xs text-gray-500">+{enquiry.images.length - 3} more</span>
+                          {row.images.length > 3 && (
+                            <span className="text-xs text-gray-500">+{row.images.length - 3} more</span>
                           )}
                         </div>
                       ) : (
@@ -791,18 +813,18 @@ export default function AdminEnquiriesPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(enquiry.status)}`}>
-                        {getStatusIcon(enquiry.status)}
-                        <span className="ml-1">{enquiry.status.charAt(0).toUpperCase() + enquiry.status.slice(1)}</span>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row.status)}`}>
+                        {getStatusIcon(row.status)}
+                        <span className="ml-1">{row.status.charAt(0).toUpperCase() + row.status.slice(1)}</span>
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(enquiry.created_at)}
+                      {formatDate(row.created_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="btn-primary text-xs" onClick={()=>handleReply(enquiry)}>Reply</button>
-                        <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDelete(enquiry.id); else handleStatusChange(enquiry.id, v); e.currentTarget.selectedIndex=0}}>
+                        <button className="btn-primary text-xs" onClick={()=>handleReply((enquiries.find(e=>e.id===row.id) as any) || null)}>Reply</button>
+                        <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDelete(row.id); else handleStatusChange(row.id, v); e.currentTarget.selectedIndex=0}}>
                           <option value="">Set status…</option>
                           {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
                           <option value="delete">Delete</option>
