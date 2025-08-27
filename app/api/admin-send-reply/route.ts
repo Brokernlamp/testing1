@@ -8,6 +8,8 @@ type Payload = {
   enquiryIds: string[]
   templateId: string
   status: string
+  extraImages?: string[]
+  extraComment?: string
 }
 
 const fillTemplate = (tmpl: string, ctx: Record<string, string>) =>
@@ -15,7 +17,7 @@ const fillTemplate = (tmpl: string, ctx: Record<string, string>) =>
 
 export async function POST(req: Request) {
   try {
-    const { enquiryIds, templateId, status } = (await req.json()) as Payload
+    const { enquiryIds, templateId, status, extraImages = [], extraComment = '' } = (await req.json()) as Payload
     if (!enquiryIds?.length || !templateId) {
       return NextResponse.json({ error: 'Missing enquiryIds or templateId' }, { status: 400 })
     }
@@ -82,16 +84,22 @@ export async function POST(req: Request) {
     })
 
     const subject = `${rows[0].customer?.company_name || 'Customer'} - Enquiry Update (${rows.length} item${rows.length>1?'s':''})`
-    const body = sections.join('\n\n---\n\n')
+    const footerLines = [] as string[]
+    if (extraComment) footerLines.push(`Admin note: ${extraComment}`)
+    if (Array.isArray(extraImages) && extraImages.length) {
+      footerLines.push('Attachments/References:')
+      footerLines.push(...extraImages.map((u, i) => `  ${i+1}. ${u}`))
+    }
+    const body = [sections.join('\n\n---\n\n'), footerLines.length ? '\n\n' + footerLines.join('\n') : ''].join('')
 
-    await transporter.sendMail({ from, to, subject, text: body })
+    await transporter.sendMail({ from, to, subject, text: body, attachments: (extraImages||[]).map((u, i) => ({ filename: `reference_${i+1}.url.txt`, content: u })) })
 
     // Update statuses and log
     if (status) {
       const { error: upErr } = await admin.from('enquiries').update({ status, reply_template_id: templateId, updated_at: new Date().toISOString() }).in('id', enquiryIds)
       if (upErr) throw upErr
     }
-    await admin.from('enquiry_activity').insert(enquiryIds.map(id => ({ enquiry_id: id, action: 'reply_email', note: `template:${templateId}; status:${status}` })))
+    await admin.from('enquiry_activity').insert(enquiryIds.map(id => ({ enquiry_id: id, action: 'reply_email', note: `template:${templateId}; status:${status}; images:${(extraImages||[]).length}; comment:${extraComment ? 'y' : 'n'}` })))
 
     return NextResponse.json({ ok: true })
   } catch (e: any) {

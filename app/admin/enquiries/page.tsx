@@ -67,10 +67,15 @@ export default function AdminEnquiriesPage() {
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null)
   const [replyData, setReplyData] = useState({
     template_id: '',
-    quotation_amount: ''
+    quotation_amount: '',
+    comment: '',
+    images: [] as string[]
   })
   const [bulkTemplateId, setBulkTemplateId] = useState('')
   const [bulkStatus, setBulkStatus] = useState('')
+  const [showBulkReply, setShowBulkReply] = useState(false)
+  const [bulkReplyData, setBulkReplyData] = useState({ comment: '', images: [] as string[] })
+  const [submittingReply, setSubmittingReply] = useState(false)
   const [showManualEnquiryForm, setShowManualEnquiryForm] = useState(false)
   const [manualEnquiryData, setManualEnquiryData] = useState({
     company_name: '',
@@ -226,7 +231,9 @@ export default function AdminEnquiriesPage() {
     setSelectedEnquiry(enquiry)
     setReplyData({
       template_id: '',
-      quotation_amount: ''
+      quotation_amount: '',
+      comment: '',
+      images: []
     })
     setShowReplyForm(true)
   }
@@ -237,6 +244,24 @@ export default function AdminEnquiriesPage() {
     if (!selectedEnquiry) return
 
     try {
+      setSubmittingReply(true)
+      // Send email via API first with optional images/comment
+      const res = await fetch('/api/admin-send-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          enquiryIds: [selectedEnquiry.id],
+          templateId: replyData.template_id,
+          status: 'replied',
+          extraImages: replyData.images,
+          extraComment: replyData.comment
+        })
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        throw new Error(data?.error || 'Failed to send reply')
+      }
+
       const updateData: any = {
         status: 'replied',
         updated_at: new Date().toISOString()
@@ -260,13 +285,15 @@ export default function AdminEnquiriesPage() {
       // log activity
       await supabase.from('enquiry_activity').insert({ enquiry_id: selectedEnquiry.id, action: 'reply', note: `template: ${replyData.template_id}${replyData.quotation_amount ? `, quotation: ${replyData.quotation_amount}` : ''}` })
 
-      toast.success('Enquiry updated successfully')
+      toast.success('Reply sent successfully')
       setShowReplyForm(false)
       setSelectedEnquiry(null)
       fetchEnquiries()
     } catch (error) {
       console.error('Error updating enquiry:', error)
       toast.error('Failed to update enquiry')
+    } finally {
+      setSubmittingReply(false)
     }
   }
 
@@ -341,15 +368,22 @@ export default function AdminEnquiriesPage() {
 
   const handleBulkReply = async () => {
     if (selectedIds.size === 0) return toast.error('Select enquiries first')
+    setShowBulkReply(true)
+  }
+
+  const submitBulkReply = async () => {
     if (!bulkTemplateId) return toast.error('Select a template')
     try {
+      setSubmittingReply(true)
       const res = await fetch('/api/admin-send-reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           enquiryIds: Array.from(selectedIds),
           templateId: bulkTemplateId,
-          status: bulkStatus || 'replied'
+          status: bulkStatus || 'replied',
+          extraImages: bulkReplyData.images,
+          extraComment: bulkReplyData.comment
         })
       })
       if (!res.ok) {
@@ -357,12 +391,16 @@ export default function AdminEnquiriesPage() {
         throw new Error(data?.error || 'Failed to send replies')
       }
       toast.success('Replies sent successfully')
+      setShowBulkReply(false)
       setSelectedIds(new Set())
       setBulkTemplateId('')
       setBulkStatus('')
+      setBulkReplyData({ comment: '', images: [] })
       fetchEnquiries()
     } catch (e: any) {
       toast.error(e?.message || 'Bulk reply failed')
+    } finally {
+      setSubmittingReply(false)
     }
   }
 
@@ -608,23 +646,27 @@ export default function AdminEnquiriesPage() {
         <div className="card">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center space-x-2">
-              <select className="input-field text-sm" value={bulkTemplateId} onChange={(e)=> setBulkTemplateId(e.target.value)}>
-                <option value="">Select template…</option>
-                {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
-              </select>
-              <select className="input-field text-sm" value={bulkStatus} onChange={(e)=> setBulkStatus(e.target.value)}>
-                <option value="">Optional status…</option>
-                {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
-              </select>
-              <button className="btn-primary text-sm" onClick={handleBulkReply}>
-                Reply to customer (selected)
-              </button>
-              <div className="w-px h-6 bg-gray-200 mx-2" />
-              <select className="input-field text-sm" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') bulkDelete(); else bulkUpdateStatus(v); e.currentTarget.selectedIndex=0}}>
-                <option value="">Bulk status…</option>
-                {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
-                <option value="delete">Delete Selected</option>
-              </select>
+              {selectedIds.size > 0 && (
+                <>
+                  <select className="input-field text-sm" value={bulkTemplateId} onChange={(e)=> setBulkTemplateId(e.target.value)}>
+                    <option value="">Select template…</option>
+                    {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
+                  </select>
+                  <select className="input-field text-sm" value={bulkStatus} onChange={(e)=> setBulkStatus(e.target.value)}>
+                    <option value="">Optional status…</option>
+                    {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
+                  </select>
+                  <button className="btn-primary text-sm" onClick={handleBulkReply}>
+                    Reply to customer (selected)
+                  </button>
+                  <div className="w-px h-6 bg-gray-200 mx-2" />
+                  <select className="input-field text-sm" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') bulkDelete(); else bulkUpdateStatus(v); e.currentTarget.selectedIndex=0}}>
+                    <option value="">Bulk status…</option>
+                    {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
+                    <option value="delete">Delete Selected</option>
+                  </select>
+                </>
+              )}
             </div>
             <button onClick={exportCsv} className="btn-primary text-sm flex items-center space-x-1"><Download className="w-4 h-4" /><span>Export CSV</span></button>
           </div>
@@ -734,10 +776,10 @@ export default function AdminEnquiriesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='reply') handleReply(enquiry); else if(v==='delete') handleDelete(enquiry.id); else handleStatusChange(enquiry.id, v); e.currentTarget.selectedIndex=0}}>
-                          <option value="">Actions</option>
-                          {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
-                          <option value="reply">Reply</option>
+                        <button className="btn-primary text-xs" onClick={()=>handleReply(enquiry)}>Reply</button>
+                        <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDelete(enquiry.id); else handleStatusChange(enquiry.id, v); e.currentTarget.selectedIndex=0}}>
+                          <option value="">Set status…</option>
+                          {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
                           <option value="delete">Delete</option>
                         </select>
                       </div>
@@ -800,6 +842,19 @@ export default function AdminEnquiriesPage() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Attach Images (optional)</label>
+                  <div className="mt-2">
+                    {/* @ts-ignore */}
+                    <ImageUpload multiple onUploadSuccess={(url: string) => setReplyData(prev => ({ ...prev, images: [...prev.images, url] }))} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Additional Comment (optional)</label>
+                  <textarea className="input-field" rows={3} value={replyData.comment} onChange={(e)=> setReplyData(prev => ({ ...prev, comment: e.target.value }))} />
+                </div>
+
                 <div className="flex space-x-3 pt-4">
                   <button
                     type="submit"
@@ -816,11 +871,66 @@ export default function AdminEnquiriesPage() {
                   </button>
                 </div>
               </form>
+              {submittingReply && (
+                <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-md">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="text-sm text-gray-600 mt-2">Sending...</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
+      {/* Bulk Reply Modal */}
+      {showBulkReply && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-full max-w-xl shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Reply to Selected Enquiries</h3>
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Template</label>
+                  <select className="input-field" value={bulkTemplateId} onChange={(e)=> setBulkTemplateId(e.target.value)}>
+                    <option value="">Select template</option>
+                    {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Set Status</label>
+                  <select className="input-field" value={bulkStatus} onChange={(e)=> setBulkStatus(e.target.value)}>
+                    <option value="">replied (default)</option>
+                    {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
+                  </select>
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Attach Images (optional)</label>
+                {/* @ts-ignore */}
+                <ImageUpload multiple onUploadSuccess={(url: string) => setBulkReplyData(prev => ({ ...prev, images: [...prev.images, url] }))} />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Additional Comment (optional)</label>
+                <textarea className="input-field" rows={3} value={bulkReplyData.comment} onChange={(e)=> setBulkReplyData(prev => ({ ...prev, comment: e.target.value }))} />
+              </div>
+              <div className="flex space-x-3 pt-2">
+                <button className="btn-primary flex-1" onClick={submitBulkReply}>Send Replies</button>
+                <button className="btn-secondary flex-1" onClick={()=> setShowBulkReply(false)}>Cancel</button>
+              </div>
+              {submittingReply && (
+                <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-md">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="text-sm text-gray-600 mt-2">Sending...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {/* Manual Enquiry Form Modal */}
       {showManualEnquiryForm && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
