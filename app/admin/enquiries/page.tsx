@@ -7,6 +7,7 @@ import { MessageSquare, Plus, Search, Eye, Edit, Trash2, Reply, CheckCircle, Clo
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import ImageUpload from '@/components/ImageUpload'
 
 const STATUS_OPTIONS = [
   'pending',
