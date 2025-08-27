@@ -33,6 +33,7 @@ interface Enquiry {
   reply_template_id: string | null
   quotation_amount: number | null
   invoice_number: string | null
+  images?: string[] | null
   created_at: string
   updated_at: string
   customer: {
@@ -68,6 +69,8 @@ export default function AdminEnquiriesPage() {
     template_id: '',
     quotation_amount: ''
   })
+  const [bulkTemplateId, setBulkTemplateId] = useState('')
+  const [bulkStatus, setBulkStatus] = useState('')
   const [showManualEnquiryForm, setShowManualEnquiryForm] = useState(false)
   const [manualEnquiryData, setManualEnquiryData] = useState({
     company_name: '',
@@ -336,6 +339,33 @@ export default function AdminEnquiriesPage() {
     }
   }
 
+  const handleBulkReply = async () => {
+    if (selectedIds.size === 0) return toast.error('Select enquiries first')
+    if (!bulkTemplateId) return toast.error('Select a template')
+    try {
+      const res = await fetch('/api/admin-send-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          enquiryIds: Array.from(selectedIds),
+          templateId: bulkTemplateId,
+          status: bulkStatus || 'replied'
+        })
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        throw new Error(data?.error || 'Failed to send replies')
+      }
+      toast.success('Replies sent successfully')
+      setSelectedIds(new Set())
+      setBulkTemplateId('')
+      setBulkStatus('')
+      fetchEnquiries()
+    } catch (e: any) {
+      toast.error(e?.message || 'Bulk reply failed')
+    }
+  }
+
   const bulkDelete = async () => {
     if (selectedIds.size === 0) return toast.error('Select enquiries first')
     if (!confirm('Delete selected enquiries?')) return
@@ -578,8 +608,20 @@ export default function AdminEnquiriesPage() {
         <div className="card">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center space-x-2">
+              <select className="input-field text-sm" value={bulkTemplateId} onChange={(e)=> setBulkTemplateId(e.target.value)}>
+                <option value="">Select template…</option>
+                {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
+              </select>
+              <select className="input-field text-sm" value={bulkStatus} onChange={(e)=> setBulkStatus(e.target.value)}>
+                <option value="">Optional status…</option>
+                {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
+              </select>
+              <button className="btn-primary text-sm" onClick={handleBulkReply}>
+                Reply to customer (selected)
+              </button>
+              <div className="w-px h-6 bg-gray-200 mx-2" />
               <select className="input-field text-sm" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') bulkDelete(); else bulkUpdateStatus(v); e.currentTarget.selectedIndex=0}}>
-                <option value="">Bulk actions</option>
+                <option value="">Bulk status…</option>
                 {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
                 <option value="delete">Delete Selected</option>
               </select>
@@ -601,6 +643,9 @@ export default function AdminEnquiriesPage() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Details
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Images
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
@@ -660,6 +705,22 @@ export default function AdminEnquiriesPage() {
                         <div className="text-sm text-gray-500 mt-1">
                           {enquiry.comments}
                         </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 align-top">
+                      {Array.isArray(enquiry.images) && enquiry.images.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {enquiry.images.slice(0, 3).map((url, idx) => (
+                            <a key={idx} href={url} target="_blank" rel="noreferrer">
+                              <img src={url} alt="ref" className="h-12 w-12 object-cover rounded border" />
+                            </a>
+                          ))}
+                          {enquiry.images.length > 3 && (
+                            <span className="text-xs text-gray-500">+{enquiry.images.length - 3} more</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-500 italic">No custom image for this order</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
