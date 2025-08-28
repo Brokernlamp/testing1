@@ -386,14 +386,26 @@ export default function AdminEnquiriesPage() {
   const bulkUpdateStatus = async (status: string) => {
     if (selectedIds.size === 0) return toast.error('Select enquiries first')
     try {
-      const { error } = await supabase
-        .from('enquiries')
-        .update({ status, updated_at: new Date().toISOString() })
-        .in('id', Array.from(selectedIds))
-      if (error) throw error
+      const ids = Array.from(selectedIds)
+      const productIds = ids.filter(id => idToType.get(id) === 'product')
+      const customIds = ids.filter(id => idToType.get(id) === 'custom')
+      if (productIds.length) {
+        const { error } = await supabase
+          .from('enquiries')
+          .update({ status, updated_at: new Date().toISOString() })
+          .in('id', productIds)
+        if (error) throw error
+      }
+      if (customIds.length) {
+        const { error } = await supabase
+          .from('custom_orders')
+          .update({ status, updated_at: new Date().toISOString() })
+          .in('id', customIds)
+        if (error) throw error
+      }
       toast.success('Status updated')
       setSelectedIds(new Set())
-      fetchEnquiries()
+      fetchEnquiries(); fetchCustomOrders()
     } catch (e) {
       toast.error('Bulk update failed')
     }
@@ -439,19 +451,87 @@ export default function AdminEnquiriesPage() {
 
   const bulkDelete = async () => {
     if (selectedIds.size === 0) return toast.error('Select enquiries first')
-    if (!confirm('Delete selected enquiries?')) return
+    if (!confirm('Delete selected records?')) return
     try {
-      const { error } = await supabase
-        .from('enquiries')
-        .delete()
-        .in('id', Array.from(selectedIds))
-      if (error) throw error
+      const ids = Array.from(selectedIds)
+      const productIds = ids.filter(id => idToType.get(id) === 'product')
+      const customIds = ids.filter(id => idToType.get(id) === 'custom')
+      if (productIds.length) {
+        const { error } = await supabase.from('enquiries').delete().in('id', productIds)
+        if (error) throw error
+      }
+      if (customIds.length) {
+        const { error } = await supabase.from('custom_orders').delete().in('id', customIds)
+        if (error) throw error
+      }
       toast.success('Deleted selected')
       setSelectedIds(new Set())
-      fetchEnquiries()
+      fetchEnquiries(); fetchCustomOrders()
     } catch (e) {
       toast.error('Bulk delete failed')
     }
+  }
+
+  const handleStatusChangeUnified = async (entityId: string, newStatus: string) => {
+    try {
+      const t = idToType.get(entityId)
+      if (!t) return
+      if (newStatus === 'completed' && t === 'product') {
+        setShowInvoicePrompt({ open: true, id: entityId })
+        return
+      }
+      if (t === 'product') {
+        const { error } = await supabase.from('enquiries').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', entityId)
+        if (error) throw error
+      } else {
+        const { error } = await supabase.from('custom_orders').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', entityId)
+        if (error) throw error
+      }
+      toast.success('Status updated successfully')
+      fetchEnquiries(); fetchCustomOrders()
+    } catch (e) {
+      toast.error('Failed to update status')
+    }
+  }
+
+  const handleDeleteUnified = async (entityId: string) => {
+    if (!confirm('Are you sure you want to delete this record?')) return
+    try {
+      const t = idToType.get(entityId)
+      if (!t) return
+      if (t === 'product') {
+        const { error } = await supabase.from('enquiries').delete().eq('id', entityId)
+        if (error) throw error
+      } else {
+        const { error } = await supabase.from('custom_orders').delete().eq('id', entityId)
+        if (error) throw error
+      }
+      toast.success('Deleted successfully')
+      fetchEnquiries(); fetchCustomOrders()
+    } catch (e) {
+      toast.error('Failed to delete')
+    }
+  }
+
+  const deleteAllRecords = async () => {
+    if (!confirm('Delete ALL enquiries and custom orders? This cannot be undone.')) return
+    try {
+      const { error: e1 } = await supabase.from('enquiries').delete().neq('id', '')
+      if (e1) throw e1
+      const { error: e2 } = await supabase.from('custom_orders').delete().neq('id', '')
+      if (e2) throw e2
+      toast.success('All records deleted')
+      fetchEnquiries()
+      fetchCustomOrders()
+    } catch (e) {
+      console.error(e)
+      toast.error('Delete all failed')
+    }
+  }
+
+  const refreshAll = () => {
+    fetchEnquiries()
+    fetchCustomOrders()
   }
 
   const exportCsv = () => {
@@ -842,18 +922,12 @@ export default function AdminEnquiriesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        {row.type === 'product' && (
-                          <button className="btn-primary text-xs" onClick={()=>handleReply((enquiries.find(e=>e.id===row.id) as any) || null)}>Reply</button>
-                        )}
-                        {row.type === 'product' ? (
-                          <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDelete(row.id); else handleStatusChange(row.id, v); e.currentTarget.selectedIndex=0}}>
-                            <option value="">Set status…</option>
-                            {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
-                            <option value="delete">Delete</option>
-                          </select>
-                        ) : (
-                          <span className="text-xs text-gray-500">Status managed in custom orders</span>
-                        )}
+                        <button className="btn-primary text-xs" disabled={row.type !== 'product'} onClick={()=> row.type==='product' && handleReply((enquiries.find(e=>e.id===row.id) as any) || null)}>Reply</button>
+                        <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDeleteUnified(row.id); else handleStatusChangeUnified(row.id, v); e.currentTarget.selectedIndex=0}}>
+                          <option value="">Set status…</option>
+                          {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
+                          <option value="delete">Delete</option>
+                        </select>
                       </div>
                     </td>
                   </tr>

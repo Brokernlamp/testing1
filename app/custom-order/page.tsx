@@ -54,13 +54,16 @@ export default function CustomOrderPage() {
 	}
 
 	return (
-		<div className="max-w-5xl mx-auto px-4 py-8">
+		<div className="max-w-5xl mx-auto px-4 py-8" style={{ background: 'linear-gradient(135deg, #F8FFFE 0%, #E8F5E8 50%, #E3F2FD 100%)' }}>
 			<div className="flex items-center justify-between mb-6">
 				<div>
 					<h1 className="text-2xl font-bold mb-2">Custom Order</h1>
 					<p className="text-gray-600">Add multiple custom items with size units and photos. All will be grouped per item in the quotation email.</p>
 				</div>
-				<CartButton />
+				<div className="flex items-center gap-3">
+					<a href="/" className="btn-secondary">Home</a>
+					<CartButton />
+				</div>
 			</div>
 			<div className="space-y-4">
 				{items.map((row) => (
@@ -68,7 +71,7 @@ export default function CustomOrderPage() {
 						<div className="grid md:grid-cols-6 gap-3 items-center">
 							<input className="input-field" placeholder="Item name" value={row.name} onChange={(e)=>update(row.id,{name:e.target.value})} />
 							<input className="input-field" placeholder="Size (e.g. 34*23)" value={row.size} onChange={(e)=>update(row.id,{size:e.target.value})} />
-							<select className="input-field" value={row.unit} onChange={(e)=>update(row.id,{unit:e.target.value})}>
+							<select className="input-field min-h-[44px]" value={row.unit} onChange={(e)=>update(row.id,{unit:e.target.value})}>
 								<option value="">Unit</option>
 								<option value="inch">inch</option>
 								<option value="cm">cm</option>
@@ -76,12 +79,12 @@ export default function CustomOrderPage() {
 								<option value="ft">ft</option>
 							</select>
 							<div className="grid grid-cols-2 gap-2">
-								<select className="input-field" value={row.materialType || 'preset'} onChange={(e)=>update(row.id,{ materialType: e.target.value as any, material: '' })}>
+								<select className="input-field min-h-[44px]" value={row.materialType || 'preset'} onChange={(e)=>update(row.id,{ materialType: e.target.value as any, material: '' })}>
 									<option value="preset">Choose material</option>
 									<option value="custom">Custom</option>
 								</select>
 								{(row.materialType === 'preset') && (
-									<select className="input-field" value={row.material} onChange={(e)=>update(row.id,{material:e.target.value})}>
+									<select className="input-field min-h-[44px]" value={row.material} onChange={(e)=>update(row.id,{material:e.target.value})}>
 										<option value="">Select</option>
 										<option value="Vinyl">Vinyl</option>
 										<option value="Acrylic">Acrylic</option>

@@ -129,10 +129,17 @@ export default function CartPage() {
 
 
 	return (
-		<div className="max-w-5xl mx-auto px-4 py-8">
+		<div className="max-w-5xl mx-auto px-4 py-8" style={{ background: 'linear-gradient(135deg, #F8FFFE 0%, #E8F5E8 50%, #E3F2FD 100%)' }}>
 			{/* Navigation Header */}
 			<div className="flex items-center justify-between mb-6">
 				<div className="flex items-center gap-4">
+					<Link 
+						href="/" 
+						className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+					>
+						<ArrowLeft className="h-4 w-4" />
+						Home
+					</Link>
 					<Link 
 						href="/products" 
 						className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"

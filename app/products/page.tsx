@@ -112,12 +112,13 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #F8FFFE 0%, #E8F5E8 50%, #E3F2FD 100%)' }}>
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-xl font-semibold text-gray-900">Products</h1>
           <div className="flex items-center gap-3">
+            <Link href="/" className="btn-secondary">Home</Link>
             <Link href="/custom-order" className="btn-secondary">Custom Order</Link>
             <CartButton />
           </div>
@@ -144,7 +145,7 @@ export default function ProductsPage() {
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="input-field md:w-48"
+                  className="input-field md:w-48 min-h-[44px]"
                 >
                   <option value="">All Categories</option>
                   {categories.map((category) => (
@@ -186,7 +187,7 @@ export default function ProductsPage() {
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
                 {filteredProducts.map((product, index) => (
                   <motion.div
                     key={product.id}
