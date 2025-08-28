@@ -21,7 +21,9 @@ export default function HomePage() {
     'Engraving & Etching',
     'Laser Cutting',
     'Eco-Solvent & UV Printing',
-    'Safety Posters & Industrial Labels'
+    'Safety Posters & Industrial Labels',
+    'Night Glow Painting',
+    'Lamination'
   ]
 
   // Fetch top seller products

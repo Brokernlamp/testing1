@@ -444,13 +444,21 @@ export default function InventoryPage() {
                         >
                           <Minus className="w-4 h-4 text-gray-600" />
                         </button>
-                        
-                        <span className={`text-lg font-semibold ${
-                          item.quantity < item.threshold ? 'text-red-600' : 'text-gray-900'
-                        }`}>
-                          {item.quantity}
-                        </span>
-                        
+                        <input
+                          className={`input-field w-20 text-center ${item.quantity < item.threshold ? 'text-red-600' : 'text-gray-900'}`}
+                          type="number"
+                          min={0}
+                          value={item.quantity}
+                          onChange={(e)=>{
+                            const v = Math.max(0, parseInt(e.target.value || '0'))
+                            // optimistic UI
+                            setInventory(prev=> prev.map(x=> x.id===item.id ? { ...x, quantity: v } : x))
+                          }}
+                          onBlur={(e)=>{
+                            const v = Math.max(0, parseInt(e.target.value || '0'))
+                            handleQuantityChange(item.id, v - item.quantity)
+                          }}
+                        />
                         <button
                           onClick={() => handleQuantityChange(item.id, 1)}
                           className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center"

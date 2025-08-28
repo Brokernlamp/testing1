@@ -282,6 +282,9 @@ export default function CartPage() {
 								onChange={(e)=>setDelivery(e.target.value)} 
 							/>
 						</div>
+						<p className="text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-3 py-2 md:col-span-5">
+							We will proceed order dispatch after purchase order only
+						</p>
 						<textarea 
 							className="input-field w-full" 
 							rows={3} 

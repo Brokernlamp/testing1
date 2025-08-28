@@ -51,6 +51,7 @@ type UnifiedItem = {
   id: string
   type: 'product' | 'custom'
   customer: { company_name: string; email: string | null; phone: string | null }
+  productId?: string
   productName: string
   size: string | null
   quantity: number
@@ -59,6 +60,7 @@ type UnifiedItem = {
   comments: string | null
   images?: string[] | null
   status: string
+  invoice_number?: string | null
   created_at: string
 }
 
@@ -575,6 +577,7 @@ export default function AdminEnquiriesPage() {
       id: e.id,
       type: 'product' as const,
       customer: e.customer,
+      productId: e.product_id,
       productName: e.product.name,
       size: e.size,
       quantity: e.quantity,
@@ -583,6 +586,7 @@ export default function AdminEnquiriesPage() {
       comments: e.comments,
       images: e.images || [],
       status: e.status,
+      invoice_number: e.invoice_number || null,
       created_at: e.created_at
     })),
     ...filteredCustomOrders.map((o: any) => ({
@@ -597,9 +601,13 @@ export default function AdminEnquiriesPage() {
       comments: o.comments,
       images: o.images || [],
       status: o.status,
+      invoice_number: o.invoice_number || null,
       created_at: o.created_at
     }))
   ].sort((a, b) => (a.created_at > b.created_at ? -1 : 1))
+
+  // Map of id -> type to support bulk operations across both tables
+  const idToType = new Map<string, 'product' | 'custom'>(unified.map(u => [u.id, u.type]))
 
   if (loading) {
     return (
@@ -739,14 +747,18 @@ export default function AdminEnquiriesPage() {
                 </>
               )}
             </div>
-            <button onClick={exportCsv} className="btn-primary text-sm flex items-center space-x-1"><Download className="w-4 h-4" /><span>Export CSV</span></button>
+            <div className="flex items-center gap-2">
+              <button onClick={exportCsv} className="btn-primary text-sm flex items-center space-x-1"><Download className="w-4 h-4" /><span>Export CSV</span></button>
+              <button onClick={deleteAllRecords} className="btn-secondary text-sm">Delete All</button>
+              <button onClick={refreshAll} className="btn-secondary text-sm flex items-center space-x-1"><RefreshCw className="w-4 h-4" /><span>Refresh</span></button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3">
-                    <input type="checkbox" onChange={(e)=> setSelectedIds(e.target.checked ? new Set(filteredEnquiries.map(e=>e.id)) : new Set())} />
+                    <input type="checkbox" onChange={(e)=> setSelectedIds(e.target.checked ? new Set(unified.map(e=>e.id)) : new Set())} />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Customer/Company
@@ -758,13 +770,16 @@ export default function AdminEnquiriesPage() {
                     Details
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Invoice #
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Images
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
+                    Date & time
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -785,6 +800,7 @@ export default function AdminEnquiriesPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-xs text-gray-500">{row.type==='product' && row.productId ? `Product ID: ${row.productId}` : row.type==='custom' ? 'Product ID: CUST' : ''}</div>
                       <div className="text-sm text-gray-900">{row.productName}</div>
                       <div className="text-sm text-gray-500">Qty: {row.quantity}</div>
                     </td>
@@ -795,6 +811,9 @@ export default function AdminEnquiriesPage() {
                         {row.delivery_date && (<div>Delivery: {formatDate(row.delivery_date)}</div>)}
                       </div>
                       {row.comments && (<div className="text-sm text-gray-500 mt-1">{row.comments}</div>)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {row.invoice_number ? row.invoice_number : <span className="text-gray-400">—</span>}
                     </td>
                     <td className="px-6 py-4 align-top">
                       {Array.isArray(row.images) && row.images.length > 0 ? (
@@ -823,12 +842,18 @@ export default function AdminEnquiriesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="btn-primary text-xs" onClick={()=>handleReply((enquiries.find(e=>e.id===row.id) as any) || null)}>Reply</button>
-                        <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDelete(row.id); else handleStatusChange(row.id, v); e.currentTarget.selectedIndex=0}}>
-                          <option value="">Set status…</option>
-                          {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
-                          <option value="delete">Delete</option>
-                        </select>
+                        {row.type === 'product' && (
+                          <button className="btn-primary text-xs" onClick={()=>handleReply((enquiries.find(e=>e.id===row.id) as any) || null)}>Reply</button>
+                        )}
+                        {row.type === 'product' ? (
+                          <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDelete(row.id); else handleStatusChange(row.id, v); e.currentTarget.selectedIndex=0}}>
+                            <option value="">Set status…</option>
+                            {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
+                            <option value="delete">Delete</option>
+                          </select>
+                        ) : (
+                          <span className="text-xs text-gray-500">Status managed in custom orders</span>
+                        )}
                       </div>
                     </td>
                   </tr>

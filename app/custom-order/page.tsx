@@ -9,14 +9,14 @@ import ImageUpload from '@/components/ImageUpload'
 
 export default function CustomOrderPage() {
 	const { addItem } = useCart()
-	const [items, setItems] = useState<Array<{ id: string; name: string; size: string; unit: string; material: string; quantity: number; images: string[] }>>([
-		{ id: uuid(), name: '', size: '', unit: '', material: '', quantity: 1, images: [] },
+	const [items, setItems] = useState<Array<{ id: string; name: string; size: string; unit: string; material: string; materialType?: 'preset' | 'custom'; quantity: number; images: string[] }>>([
+		{ id: uuid(), name: '', size: '', unit: '', material: '', materialType: 'preset', quantity: 1, images: [] },
 	])
 
-	const addRow = () => setItems(prev => [...prev, { id: uuid(), name: '', size: '', unit: '', material: '', quantity: 1, images: [] }])
+	const addRow = () => setItems(prev => [...prev, { id: uuid(), name: '', size: '', unit: '', material: '', materialType: 'preset', quantity: 1, images: [] }])
 	const removeRow = (id: string) => setItems(prev => prev.filter(i => i.id !== id))
 
-	const update = (id: string, patch: Partial<{ name: string; size: string; unit: string; material: string; quantity: number; images: string[] }>) =>
+	const update = (id: string, patch: Partial<{ name: string; size: string; unit: string; material: string; materialType?: 'preset' | 'custom'; quantity: number; images: string[] }>) =>
 		setItems(prev => prev.map(i => (i.id === id ? { ...i, ...patch } : i)))
 
 	const handleImageUpload = async (id: string, imageUrls: string[]) => {
@@ -75,7 +75,25 @@ export default function CustomOrderPage() {
 								<option value="mm">mm</option>
 								<option value="ft">ft</option>
 							</select>
-							<input className="input-field" placeholder="Custom material" value={row.material} onChange={(e)=>update(row.id,{material:e.target.value})} />
+							<div className="grid grid-cols-2 gap-2">
+								<select className="input-field" value={row.materialType || 'preset'} onChange={(e)=>update(row.id,{ materialType: e.target.value as any, material: '' })}>
+									<option value="preset">Choose material</option>
+									<option value="custom">Custom</option>
+								</select>
+								{(row.materialType === 'preset') && (
+									<select className="input-field" value={row.material} onChange={(e)=>update(row.id,{material:e.target.value})}>
+										<option value="">Select</option>
+										<option value="Vinyl">Vinyl</option>
+										<option value="Acrylic">Acrylic</option>
+										<option value="ACP">ACP</option>
+										<option value="Sunboard">Sunboard</option>
+										<option value="Flex">Flex</option>
+									</select>
+								)}
+								{(row.materialType === 'custom') && (
+									<input className="input-field" placeholder="Custom material" value={row.material} onChange={(e)=>update(row.id,{material:e.target.value})} />
+								)}
+							</div>
 							<input className="input-field" type="number" min={1} value={row.quantity} onChange={(e)=>update(row.id,{quantity:parseInt(e.target.value||'1')})} />
 							<div className="col-span-2">
 								<ImageUpload 
