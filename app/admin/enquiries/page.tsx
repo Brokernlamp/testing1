@@ -97,15 +97,18 @@ export default function AdminEnquiriesPage() {
   const [submittingReply, setSubmittingReply] = useState(false)
   const [showManualEnquiryForm, setShowManualEnquiryForm] = useState(false)
   const [manualEnquiryData, setManualEnquiryData] = useState({
+    type: 'product' as 'product' | 'custom',
     company_name: '',
     email: '',
     phone: '',
     product_id: '',
+    name: '',
     size: '',
     quantity: 1,
     material: '',
     delivery_date: '',
-    comments: ''
+    comments: '',
+    images: [] as string[]
   })
 
   useEffect(() => {
@@ -190,10 +193,9 @@ export default function AdminEnquiriesPage() {
   const handleManualEnquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!manualEnquiryData.company_name.trim() || !manualEnquiryData.product_id) {
-      toast.error('Company name and product are required')
-      return
-    }
+    if (!manualEnquiryData.company_name.trim()) return toast.error('Company name is required')
+    if (manualEnquiryData.type === 'product' && !manualEnquiryData.product_id) return toast.error('Select a product')
+    if (manualEnquiryData.type === 'custom' && !manualEnquiryData.name.trim()) return toast.error('Custom item name is required')
 
     try {
       // First, create or find customer
@@ -224,36 +226,58 @@ export default function AdminEnquiriesPage() {
         customerId = newCustomer.id
       }
 
-      // Create enquiry
-      const { error: enquiryError } = await supabase
-        .from('enquiries')
-        .insert({
-          customer_id: customerId,
-          product_id: manualEnquiryData.product_id,
-          size: manualEnquiryData.size.trim() || null,
-          quantity: manualEnquiryData.quantity,
-          material: manualEnquiryData.material.trim() || null,
-          delivery_date: manualEnquiryData.delivery_date || null,
-          comments: manualEnquiryData.comments.trim() || null,
-          status: 'pending'
-        })
-
-      if (enquiryError) throw enquiryError
+      if (manualEnquiryData.type === 'product') {
+        // Create enquiry (product)
+        const { error: enquiryError } = await supabase
+          .from('enquiries')
+          .insert({
+            customer_id: customerId,
+            product_id: manualEnquiryData.product_id,
+            size: manualEnquiryData.size.trim() || null,
+            quantity: manualEnquiryData.quantity,
+            material: manualEnquiryData.material.trim() || null,
+            delivery_date: manualEnquiryData.delivery_date || null,
+            comments: manualEnquiryData.comments.trim() || null,
+            images: manualEnquiryData.images || [],
+            status: 'pending'
+          })
+        if (enquiryError) throw enquiryError
+      } else {
+        // Create custom order
+        const { error: customErr } = await supabase
+          .from('custom_orders')
+          .insert({
+            customer_id: customerId,
+            order_id: `CUST-${Date.now()}`,
+            name: manualEnquiryData.name.trim(),
+            size: manualEnquiryData.size.trim() || null,
+            material: manualEnquiryData.material.trim() || null,
+            quantity: manualEnquiryData.quantity,
+            images: manualEnquiryData.images || [],
+            delivery_date: manualEnquiryData.delivery_date || null,
+            comments: manualEnquiryData.comments.trim() || null,
+            status: 'pending'
+          })
+        if (customErr) throw customErr
+      }
 
       toast.success('Manual enquiry created successfully')
       setShowManualEnquiryForm(false)
       setManualEnquiryData({
+        type: 'product',
         company_name: '',
         email: '',
         phone: '',
         product_id: '',
+        name: '',
         size: '',
         quantity: 1,
         material: '',
         delivery_date: '',
-        comments: ''
+        comments: '',
+        images: []
       })
-      fetchEnquiries()
+      fetchEnquiries(); fetchCustomOrders()
     } catch (error) {
       console.error('Error creating manual enquiry:', error)
       toast.error('Failed to create manual enquiry')
@@ -385,10 +409,18 @@ export default function AdminEnquiriesPage() {
 
   const bulkUpdateStatus = async (status: string) => {
     if (selectedIds.size === 0) return toast.error('Select enquiries first')
+    if (status === 'completed' && selectedIds.size !== 1) return toast.error('Select one at a time')
     try {
       const ids = Array.from(selectedIds)
       const productIds = ids.filter(id => idToType.get(id) === 'product')
       const customIds = ids.filter(id => idToType.get(id) === 'custom')
+      if (status === 'completed') {
+        // ask for invoice number for product completion
+        if (productIds.length === 1 && customIds.length === 0) {
+          setShowInvoicePrompt({ open: true, id: productIds[0] })
+          return
+        }
+      }
       if (productIds.length) {
         const { error } = await supabase
           .from('enquiries')
@@ -456,6 +488,12 @@ export default function AdminEnquiriesPage() {
       const ids = Array.from(selectedIds)
       const productIds = ids.filter(id => idToType.get(id) === 'product')
       const customIds = ids.filter(id => idToType.get(id) === 'custom')
+      // warn for any non-completed entries
+      const warn = unified.filter(u => ids.includes(u.id) && u.status !== 'completed').length > 0
+      if (warn) {
+        const proceed = confirm('Some selected orders are not completed yet. Are you sure you want to delete?')
+        if (!proceed) return
+      }
       if (productIds.length) {
         const { error } = await supabase.from('enquiries').delete().in('id', productIds)
         if (error) throw error
@@ -1209,11 +1247,18 @@ export default function AdminEnquiriesPage() {
                       placeholder="Enter phone number"
                     />
                   </div>
-                  
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select className="input-field" value={manualEnquiryData.type} onChange={(e)=> setManualEnquiryData(prev => ({...prev, type: e.target.value as any }))}>
+                      <option value="product">Regular Product</option>
+                      <option value="custom">Custom Order</option>
+                    </select>
+                  </div>
+                </div>
+
+                {manualEnquiryData.type === 'product' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Product *</label>
                     <select
                       value={manualEnquiryData.product_id}
                       onChange={(e) => setManualEnquiryData(prev => ({ ...prev, product_id: e.target.value }))}
@@ -1228,7 +1273,12 @@ export default function AdminEnquiriesPage() {
                       ))}
                     </select>
                   </div>
-                </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Custom Item Name *</label>
+                    <input className="input-field" value={manualEnquiryData.name} onChange={(e)=> setManualEnquiryData(prev => ({...prev, name: e.target.value }))} placeholder="Enter item name" />
+                  </div>
+                )}
 
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
@@ -1243,7 +1293,6 @@ export default function AdminEnquiriesPage() {
                       placeholder="Enter size"
                     />
                   </div>
-                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Quantity *
@@ -1257,7 +1306,6 @@ export default function AdminEnquiriesPage() {
                       required
                     />
                   </div>
-                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Material
@@ -1282,6 +1330,7 @@ export default function AdminEnquiriesPage() {
                     onChange={(e) => setManualEnquiryData(prev => ({ ...prev, delivery_date: e.target.value }))}
                     className="input-field"
                   />
+                  <p className="text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-3 py-2 mt-2">We will proceed order dispatch after purchase order only</p>
                 </div>
 
                 <div>
@@ -1296,7 +1345,15 @@ export default function AdminEnquiriesPage() {
                     placeholder="Additional comments..."
                   />
                 </div>
-                
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload Images ({manualEnquiryData.type === 'custom' ? 'required' : 'optional'})</label>
+                  <div className="mt-2">
+                    {/* @ts-ignore */}
+                    <ImageUpload multiple required={manualEnquiryData.type === 'custom'} maxFiles={manualEnquiryData.type === 'custom' ? 3 : 5} onUploadSuccess={(url: string) => setManualEnquiryData(prev => ({ ...prev, images: [...prev.images, url] }))} />
+                  </div>
+                </div>
+
                 <div className="flex space-x-3 pt-4">
                   <button
                     type="submit"
