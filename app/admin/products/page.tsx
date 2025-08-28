@@ -65,6 +65,7 @@ export default function AdminProductsPage() {
   const [newImageUrl, setNewImageUrl] = useState('')
   const [newCategoryName, setNewCategoryName] = useState('')
   const [showNewCategory, setShowNewCategory] = useState(false)
+  const [showManageCategories, setShowManageCategories] = useState(false)
 
   useEffect(() => {
     // Check authentication
@@ -205,11 +206,30 @@ export default function AdminProductsPage() {
         toast.success('Product updated successfully')
       } else {
         // Create new product
-        const { error } = await supabase
-          .from('products')
-          .insert(productData)
-
-        if (error) throw error
+        let insertError: any = null
+        const { error } = await supabase.from('products').insert(productData)
+        if (error) {
+          insertError = error
+          // Retry without product_code if column does not exist
+          const needsRetry = (String(error?.message || '') + String(error?.hint || ''))
+            .toLowerCase()
+            .includes('product_code')
+          if (needsRetry) {
+            const { error: retryError } = await supabase.from('products').insert({
+              name: productData.name,
+              description: productData.description,
+              category_id: productData.category_id,
+              sizes: productData.sizes,
+              materials: productData.materials,
+              image_url: productData.image_url,
+              top_seller: productData.top_seller,
+              is_active: productData.is_active
+            })
+            if (retryError) throw retryError
+          } else {
+            throw error
+          }
+        }
         toast.success('Product created successfully')
       }
 
@@ -468,6 +488,38 @@ export default function AdminProductsPage() {
                     </div>
                   )}
                 </div>
+                <div className="mt-2">
+                  <button type="button" className="text-sm text-gray-600 hover:text-gray-900 underline" onClick={()=> setShowManageCategories(v=>!v)}>
+                    {showManageCategories ? 'Hide' : 'Manage'} Categories
+                  </button>
+                </div>
+                {showManageCategories && (
+                  <div className="mt-2 border rounded">
+                    <div className="max-h-56 overflow-auto divide-y">
+                      {categories.map(cat => (
+                        <div key={cat.id} className="flex items-center justify-between px-3 py-2">
+                          <span className="text-sm text-gray-800">{cat.name}</span>
+                          <button
+                            type="button"
+                            className="text-red-600 hover:text-red-800 text-sm"
+                            onClick={async ()=>{
+                              const ok = confirm('Delete this category? This will also remove any products linked to it.')
+                              if(!ok) return
+                              const { error } = await supabase.from('categories').delete().eq('id', cat.id)
+                              if (error) { toast.error('Failed to delete category'); return }
+                              toast.success('Category deleted')
+                              setCategories(categories.filter(c => c.id !== cat.id))
+                              if (formData.category_id === cat.id) {
+                                setFormData(prev => ({...prev, category_id: ''}))
+                              }
+                              fetchProducts()
+                            }}
+                          >Delete</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div>
