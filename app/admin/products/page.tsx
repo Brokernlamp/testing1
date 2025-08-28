@@ -25,6 +25,7 @@ interface Product {
   category: {
     name: string
   }
+  product_code?: string
 }
 
 interface Category {
@@ -62,6 +63,8 @@ export default function AdminProductsPage() {
   })
   const [imageUrls, setImageUrls] = useState<string[]>([])
   const [newImageUrl, setNewImageUrl] = useState('')
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [showNewCategory, setShowNewCategory] = useState(false)
 
   useEffect(() => {
     // Check authentication
@@ -151,6 +154,17 @@ export default function AdminProductsPage() {
     }))
   }
 
+  function generateProductCode(name: string) {
+    const slug = name
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 16)
+    const suffix = Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4)
+    return `${slug}-${suffix}`
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -175,7 +189,9 @@ export default function AdminProductsPage() {
         materials: formData.materials.filter(m => m.trim()),
         image_url: finalImageUrl,
         top_seller: formData.top_seller,
-        is_active: true
+        is_active: true,
+        // If DB has this column, it will be set; if not, insert ignores extra prop
+        product_code: generateProductCode(formData.name)
       }
 
       if (editingProduct) {
@@ -414,19 +430,43 @@ export default function AdminProductsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Category *
                   </label>
-                  <select
-                    value={formData.category_id}
-                    onChange={(e) => handleInputChange('category_id', e.target.value)}
-                    className="input-field"
-                    required
-                  >
-                    <option value="">Select category</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={formData.category_id}
+                      onChange={(e) => handleInputChange('category_id', e.target.value)}
+                      className="input-field flex-1"
+                      required
+                    >
+                      <option value="">Select category</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button type="button" className="btn-secondary whitespace-nowrap" onClick={()=> setShowNewCategory(true)}>+ Create</button>
+                  </div>
+                  {showNewCategory && (
+                    <div className="mt-2 p-3 rounded border border-gray-200 bg-gray-50">
+                      <div className="flex items-center gap-2">
+                        <input className="input-field flex-1" placeholder="New category name" value={newCategoryName} onChange={(e)=> setNewCategoryName(e.target.value)} />
+                        <button type="button" className="btn-primary" onClick={async ()=>{
+                          const name = newCategoryName.trim()
+                          if(!name){ toast.error('Enter category name'); return }
+                          const exists = categories.some(c => c.name.toLowerCase() === name.toLowerCase())
+                          if (exists){ toast.error('Category already exists'); return }
+                          const { data, error } = await supabase.from('categories').insert({ name }).select('*').single()
+                          if(error){ toast.error('Failed to create category'); return }
+                          toast.success('Category created')
+                          setCategories([...(categories||[]), data])
+                          setFormData(prev => ({...prev, category_id: data.id}))
+                          setNewCategoryName('')
+                          setShowNewCategory(false)
+                        }}>Save</button>
+                        <button type="button" className="btn-secondary" onClick={()=> { setShowNewCategory(false); setNewCategoryName('') }}>Cancel</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -658,6 +698,11 @@ export default function AdminProductsPage() {
                    >
                      {product.is_active ? 'Active' : 'Inactive'}
                    </button>
+                   {product.product_code && (
+                     <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                       {product.product_code}
+                     </span>
+                   )}
                    {product.top_seller && (
                      <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
                        Top Seller

@@ -77,7 +77,7 @@ export default function ProductsPage() {
         .order('name')
 
       if (error) throw error
-      setCategories(data || [])
+      setCategories((data || []).filter(c => (c.name || '').toLowerCase() !== 'custom order'))
     } catch (error) {
       console.error('Error fetching categories:', error)
     }
@@ -187,7 +187,7 @@ export default function ProductsPage() {
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                 {filteredProducts.map((product, index) => (
                   <motion.div
                     key={product.id}
@@ -196,8 +196,8 @@ export default function ProductsPage() {
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     className="group"
                   >
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group-hover:scale-105">
-                                             <div className="aspect-square bg-gray-200 rounded-t-xl overflow-hidden mb-4">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group-hover:scale-[1.02]">
+                      <div className="aspect-[1/1] bg-gray-200 rounded-t-xl overflow-hidden">
                          {product.image_url ? (
                            <ProductImageSlider imageUrls={product.image_url} productName={product.name} />
                          ) : (
@@ -212,19 +212,19 @@ export default function ProductsPage() {
                          )}
                        </div>
                       
-                      <div className="p-4">
+                      <div className="p-3 sm:p-4">
                         <div className="mb-2">
                           <span className="inline-block bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded-full">
                             {product.category.name}
                           </span>
                         </div>
                         
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
                           {product.name}
                         </h3>
                         
                         {product.description && (
-                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                          <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
                             {product.description}
                           </p>
                         )}
@@ -241,7 +241,7 @@ export default function ProductsPage() {
                           
                           <Link
                             href={`/products/${product.id}`}
-                            className="btn-primary text-sm px-4 py-2"
+                            className="btn-primary text-xs sm:text-sm px-3 sm:px-4 py-2"
                           >
                             Get Quote
                           </Link>
