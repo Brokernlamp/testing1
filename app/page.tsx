@@ -463,88 +463,70 @@ export default function HomePage() {
 
       {/* Removed duplicate Top Seller section (now shown above) */}
 
-      {/* Clients Section (Create.xyz style, floating logos) */}
+      {/* Clients Section – Two-row vertical marquee */}
       <section
         id="clients"
-        className="relative py-20 md:py-24 px-6 min-h-[25vh] overflow-hidden"
+        className="relative py-16 px-6 overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #F8FFFE 0%, #E8F5E8 50%, #E3F2FD 100%)', fontFamily: 'Inter, system-ui, sans-serif' }}
       >
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-[#1E88E5] rounded-full"></div>
-          <div className="absolute top-32 right-16 w-12 h-12 bg-[#7BC142] rounded-full"></div>
-          <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-[#5BB5D1] rounded-full"></div>
-          <div className="absolute bottom-32 right-10 w-8 h-8 bg-[#1E88E5] rounded-full"></div>
-        </div>
-        <div className="max-w-[1200px] mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#5BB5D1]/20 mb-6">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#5BB5D1]/20 mb-4">
               <span className="text-[#1E88E5] font-semibold text-sm">Our Clients</span>
             </div>
-            <h2 className="text-3xl md:text-4xl leading-tight text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, serif', fontWeight: '700' }}>
+            <h2 className="text-3xl md:text-4xl leading-tight text-gray-900 mb-2" style={{ fontFamily: 'Playfair Display, serif', fontWeight: '700' }}>
               Trusted by <span className="text-[#7BC142]">Industry Leaders</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">Over 1000+ businesses across various industries trust us for their signage and printing needs</p>
+            <p className="text-base text-gray-600 max-w-2xl mx-auto">Logos scroll continuously; add more files in /public/clients and they will appear automatically.</p>
           </div>
 
-          <div className="relative h-[400px] md:h-[500px]">
-            {clientLogos.map((client, index) => {
-              const total = Math.max(clientLogos.length, 1)
-              const angle = (index / total) * Math.PI * 2
-              const centerX = 50
-              const centerY = 50
-              // Expand orbit slightly as count grows to reduce overlap
-              const radiusX = Math.min(50, 30 + total * 1.6)
-              const radiusY = Math.min(36, 20 + total * 1.2)
-              const top = `${centerY + radiusY * Math.sin(angle)}%`
-              const left = `${centerX + radiusX * Math.cos(angle)}%`
-              const delay = index * 150
-              // Dynamic size: fewer logos -> larger, more logos -> smaller
-              const size = Math.max(72, Math.min(120, 130 - total * 4))
-              const imgSize = Math.round(size * 0.8)
-              return (
-                <div
-                  key={client.name}
-                  className={`absolute transition-all duration-500 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                  style={{ top, left, transitionDelay: `${delay}ms`, animation: `float-${index % 3} 6s ease-in-out infinite` }}
-                >
-                  <div className="group relative">
-                    <div
-                      className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/40 flex items-center justify-center overflow-hidden"
-                      style={{ width: size, height: size }}
-                    >
-                      <img
-                        src={client.src}
-                        alt={`${client.name} logo`}
-                        className="object-contain"
-                        style={{ width: imgSize, height: imgSize, imageRendering: 'auto' }}
-                        loading="eager"
-                        decoding="sync"
-                      />
+          {/* Marquee container: two columns, gap between */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-[320px] md:h-[360px] relative">
+            {/* Column A (scroll up) */}
+            <div className="relative overflow-hidden">
+              <div className="absolute inset-0 flex flex-col animate-marquee-up will-change-transform">
+                {[...clientLogos, ...clientLogos].map((client, i) => (
+                  <div key={`up-${i}-${client.name}`} className="flex items-center justify-center h-24 shrink-0">
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-6 py-4">
+                      <img src={client.src} alt={`${client.name} logo`} className="h-12 w-auto object-contain" loading="eager" />
                     </div>
                   </div>
-                </div>
-              )
-            })}
+                ))}
+              </div>
+            </div>
+
+            {/* Column B (scroll down) */}
+            <div className="relative overflow-hidden">
+              <div className="absolute inset-0 flex flex-col animate-marquee-down will-change-transform">
+                {[...clientLogos, ...clientLogos].map((client, i) => (
+                  <div key={`down-${i}-${client.name}`} className="flex items-center justify-center h-24 shrink-0">
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-6 py-4">
+                      <img src={client.src} alt={`${client.name} logo`} className="h-12 w-auto object-contain" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
+
         <style jsx global>{`
-          @keyframes float-0 {
-            0%, 100% { transform: translateY(0px) translateX(0px); }
-            25% { transform: translateY(-10px) translateX(5px); }
-            50% { transform: translateY(-5px) translateX(-5px); }
-            75% { transform: translateY(-15px) translateX(3px); }
+          @keyframes marquee-up {
+            0% { transform: translateY(0%); }
+            100% { transform: translateY(-50%); }
           }
-          @keyframes float-1 {
-            0%, 100% { transform: translateY(0px) translateX(0px); }
-            25% { transform: translateY(-8px) translateX(-4px); }
-            50% { transform: translateY(-12px) translateX(6px); }
-            75% { transform: translateY(-6px) translateX(-3px); }
+          @keyframes marquee-down {
+            0% { transform: translateY(-50%); }
+            100% { transform: translateY(0%); }
           }
-          @keyframes float-2 {
-            0%, 100% { transform: translateY(0px) translateX(0px); }
-            25% { transform: translateY(-12px) translateX(4px); }
-            50% { transform: translateY(-8px) translateX(-6px); }
-            75% { transform: translateY(-10px) translateX(5px); }
+          .animate-marquee-up {
+            animation: marquee-up 18s linear infinite;
+          }
+          .animate-marquee-down {
+            animation: marquee-down 18s linear infinite;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .animate-marquee-up, .animate-marquee-down { animation-duration: 0s; }
           }
         `}</style>
       </section>
