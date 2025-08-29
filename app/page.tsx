@@ -88,9 +88,11 @@ export default function HomePage() {
             {/* Logo */}
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <div className="w-12 h-12 bg-gray-900 rounded-2xl flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">SKS</span>
-                </div>
+                <img 
+                  src="/logo.png" 
+                  alt="SKS Logo" 
+                  className="w-12 h-12 object-contain"
+                />
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full"></div>
               </div>
               <div>
@@ -591,7 +593,7 @@ export default function HomePage() {
             100% { transform: translateX(-50%); }
           }
           .animate-marquee-left {
-            animation: marquee-left 14.4s linear infinite;
+            animation: marquee-left 11.52s linear infinite;
           }
           @media (prefers-reduced-motion: reduce) {
             .animate-marquee-left { animation-duration: 0s; }
