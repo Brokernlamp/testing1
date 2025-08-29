@@ -549,40 +549,40 @@ export default function HomePage() {
             <p className="text-xl text-gray-600">Building partnerships across multiple industries</p>
           </motion.div>
 
-          {/* Modern Client Logo Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8">
-            {[...clientLogos, ...clientLogos].slice(0, 8).map((client, index) => (
-              <motion.div
-                key={`${client.name}-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group flex items-center justify-center p-6 bg-gray-50 hover:bg-white border border-gray-100 hover:border-gray-200 rounded-2xl transition-all duration-300 hover:shadow-md"
-              >
-                <img 
-                  src={client.src} 
-                  alt={`${client.name} logo`} 
-                  className="h-8 w-auto object-contain opacity-60 group-hover:opacity-100 transition-opacity grayscale group-hover:grayscale-0" 
-                />
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Scrolling marquee for additional logos */}
-          <div className="mt-16 overflow-hidden">
-            <div className="flex animate-marquee-left space-x-8">
-              {[...clientLogos, ...clientLogos].map((client, i) => (
-                <div key={`marquee-${i}-${client.name}`} className="flex-shrink-0">
-                  <div className="w-32 h-20 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center">
-                    <img 
-                      src={client.src} 
-                      alt={`${client.name} logo`} 
-                      className="h-6 w-auto object-contain opacity-60 grayscale" 
-                    />
+          {/* Two-Row Continuous Moving Client Logos */}
+          <div className="space-y-8">
+            {/* Top Row - Moving Left */}
+            <div className="overflow-hidden">
+              <div className="flex animate-marquee-left space-x-8">
+                {[...clientLogos, ...clientLogos, ...clientLogos].map((client, i) => (
+                  <div key={`top-${i}-${client.name}`} className="flex-shrink-0">
+                    <div className="w-32 h-20 bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-100 rounded-xl flex items-center justify-center hover:shadow-md transition-all duration-300">
+                      <img 
+                        src={client.src} 
+                        alt={`${client.name} logo`} 
+                        className="h-6 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" 
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Row - Moving Right */}
+            <div className="overflow-hidden">
+              <div className="flex animate-marquee-right space-x-8">
+                {[...clientLogos, ...clientLogos, ...clientLogos].map((client, i) => (
+                  <div key={`bottom-${i}-${client.name}`} className="flex-shrink-0">
+                    <div className="w-32 h-20 bg-gradient-to-br from-green-50 to-yellow-50 border border-green-100 rounded-xl flex items-center justify-center hover:shadow-md transition-all duration-300">
+                      <img 
+                        src={client.src} 
+                        alt={`${client.name} logo`} 
+                        className="h-6 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" 
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -592,11 +592,18 @@ export default function HomePage() {
             0% { transform: translateX(0%); }
             100% { transform: translateX(-50%); }
           }
+          @keyframes marquee-right {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+          }
           .animate-marquee-left {
-            animation: marquee-left 11.52s linear infinite;
+            animation: marquee-left 8.06s linear infinite;
+          }
+          .animate-marquee-right {
+            animation: marquee-right 8.06s linear infinite;
           }
           @media (prefers-reduced-motion: reduce) {
-            .animate-marquee-left { animation-duration: 0s; }
+            .animate-marquee-left, .animate-marquee-right { animation-duration: 0s; }
           }
         `}</style>
       </section>
