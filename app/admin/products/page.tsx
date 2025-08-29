@@ -166,6 +166,41 @@ export default function AdminProductsPage() {
     return `${slug}-${suffix}`
   }
 
+  async function generateSequentialProductCode(categoryId: string): Promise<string | null> {
+    try {
+      const category = categories.find(c => c.id === categoryId)
+      const base = (category?.name || 'ITEM')
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+      // Fetch existing codes for this category
+      const { data, error } = await supabase
+        .from('products')
+        .select('product_code, category_id')
+        .eq('category_id', categoryId)
+        .not('product_code', 'is', null)
+
+      if (error) throw error
+
+      let maxSeq = 0
+      ;(data || []).forEach(row => {
+        const code: string = (row as any).product_code || ''
+        // Expecting BASE-XYZ, take trailing number
+        const match = code.match(/-(\d{1,})$/)
+        if (match) {
+          const n = parseInt(match[1], 10)
+          if (!isNaN(n)) maxSeq = Math.max(maxSeq, n)
+        }
+      })
+      const next = (maxSeq + 1).toString().padStart(3, '0')
+      return `${base}-${next}`
+    } catch (e) {
+      // Fallback to null so caller can ignore if column missing
+      return null
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -182,6 +217,12 @@ export default function AdminProductsPage() {
         finalImageUrl = JSON.stringify(imageUrls)
       }
 
+      // Compute sequential product code per category (if column exists)
+      let computedProductCode: string | null = null
+      try {
+        computedProductCode = await generateSequentialProductCode(formData.category_id)
+      } catch {}
+
       const productData = {
         name: formData.name.trim(),
         description: formData.description.trim() || null,
@@ -192,7 +233,7 @@ export default function AdminProductsPage() {
         top_seller: formData.top_seller,
         is_active: true,
         // If DB has this column, it will be set; if not, insert ignores extra prop
-        product_code: generateProductCode(formData.name)
+        product_code: computedProductCode || generateProductCode(formData.name)
       }
 
       if (editingProduct) {
