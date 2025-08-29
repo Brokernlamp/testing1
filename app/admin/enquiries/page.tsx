@@ -92,6 +92,9 @@ export default function AdminEnquiriesPage() {
   const [showColumnsMenu, setShowColumnsMenu] = useState(false)
   const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null)
   const [editingInvoiceValue, setEditingInvoiceValue] = useState('')
+  const compact = Object.values(visibleColumns).filter(Boolean).length >= 7
+  const headPad = compact ? 'px-3 py-2' : 'px-6 py-3'
+  const cellPad = compact ? 'px-3 py-2' : 'px-6 py-4'
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showInvoicePrompt, setShowInvoicePrompt] = useState<{ open: boolean, id: string | null}>({ open: false, id: null })
   const [invoiceNumber, setInvoiceNumber] = useState('')
@@ -913,10 +916,6 @@ export default function AdminEnquiriesPage() {
                     <option value="">Select template…</option>
                     {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
                   </select>
-                  <select className="input-field text-sm" value={bulkStatus} onChange={(e)=> setBulkStatus(e.target.value)}>
-                    <option value="">Optional status…</option>
-                    {STATUS_OPTIONS.map(s => (<option key={s} value={s}>Set {s}</option>))}
-                  </select>
                   <button className="btn-primary text-sm" onClick={handleBulkReply}>
                     Reply to customer (selected)
                   </button>
@@ -943,57 +942,57 @@ export default function AdminEnquiriesPage() {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className={`min-w-full divide-y divide-gray-200 ${compact ? 'text-xs' : ''}`}>
+              <thead className={`bg-gray-50 ${compact ? 'text-[10px]' : ''}`}>
                 <tr>
-                  <th className="px-6 py-3">
+                  <th className={headPad}>
                     <input type="checkbox" onChange={(e)=> setSelectedIds(e.target.checked ? new Set(unified.map(e=>e.id)) : new Set())} />
                   </th>
-                  {visibleColumns.customer && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {visibleColumns.customer && (<th className={`${headPad} text-left font-medium text-gray-500 uppercase tracking-wider`}>
                     Customer/Company
                   </th>)}
-                  {visibleColumns.product && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {visibleColumns.product && (<th className={`${headPad} text-left font-medium text-gray-500 uppercase tracking-wider`}>
                     Product
                   </th>)}
-                  {visibleColumns.details && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {visibleColumns.details && (<th className={`${headPad} text-left font-medium text-gray-500 uppercase tracking-wider`}>
                     Details
                   </th>)}
-                  {visibleColumns.invoice && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {visibleColumns.invoice && (<th className={`${headPad} text-left font-medium text-gray-500 uppercase tracking-wider`}>
                     Invoice #
                   </th>)}
-                  {visibleColumns.images && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {visibleColumns.images && (<th className={`${headPad} text-left font-medium text-gray-500 uppercase tracking-wider`}>
                     Images
                   </th>)}
-                  {visibleColumns.status && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {visibleColumns.status && (<th className={`${headPad} text-left font-medium text-gray-500 uppercase tracking-wider`}>
                     Status
                   </th>)}
-                  {visibleColumns.datetime && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {visibleColumns.datetime && (<th className={`${headPad} text-left font-medium text-gray-500 uppercase tracking-wider`}>
                     Date & time
                   </th>)}
-                  {visibleColumns.actions && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {visibleColumns.actions && (<th className={`${headPad} text-left font-medium text-gray-500 uppercase tracking-wider`}>
                     Actions
                   </th>)}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {unified.map((row) => (
-                  <tr key={`${row.type}-${row.id}`} className={`hover:bg-gray-50 border-l-4 ${row.type==='custom' ? 'bg-red-50/40' : ''}`} style={{ borderLeftColor: getCompanyColor(row.customer.company_name) }}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <tr key={`${row.type}-${row.id}`} className={`hover:bg-gray-50 border-l-4 ${row.type==='custom' ? 'bg-red-50/40' : ''} ${compact ? 'text-[11px]' : ''}`} style={{ borderLeftColor: getCompanyColor(row.customer.company_name) }}>
+                    <td className={cellPad + " whitespace-nowrap"}>
                       <input type="checkbox" checked={selectedIds.has(row.id)} onChange={()=>toggleSelect(row.id)} />
                     </td>
-                    {visibleColumns.customer && (<td className="px-6 py-4 whitespace-nowrap">
+                    {visibleColumns.customer && (<td className={cellPad + " whitespace-nowrap"}>
                       <div>
                         <div className="text-sm font-medium text-gray-900">{row.customer.company_name}</div>
                         <div className="text-sm text-gray-500">{row.customer.email}</div>
                         <div className="text-sm text-gray-500">{row.customer.phone}</div>
                       </div>
                     </td>)}
-                    {visibleColumns.product && (<td className="px-6 py-4 whitespace-nowrap">
+                    {visibleColumns.product && (<td className={cellPad + " whitespace-nowrap"}>
                       <div className="text-xs text-gray-500">{row.type==='product' && row.productId ? `Product ID: ${row.productId}` : row.type==='custom' ? 'Product ID: CUST' : ''}</div>
                       <div className="text-sm text-gray-900">{row.productName}</div>
                       <div className="text-sm text-gray-500">Qty: {row.quantity}</div>
                     </td>)}
-                    {visibleColumns.details && (<td className="px-6 py-4">
+                    {visibleColumns.details && (<td className={cellPad}>
                       <div className="text-sm text-gray-900">
                         {row.size && <div>Size: {row.size}</div>}
                         {row.material && <div>Material: {row.material}</div>}
@@ -1001,7 +1000,7 @@ export default function AdminEnquiriesPage() {
                       </div>
                       {row.comments && (<div className="text-sm text-gray-500 mt-1">{row.comments}</div>)}
                     </td>)}
-                    {visibleColumns.invoice && (<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {visibleColumns.invoice && (<td className={cellPad + " whitespace-nowrap text-sm text-gray-700"}>
                       {editingInvoiceId === row.id ? (
                         <input
                           autoFocus
@@ -1018,7 +1017,7 @@ export default function AdminEnquiriesPage() {
                         </button>
                       )}
                     </td>)}
-                    {visibleColumns.images && (<td className="px-6 py-4 align-top">
+                    {visibleColumns.images && (<td className={cellPad + " align-top"}>
                       {Array.isArray(row.images) && row.images.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {row.images.slice(0, 3).map((url, idx) => (
@@ -1034,16 +1033,16 @@ export default function AdminEnquiriesPage() {
                         <span className="text-xs text-gray-500 italic">No custom image for this order</span>
                       )}
                     </td>)}
-                    {visibleColumns.status && (<td className="px-6 py-4 whitespace-nowrap">
+                    {visibleColumns.status && (<td className={cellPad + " whitespace-nowrap"}>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row.status)}`}>
                         {getStatusIcon(row.status)}
                         <span className="ml-1">{row.status.charAt(0).toUpperCase() + row.status.slice(1)}</span>
                       </span>
                     </td>)}
-                    {visibleColumns.datetime && (<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {visibleColumns.datetime && (<td className={cellPad + " whitespace-nowrap text-sm text-gray-500"}>
                       {formatDate(row.created_at)}
                     </td>)}
-                    {visibleColumns.actions && (<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    {visibleColumns.actions && (<td className={cellPad + " whitespace-nowrap text-sm font-medium"}>
                       <div className="flex items-center space-x-2">
                         <button className="btn-primary text-xs" disabled={row.type !== 'product'} onClick={()=> row.type==='product' && handleReply((enquiries.find(e=>e.id===row.id) as any) || null)}>Reply</button>
                         <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDeleteUnified(row.id); else handleStatusChangeUnified(row.id, v); e.currentTarget.selectedIndex=0}}>
