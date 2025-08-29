@@ -79,6 +79,19 @@ export default function AdminEnquiriesPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [visibleColumns, setVisibleColumns] = useState<{ [key: string]: boolean }>({
+    customer: true,
+    product: true,
+    details: true,
+    invoice: true,
+    images: true,
+    status: true,
+    datetime: true,
+    actions: true,
+  })
+  const [showColumnsMenu, setShowColumnsMenu] = useState(false)
+  const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null)
+  const [editingInvoiceValue, setEditingInvoiceValue] = useState('')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showInvoicePrompt, setShowInvoicePrompt] = useState<{ open: boolean, id: string | null}>({ open: false, id: null })
   const [invoiceNumber, setInvoiceNumber] = useState('')
@@ -119,11 +132,39 @@ export default function AdminEnquiriesPage() {
       return
     }
 
+    // Load persisted filters and column prefs
+    try {
+      const savedFilters = localStorage.getItem('adminEnq.filters')
+      if (savedFilters) {
+        const parsed = JSON.parse(savedFilters)
+        if (typeof parsed.searchQuery === 'string') setSearchQuery(parsed.searchQuery)
+        if (typeof parsed.statusFilter === 'string') setStatusFilter(parsed.statusFilter)
+      }
+      const savedCols = localStorage.getItem('adminEnq.visibleColumns')
+      if (savedCols) {
+        const parsedCols = JSON.parse(savedCols)
+        if (parsedCols && typeof parsedCols === 'object') setVisibleColumns((prev)=> ({...prev, ...parsedCols}))
+      }
+    } catch {}
+
     fetchEnquiries()
     fetchTemplates()
     fetchProducts()
     fetchCustomOrders()
   }, [router])
+
+  // Persist filters and columns
+  useEffect(() => {
+    try {
+      localStorage.setItem('adminEnq.filters', JSON.stringify({ searchQuery, statusFilter }))
+    } catch {}
+  }, [searchQuery, statusFilter])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('adminEnq.visibleColumns', JSON.stringify(visibleColumns))
+    } catch {}
+  }, [visibleColumns])
 
   const fetchEnquiries = async () => {
     try {
@@ -396,6 +437,29 @@ export default function AdminEnquiriesPage() {
       setShowInvoicePrompt({ open: false, id: null })
       setInvoiceNumber('')
       fetchEnquiries()
+    }
+  }
+
+  const startEditInvoice = (id: string, current: string | null | undefined) => {
+    setEditingInvoiceId(id)
+    setEditingInvoiceValue(current || '')
+  }
+
+  const saveInvoice = async () => {
+    if (!editingInvoiceId) return
+    try {
+      const { error } = await supabase
+        .from('enquiries')
+        .update({ invoice_number: editingInvoiceValue.trim() || null, updated_at: new Date().toISOString() })
+        .eq('id', editingInvoiceId)
+      if (error) throw error
+      await supabase.from('enquiry_activity').insert({ enquiry_id: editingInvoiceId, action: 'invoice_update', note: editingInvoiceValue.trim() || '' })
+      toast.success('Invoice updated')
+      setEditingInvoiceId(null)
+      setEditingInvoiceValue('')
+      fetchEnquiries()
+    } catch (e) {
+      toast.error('Failed to update invoice')
     }
   }
 
@@ -866,6 +930,19 @@ export default function AdminEnquiriesPage() {
               )}
             </div>
             <div className="flex items-center gap-2">
+              <div className="relative">
+                <button onClick={()=> setShowColumnsMenu(v=>!v)} className="btn-secondary text-sm">Columns</button>
+                {showColumnsMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow z-10 p-2 space-y-1">
+                    {Object.keys(visibleColumns).map((key) => (
+                      <label key={key} className="flex items-center gap-2 text-sm">
+                        <input type="checkbox" checked={!!visibleColumns[key]} onChange={(e)=> setVisibleColumns(prev=> ({...prev, [key]: e.target.checked}))} />
+                        <span className="capitalize">{key}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button onClick={exportCsv} className="btn-primary text-sm flex items-center space-x-1"><Download className="w-4 h-4" /><span>Export CSV</span></button>
               <button onClick={deleteAllRecords} className="btn-secondary text-sm">Delete All</button>
               <button onClick={refreshAll} className="btn-secondary text-sm flex items-center space-x-1"><RefreshCw className="w-4 h-4" /><span>Refresh</span></button>
@@ -878,30 +955,30 @@ export default function AdminEnquiriesPage() {
                   <th className="px-6 py-3">
                     <input type="checkbox" onChange={(e)=> setSelectedIds(e.target.checked ? new Set(unified.map(e=>e.id)) : new Set())} />
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {visibleColumns.customer && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Customer/Company
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  </th>)}
+                  {visibleColumns.product && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  </th>)}
+                  {visibleColumns.details && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Details
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  </th>)}
+                  {visibleColumns.invoice && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Invoice #
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  </th>)}
+                  {visibleColumns.images && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Images
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  </th>)}
+                  {visibleColumns.status && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  </th>)}
+                  {visibleColumns.datetime && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date & time
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  </th>)}
+                  {visibleColumns.actions && (<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
-                  </th>
+                  </th>)}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -910,30 +987,44 @@ export default function AdminEnquiriesPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input type="checkbox" checked={selectedIds.has(row.id)} onChange={()=>toggleSelect(row.id)} />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    {visibleColumns.customer && (<td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{row.customer.company_name}</div>
                         <div className="text-sm text-gray-500">{row.customer.email}</div>
                         <div className="text-sm text-gray-500">{row.customer.phone}</div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </td>)}
+                    {visibleColumns.product && (<td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-xs text-gray-500">{row.type==='product' && row.productId ? `Product ID: ${row.productId}` : row.type==='custom' ? 'Product ID: CUST' : ''}</div>
                       <div className="text-sm text-gray-900">{row.productName}</div>
                       <div className="text-sm text-gray-500">Qty: {row.quantity}</div>
-                    </td>
-                    <td className="px-6 py-4">
+                    </td>)}
+                    {visibleColumns.details && (<td className="px-6 py-4">
                       <div className="text-sm text-gray-900">
                         {row.size && <div>Size: {row.size}</div>}
                         {row.material && <div>Material: {row.material}</div>}
                         {row.delivery_date && (<div>Delivery: {formatDate(row.delivery_date)}</div>)}
                       </div>
                       {row.comments && (<div className="text-sm text-gray-500 mt-1">{row.comments}</div>)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {row.invoice_number ? row.invoice_number : <span className="text-gray-400">—</span>}
-                    </td>
-                    <td className="px-6 py-4 align-top">
+                    </td>)}
+                    {visibleColumns.invoice && (<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {editingInvoiceId === row.id ? (
+                        <input
+                          autoFocus
+                          className="input-field text-sm w-40"
+                          value={editingInvoiceValue}
+                          onChange={(e)=> setEditingInvoiceValue(e.target.value)}
+                          onBlur={saveInvoice}
+                          onKeyDown={(e)=> { if (e.key === 'Enter') saveInvoice(); if (e.key === 'Escape') { setEditingInvoiceId(null); setEditingInvoiceValue('') } }}
+                          placeholder="Invoice #"
+                        />
+                      ) : (
+                        <button className="text-left w-40 truncate hover:underline" title={row.invoice_number || ''} onClick={()=> startEditInvoice(row.id, row.invoice_number)}>
+                          {row.invoice_number ? row.invoice_number : <span className="text-gray-400">—</span>}
+                        </button>
+                      )}
+                    </td>)}
+                    {visibleColumns.images && (<td className="px-6 py-4 align-top">
                       {Array.isArray(row.images) && row.images.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {row.images.slice(0, 3).map((url, idx) => (
@@ -948,17 +1039,17 @@ export default function AdminEnquiriesPage() {
                       ) : (
                         <span className="text-xs text-gray-500 italic">No custom image for this order</span>
                       )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </td>)}
+                    {visibleColumns.status && (<td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row.status)}`}>
                         {getStatusIcon(row.status)}
                         <span className="ml-1">{row.status.charAt(0).toUpperCase() + row.status.slice(1)}</span>
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    </td>)}
+                    {visibleColumns.datetime && (<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(row.created_at)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    </td>)}
+                    {visibleColumns.actions && (<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button className="btn-primary text-xs" disabled={row.type !== 'product'} onClick={()=> row.type==='product' && handleReply((enquiries.find(e=>e.id===row.id) as any) || null)}>Reply</button>
                         <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDeleteUnified(row.id); else handleStatusChangeUnified(row.id, v); e.currentTarget.selectedIndex=0}}>
@@ -967,7 +1058,7 @@ export default function AdminEnquiriesPage() {
                           <option value="delete">Delete</option>
                         </select>
                       </div>
-                    </td>
+                    </td>)}
                   </tr>
                 ))}
               </tbody>
