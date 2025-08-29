@@ -264,6 +264,27 @@ export default function AdminProductsPage() {
       image_url: product.image_url || '',
       top_seller: product.top_seller || false
     })
+    
+    // Load existing images into imageUrls state
+    let existingImages: string[] = []
+    if (product.images && product.images.length > 0) {
+      existingImages = product.images
+    } else if (product.image_url) {
+      try {
+        // Try to parse image_url as JSON (if it's a stringified array)
+        const parsed = JSON.parse(product.image_url)
+        if (Array.isArray(parsed)) {
+          existingImages = parsed
+        } else if (typeof parsed === 'string') {
+          existingImages = [parsed]
+        }
+      } catch {
+        // If parsing fails, treat image_url as a single image
+        existingImages = [product.image_url]
+      }
+    }
+    setImageUrls(existingImages)
+    setNewImageUrl('')
     setShowAddForm(true)
   }
 
@@ -711,9 +732,26 @@ export default function AdminProductsPage() {
               className="card"
             >
               <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
-                                 {product.image_url ? (
-                                       <img
-                      src={product.image_url}
+                {(() => {
+                  let imageUrl = null
+                  if (product.images && product.images.length > 0) {
+                    imageUrl = product.images[0]
+                  } else if (product.image_url) {
+                    try {
+                      const parsed = JSON.parse(product.image_url)
+                      if (Array.isArray(parsed) && parsed.length > 0) {
+                        imageUrl = parsed[0]
+                      } else if (typeof parsed === 'string') {
+                        imageUrl = parsed
+                      }
+                    } catch {
+                      imageUrl = product.image_url
+                    }
+                  }
+                  
+                  return imageUrl ? (
+                    <img
+                      src={imageUrl}
                       alt={product.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -721,8 +759,26 @@ export default function AdminProductsPage() {
                         e.currentTarget.nextElementSibling?.classList.remove('hidden')
                       }}
                     />
-                 ) : null}
-                <div className={`w-full h-full flex items-center justify-center ${product.image_url ? 'hidden' : ''}`}>
+                  ) : null
+                })()}
+                <div className={`w-full h-full flex items-center justify-center ${(() => {
+                  let imageUrl = null
+                  if (product.images && product.images.length > 0) {
+                    imageUrl = product.images[0]
+                  } else if (product.image_url) {
+                    try {
+                      const parsed = JSON.parse(product.image_url)
+                      if (Array.isArray(parsed) && parsed.length > 0) {
+                        imageUrl = parsed[0]
+                      } else if (typeof parsed === 'string') {
+                        imageUrl = parsed
+                      }
+                    } catch {
+                      imageUrl = product.image_url
+                    }
+                  }
+                  return !imageUrl
+                })() ? '' : 'hidden'}`}>
                   <ImageIcon className="w-16 h-16 text-gray-400" />
                 </div>
               </div>
