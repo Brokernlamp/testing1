@@ -642,23 +642,26 @@ export default function AdminEnquiriesPage() {
 
   const exportCsv = () => {
     const rows = [
-      ['ID','Customer','Email','Phone','Product','Size','Quantity','Material','Delivery Date','Status','Quotation','Invoice Number','Created At']
+      ['Type','ID','Customer','Email','Phone','Product','Size','Quantity','Material','Delivery Date','Status','Quotation','Invoice Number','Created At']
     ]
-    for (const e of enquiries) {
+
+    // Export unified so that product_id/product_code and custom order_id are reflected
+    for (const row of unified) {
       rows.push([
-        e.id,
-        e.customer.company_name,
-        e.customer.email || '',
-        e.customer.phone || '',
-        e.product.name,
-        e.size || '',
-        String(e.quantity),
-        e.material || '',
-        e.delivery_date || '',
-        e.status,
-        e.quotation_amount ? String(e.quotation_amount) : '',
-        e.invoice_number || '',
-        e.created_at,
+        row.type,
+        row.type === 'custom' ? (row as any).productId || 'CUST' : (row.productId || ''),
+        row.customer.company_name,
+        row.customer.email || '',
+        row.customer.phone || '',
+        row.productName,
+        row.size || '',
+        String(row.quantity),
+        row.material || '',
+        row.delivery_date || '',
+        row.status,
+        '',
+        row.invoice_number || '',
+        row.created_at,
       ])
     }
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
@@ -786,6 +789,7 @@ export default function AdminEnquiriesPage() {
       type: 'custom' as const,
       customer: { company_name: o.customer?.company_name || '', email: o.customer?.email || null, phone: o.customer?.phone || null },
       productName: `Custom: ${o.name}`,
+      productId: o.order_id || 'CUST',
       size: o.size,
       quantity: o.quantity,
       material: o.material,
