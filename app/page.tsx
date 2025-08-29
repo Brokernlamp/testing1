@@ -97,7 +97,7 @@ export default function HomePage() {
         <div className="max-w-[1200px] mx-auto flex items-center justify-between h-full">
           {/* Logo block */}
           <div className="flex items-center space-x-4">
-            <img src="/logo.png" alt="SKS Logo" className="h-10 w-10 md:h-12 md:w-12 object-contain" />
+            <img src="/logo.jpg" alt="SKS Logo" className="h-10 w-10 md:h-12 md:w-12 object-contain" />
             <div className="flex flex-col">
               <span className="text-[#1E88E5] font-semibold text-lg md:text-xl">Shree Krishna Signs</span>
               <span className="text-[#7BC142] text-xs md:text-sm font-medium">Since 1991</span>
