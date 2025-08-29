@@ -919,6 +919,14 @@ export default function AdminEnquiriesPage() {
                   <button className="btn-primary text-sm" onClick={handleBulkReply}>
                     Reply to customer (selected)
                   </button>
+                  <div className="w-px h-6 bg-gray-200 mx-2" />
+                  {selectedIds.size > 1 && (
+                    <select className="input-field text-sm" onChange={(e)=>{const v=e.target.value; if(!v) return; bulkUpdateStatus(v); e.currentTarget.selectedIndex=0}}>
+                      <option value="">Set status for selected…</option>
+                      {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
+                    </select>
+                  )}
+                  <button className="btn-secondary text-sm" onClick={bulkDelete}>Delete Selected ({selectedIds.size})</button>
                 </>
               )}
             </div>
