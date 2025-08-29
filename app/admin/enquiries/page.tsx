@@ -44,6 +44,7 @@ interface Enquiry {
   }
   product: {
     name: string
+    product_code?: string | null
   }
 }
 
@@ -176,7 +177,7 @@ export default function AdminEnquiriesPage() {
         .select(`
           *,
           customer:customers(company_name, email, phone),
-          product:products(name)
+          product:products(name, product_code)
         `)
         .order('created_at', { ascending: false })
 
@@ -762,7 +763,7 @@ export default function AdminEnquiriesPage() {
       id: e.id,
       type: 'product' as const,
       customer: e.customer,
-      productId: e.product_id,
+      productId: e.product?.product_code || e.product_id,
       productName: e.product.name,
       size: e.size,
       quantity: e.quantity,
