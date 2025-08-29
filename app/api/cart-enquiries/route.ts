@@ -97,9 +97,30 @@ export async function POST(req: Request) {
       if (insErr) throw insErr
     }
 
-    // 4) Insert custom orders
+    // 4) Insert custom orders with sequential order_id CUST-0001
     if (customOrderInserts.length > 0) {
-      const { error: custErr } = await admin.from('custom_orders').insert(customOrderInserts)
+      // Find current max sequence
+      let startSeq = 0
+      try {
+        const { data: rows } = await admin
+          .from('custom_orders')
+          .select('order_id')
+          .not('order_id', 'is', null)
+        ;(rows || []).forEach((r: any) => {
+          const m = String(r.order_id || '').match(/CUST-(\d{1,})$/)
+          if (m) {
+            const n = parseInt(m[1], 10)
+            if (!isNaN(n)) startSeq = Math.max(startSeq, n)
+          }
+        })
+      } catch {}
+
+      const insertsWithIds = customOrderInserts.map((co, idx) => ({
+        ...co,
+        order_id: `CUST-${String(startSeq + idx + 1).padStart(4, '0')}`
+      }))
+
+      const { error: custErr } = await admin.from('custom_orders').insert(insertsWithIds)
       if (custErr) throw custErr
     }
 

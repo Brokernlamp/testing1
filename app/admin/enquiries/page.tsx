@@ -763,7 +763,13 @@ export default function AdminEnquiriesPage() {
       id: e.id,
       type: 'product' as const,
       customer: e.customer,
-      productId: e.product?.product_code || e.product_id,
+      productId: (()=>{
+        const base = (e.product?.product_code || e.product_id)
+        const hasImage = Array.isArray(e.images) && e.images.length > 0
+        // If product_code exists, add S suffix when images present
+        if (e.product?.product_code) return hasImage ? `${e.product.product_code}S` : e.product.product_code
+        return base
+      })(),
       productName: e.product.name,
       size: e.size,
       quantity: e.quantity,
