@@ -130,6 +130,7 @@ export default function AdminEnquiriesPage() {
     comments: '',
     images: [] as string[]
   })
+  const todayStr = new Date().toISOString().slice(0, 10)
 
   useEffect(() => {
     // Check authentication
@@ -1496,6 +1497,7 @@ export default function AdminEnquiriesPage() {
                   <input
                     type="date"
                     value={manualEnquiryData.delivery_date}
+                    min={todayStr}
                     onChange={(e) => setManualEnquiryData(prev => ({ ...prev, delivery_date: e.target.value }))}
                     className="input-field"
                   />

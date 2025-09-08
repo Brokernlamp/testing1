@@ -24,6 +24,21 @@ export default function HomePage() {
     'Lamination'
   ]
 
+  const serviceImageFor = (name: string): string => {
+    const map: Record<string, string> = {
+      'Signage Boards': '/services/signboard.png',
+      'Letter Painting': '/services/Letter painting.png',
+      'Screen Printing': '/services/Screen printing.png',
+      'Engraving & Etching': '/services/laser-cutting-machine.png',
+      'Laser Cutting': '/services/laser-cutting-machine.png',
+      'Eco-Solvent & UV Printing': '/services/Solvent and uv printing.png',
+      'Safety Posters & Industrial Labels': '/services/Safety poster.png',
+      'Night Glow Painting': '/services/Glow night.png',
+      'Lamination': '/services/Lamination.png',
+    }
+    return map[name] || '/services/signboard.png'
+  }
+
   // Fetch top seller products
   useEffect(() => {
     const fetchTopSellerProducts = async () => {
@@ -345,8 +360,8 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 className="group bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
-                <div className="w-14 h-14 bg-gray-100 group-hover:bg-blue-100 rounded-2xl flex items-center justify-center mb-6 transition-colors">
-                  <div className="text-2xl">🛠️</div>
+                <div className="w-14 h-14 bg-gray-100 group-hover:bg-blue-100 rounded-2xl flex items-center justify-center mb-6 overflow-hidden">
+                  <img src={serviceImageFor(service)} alt={service} className="w-12 h-12 object-contain" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">{service}</h3>
                 <p className="text-gray-600 leading-relaxed">Premium quality solutions with durable and long-lasting results for your business.</p>
