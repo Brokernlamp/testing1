@@ -115,12 +115,14 @@ export default function ProductsPage() {
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #F8FFFE 0%, #E8F5E8 50%, #E3F2FD 100%)' }}>
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-gray-900">Products</h1>
-          <div className="flex items-center gap-3">
-            <Link href="/" className="btn-secondary">Home</Link>
-            <Link href="/custom-order" className="btn-secondary">Custom Order</Link>
-            <CartButton />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Products</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/" className="px-2 py-1 text-xs sm:text-sm text-gray-700 hover:text-gray-900 rounded transition-colors">Home</Link>
+            <Link href="/custom-order" className="px-2 py-1 text-xs sm:text-sm text-gray-700 hover:text-gray-900 rounded transition-colors">Custom Order</Link>
+            <div className="scale-90 sm:scale-100 origin-right">
+              <CartButton />
+            </div>
           </div>
         </div>
       </header>
