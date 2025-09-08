@@ -262,6 +262,11 @@ export default function AdminEnquiriesPage() {
 
       if (existingCustomer) {
         customerId = existingCustomer.id
+        // Update CRM contacts when provided
+        await supabase
+          .from('customers')
+          .update({ email: manualEnquiryData.email.trim() || null, phone: manualEnquiryData.phone.trim() || null })
+          .eq('id', existingCustomer.id)
       } else {
         // Create new customer
         const { data: newCustomer, error: createError } = await supabase
