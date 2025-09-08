@@ -131,13 +131,13 @@ export default function HomePage() {
               >
                 Get Quote
               </Link>
-              <Link
-                href="/contact"
+              <a
+                href="tel:+919689941047"
                 className="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-xl transition-colors flex items-center gap-2"
               >
-                Contact Us
+                Call +91 9689941047
                 <ArrowRight size={16} />
-              </Link>
+              </a>
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -177,12 +177,12 @@ export default function HomePage() {
                 >
                   Get Quote
                 </Link>
-                <Link
-                  href="/contact"
+                <a
+                  href="tel:+919689941047"
                   className="block px-4 py-2 text-center bg-gray-900 text-white rounded-lg font-semibold"
                 >
-                  Contact Us
-                </Link>
+                  Call +91 9689941047
+                </a>
               </div>
             </nav>
           </div>
@@ -227,13 +227,13 @@ export default function HomePage() {
                   Get Free Quote
                   <ArrowRight size={20} />
                 </Link>
-                <Link
-                  href="#clients"
+                <a
+                  href="tel:+919689941047"
                   className="px-8 py-4 border border-gray-200 hover:border-gray-300 text-gray-900 font-semibold text-lg rounded-xl transition-colors flex items-center gap-2 justify-center"
                 >
-                  <Play size={18} />
-                  View Our Work
-                </Link>
+                  <Phone size={18} />
+                  Call +91 9689941047
+                </a>
               </div>
 
               {/* Stats */}
@@ -346,7 +346,7 @@ export default function HomePage() {
                 className="group bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="w-14 h-14 bg-gray-100 group-hover:bg-blue-100 rounded-2xl flex items-center justify-center mb-6 transition-colors">
-                  <div className="w-6 h-6 bg-gray-400 group-hover:bg-blue-600 rounded-full transition-colors"></div>
+                  <div className="text-2xl">🛠️</div>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">{service}</h3>
                 <p className="text-gray-600 leading-relaxed">Premium quality solutions with durable and long-lasting results for your business.</p>
@@ -758,7 +758,7 @@ export default function HomePage() {
               </div>
               <div className="flex items-center space-x-6 mt-4 md:mt-0">
                 <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
-                <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a>
+                <a href="/terms.pdf" download className="text-gray-400 hover:text-white text-sm transition-colors">Terms & Conditions (PDF)</a>
               </div>
             </div>
           </div>

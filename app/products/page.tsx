@@ -284,10 +284,10 @@ export default function ProductsPage() {
             <div>
               <h4 className="text-lg font-semibold mb-4">Services</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>Signage Boards</li>
-                <li>Letter Painting</li>
-                <li>Screen Printing</li>
-                <li>Laser Cutting</li>
+                <li>🪧 Signage Boards</li>
+                <li>🖌️ Letter Painting</li>
+                <li>🖨️ Screen Printing</li>
+                <li>🪚 Laser Cutting</li>
               </ul>
             </div>
             <div>

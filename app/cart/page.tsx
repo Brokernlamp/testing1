@@ -342,7 +342,7 @@ export default function CartPage() {
 					</div>
 
 					{/* Action Button */}
-					<div className="flex justify-center">
+					<div className="flex flex-col items-center gap-3">
 						<button 
 							className="btn-primary flex items-center gap-2 px-8 py-3 text-lg" 
 							onClick={handleGetQuotation}

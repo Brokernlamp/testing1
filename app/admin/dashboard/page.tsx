@@ -23,7 +23,7 @@ import { formatDate, formatCurrency } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
 interface DashboardStats {
-  totalCustomers: number
+  totalOrders: number
   totalEnquiries: number
   pendingEnquiries: number
   completedEnquiries: number
@@ -51,7 +51,7 @@ interface RecentEnquiry {
 export default function AdminDashboard() {
   const router = useRouter()
   const [stats, setStats] = useState<DashboardStats>({
-    totalCustomers: 0,
+    totalOrders: 0,
     totalEnquiries: 0,
     pendingEnquiries: 0,
     completedEnquiries: 0,
@@ -75,12 +75,12 @@ export default function AdminDashboard() {
     try {
       setLoading(true)
 
-      const customersCountPromise = supabase
-        .from('customers')
-        .select('*', { count: 'exact', head: true })
-
       const enquiriesCountPromise = supabase
         .from('enquiries')
+        .select('*', { count: 'exact', head: true })
+
+      const customOrdersCountPromise = supabase
+        .from('custom_orders')
         .select('*', { count: 'exact', head: true })
 
       const pendingCountPromise = supabase
@@ -108,9 +108,9 @@ export default function AdminDashboard() {
         .order('created_at', { ascending: false })
         .limit(10)
 
-      const [customersCountRes, enquiriesCountRes, pendingCountRes, completedCountRes, lowInventoryRes, recentEnquiriesRes] = await Promise.all([
-        customersCountPromise,
+      const [enquiriesCountRes, customOrdersCountRes, pendingCountRes, completedCountRes, lowInventoryRes, recentEnquiriesRes] = await Promise.all([
         enquiriesCountPromise,
+        customOrdersCountPromise,
         pendingCountPromise,
         completedCountPromise,
         lowInventoryPromise,
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
       const lowInventoryItems = (lowInventoryRes.data || []).filter((row: any) => (row.quantity ?? 0) < (row.threshold ?? 0)).length
 
       setStats({
-        totalCustomers: customersCountRes.count || 0,
+        totalOrders: (enquiriesCountRes.count || 0) + (customOrdersCountRes.count || 0),
         totalEnquiries: enquiriesCountRes.count || 0,
         pendingEnquiries: pendingCountRes.count || 0,
         completedEnquiries: completedCountRes.count || 0,
@@ -235,8 +235,8 @@ export default function AdminDashboard() {
                 <Users className="w-6 h-6 text-blue-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Customers</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalCustomers}</p>
+                <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
               </div>
             </div>
           </motion.div>
