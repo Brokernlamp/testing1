@@ -9,14 +9,14 @@ import ImageUpload from '@/components/ImageUpload'
 
 export default function CustomOrderPage() {
 	const { addItem } = useCart()
-	const [items, setItems] = useState<Array<{ id: string; name: string; size: string; unit: string; material: string; materialType?: 'preset' | 'custom'; quantity: number; images: string[] }>>([
+	const [items, setItems] = useState<Array<{ id: string; name: string; size: string; unit: string; material: string; materialType?: 'preset' | 'custom'; quantity: number; images: string[]; comments?: string }>>([
 		{ id: uuid(), name: '', size: '', unit: '', material: '', materialType: 'preset', quantity: 1, images: [] },
 	])
 
 	const addRow = () => setItems(prev => [...prev, { id: uuid(), name: '', size: '', unit: '', material: '', materialType: 'preset', quantity: 1, images: [] }])
 	const removeRow = (id: string) => setItems(prev => prev.filter(i => i.id !== id))
 
-	const update = (id: string, patch: Partial<{ name: string; size: string; unit: string; material: string; materialType?: 'preset' | 'custom'; quantity: number; images: string[] }>) =>
+	const update = (id: string, patch: Partial<{ name: string; size: string; unit: string; material: string; materialType?: 'preset' | 'custom'; quantity: number; images: string[]; comments?: string }>) =>
 		setItems(prev => prev.map(i => (i.id === id ? { ...i, ...patch } : i)))
 
 	const handleImageUpload = async (id: string, imageUrls: string[]) => {
@@ -46,6 +46,7 @@ export default function CustomOrderPage() {
 				quantity: i.quantity,
 				material: i.material || null,
 				images: i.images,
+				comments: (i as any).comments || undefined,
 			})
 			added++
 		}
@@ -106,6 +107,7 @@ export default function CustomOrderPage() {
 									maxFiles={3}
 								/>
 							</div>
+							<input className="input-field col-span-2" placeholder="Comments (optional)" value={(row as any).comments || ''} onChange={(e)=>update(row.id,{comments:e.target.value})} />
 						</div>
 						<div className="mt-2 flex items-center justify-between">
 							<button className="text-red-600" onClick={()=>removeRow(row.id)}>Remove</button>

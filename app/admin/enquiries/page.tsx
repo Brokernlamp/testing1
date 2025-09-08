@@ -80,6 +80,7 @@ export default function AdminEnquiriesPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [companyFilter, setCompanyFilter] = useState('')
   const [visibleColumns, setVisibleColumns] = useState<{ [key: string]: boolean }>({
     customer: true,
     product: true,
@@ -143,6 +144,7 @@ export default function AdminEnquiriesPage() {
         const parsed = JSON.parse(savedFilters)
         if (typeof parsed.searchQuery === 'string') setSearchQuery(parsed.searchQuery)
         if (typeof parsed.statusFilter === 'string') setStatusFilter(parsed.statusFilter)
+        if (typeof parsed.companyFilter === 'string') setCompanyFilter(parsed.companyFilter)
       }
       const savedCols = localStorage.getItem('adminEnq.visibleColumns')
       if (savedCols) {
@@ -160,9 +162,9 @@ export default function AdminEnquiriesPage() {
   // Persist filters and columns
   useEffect(() => {
     try {
-      localStorage.setItem('adminEnq.filters', JSON.stringify({ searchQuery, statusFilter }))
+      localStorage.setItem('adminEnq.filters', JSON.stringify({ searchQuery, statusFilter, companyFilter }))
     } catch {}
-  }, [searchQuery, statusFilter])
+  }, [searchQuery, statusFilter, companyFilter])
 
   useEffect(() => {
     try {
@@ -748,8 +750,9 @@ export default function AdminEnquiriesPage() {
       (enquiry.comments && enquiry.comments.toLowerCase().includes(searchQuery.toLowerCase()))
     
     const matchesStatus = !statusFilter || enquiry.status === statusFilter
+    const matchesCompany = !companyFilter || enquiry.customer.company_name === companyFilter
     
-    return matchesSearch && matchesStatus
+    return matchesSearch && matchesStatus && matchesCompany
   })
 
   const filteredCustomOrders = customOrders.filter(order => {
@@ -758,7 +761,8 @@ export default function AdminEnquiriesPage() {
       (order.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (order.comments || '').toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = !statusFilter || order.status === statusFilter
-    return matchesSearch && matchesStatus
+    const matchesCompany = !companyFilter || (order.customer?.company_name || '') === companyFilter
+    return matchesSearch && matchesStatus && matchesCompany
   })
 
   const unified: UnifiedItem[] = [
@@ -882,7 +886,7 @@ export default function AdminEnquiriesPage() {
 
         {/* Filters */}
         <div className="card mb-6">
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Search
@@ -914,6 +918,25 @@ export default function AdminEnquiriesPage() {
                 ))}
               </select>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Company
+              </label>
+              <select
+                value={companyFilter}
+                onChange={(e) => setCompanyFilter(e.target.value)}
+                className="input-field"
+              >
+                <option value="">All Companies</option>
+                {[...new Set(enquiries.map(e => e.customer.company_name).concat(customOrders.map((o:any)=> o.customer?.company_name || '')))]
+                  .filter(Boolean)
+                  .sort()
+                  .map((name: string) => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -921,15 +944,22 @@ export default function AdminEnquiriesPage() {
         <div className="card">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center space-x-2">
-              {selectedIds.size > 0 && (
+              {selectedIds.size > 0 && (() => {
+                const selectedCompanies = new Set(
+                  unified.filter(u => selectedIds.has(u.id)).map(u => (u.customer.company_name || '').toLowerCase())
+                )
+                const canReply = selectedCompanies.size === 1
+                return (
                 <>
                   <select className="input-field text-sm" value={bulkTemplateId} onChange={(e)=> setBulkTemplateId(e.target.value)}>
                     <option value="">Select template…</option>
                     {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
                   </select>
-                  <button className="btn-primary text-sm" onClick={handleBulkReply}>
-                    Reply to customer (selected)
-                  </button>
+                  {canReply && (
+                    <button className="btn-primary text-sm" onClick={handleBulkReply}>
+                      Reply to customer (selected)
+                    </button>
+                  )}
                   <div className="w-px h-6 bg-gray-200 mx-2" />
                   {selectedIds.size > 1 && (
                     <select className="input-field text-sm" onChange={(e)=>{const v=e.target.value; if(!v) return; bulkUpdateStatus(v); e.currentTarget.selectedIndex=0}}>
@@ -939,7 +969,8 @@ export default function AdminEnquiriesPage() {
                   )}
                   <button className="btn-secondary text-sm" onClick={bulkDelete}>Delete Selected ({selectedIds.size})</button>
                 </>
-              )}
+                )
+              })()}
             </div>
             <div className="flex items-center gap-2">
               <div className="relative">

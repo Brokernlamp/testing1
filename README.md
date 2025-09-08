@@ -1,238 +1,216 @@
-# Shree Krishna Signs - Business Automation System
+# SKS Admin Desktop Application
 
-A comprehensive business automation system for Shree Krishna Signs, featuring a customer-facing website and an admin CRM panel built with Next.js, TypeScript, and Supabase.
+A professional Windows desktop application for managing Shree Krishna Signs business operations.
 
 ## 🚀 Features
 
-### Customer Website
-- **Landing Page**: About Us section (30% of front page) with company history and services
-- **Products Page**: Searchable product catalog with category filtering
-- **Product Detail Page**: Detailed product view with quotation request form
-- **Responsive Design**: Mobile and desktop optimized
-- **Client Section**: Floating/gliding client logos below About Us
+### **Dashboard Overview**
+- **Real-time Statistics**: Total products, pending orders, customers, and low stock alerts
+- **Quick Navigation**: Easy access to all admin functions
+- **Modern UI**: Professional, intuitive interface
 
-### Admin CRM Panel (`/admin`)
-- **Secure Login**: Admin authentication (credentials managed securely in database)
-- **Dashboard**: Overview of customers, enquiries, and inventory status
-- **Product Management**: Add, edit, and manage products and categories
-- **CRM Management**: Handle customer enquiries and quotations
-- **Inventory Tracker**: Monitor stock levels with automatic alerts
-- **Template Management**: Customer and supplier communication templates
+### **Product Management**
+- Add, edit, and delete products
+- Category management
+- Image handling
+- Stock quantity tracking
+- Product codes and pricing
 
-### Database Features
-- **PostgreSQL on Supabase**: Scalable and reliable backend
-- **Real-time Updates**: Live data synchronization
-- **User Management**: Secure admin authentication
-- **Data Analytics**: Customer and enquiry tracking
+### **Order Management**
+- View all enquiries and custom orders
+- Status tracking (pending, processing, completed)
+- Invoice number management
+- Customer communication logs
 
-## 🛠️ Tech Stack
+### **Customer Database**
+- Customer information management
+- Order history tracking
+- Contact details and addresses
+- Company information
 
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, Framer Motion
-- **Backend**: Supabase (PostgreSQL)
-- **Authentication**: Custom admin authentication
-- **Deployment**: Netlify/Hostinger/GoDaddy ready
+### **Inventory Control**
+- Stock level monitoring
+- Low stock alerts
+- Reorder point management
+- Stock movement tracking
+
+## 🛠️ Technology Stack
+
+- **.NET 8** - Latest framework
+- **WPF (Windows Presentation Foundation)** - Modern desktop UI
+- **Entity Framework Core** - Database operations
+- **SQLite** - Local database storage
+- **Dependency Injection** - Service management
+- **MVVM Pattern** - Clean architecture
 
 ## 📋 Prerequisites
 
-- Node.js 18+ 
-- npm or yarn
-- Supabase account
-- Git
+- **Visual Studio 2022** (Community, Professional, or Enterprise)
+- **.NET 8 SDK**
+- **Windows 10/11**
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-### 1. Clone the Repository
-```bash
-git clone <repository-url>
-cd sks-business-automation
+### 1. **Open in Visual Studio**
+```
+File → Open → Project/Solution
+Navigate to: SKS-Admin-Desktop/SKSAdminDesktop.sln
 ```
 
-### 2. Install Dependencies
-```bash
-npm install
-# or
-yarn install
+### 2. **Restore NuGet Packages**
+```
+Right-click on Solution → Restore NuGet Packages
 ```
 
-### 3. Environment Setup
-Create a `.env.local` file in the root directory:
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLIC_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
-DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
+### 3. **Build and Run**
+```
+Build → Build Solution (Ctrl+Shift+B)
+Debug → Start Debugging (F5)
 ```
 
-### 4. Database Setup
-1. Go to your Supabase project dashboard
-2. Navigate to the SQL Editor
-3. Copy and paste the contents of `database_schema.sql`
-4. Execute the SQL to create all required tables
+## 🗄️ Database Setup
 
-### 5. Run Development Server
-```bash
-npm run dev
-# or
-yarn dev
+The application uses SQLite for local storage. The database file (`SKSAdmin.db`) will be created automatically on first run.
+
+### **Connection String**
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=SKSAdmin.db"
+  }
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## 🗄️ Database Schema
-
-The system includes the following tables:
-
-- **users**: Admin user management
-- **categories**: Product categories
-- **products**: Product catalog
-- **customers**: Customer information
-- **enquiries**: Customer quotation requests
-- **inventory**: Stock management
-- **supplier_orders**: Supplier order tracking
-- **templates**: Communication templates
-
-## 🔐 Admin Access
-
-- **URL**: `/admin`
-- Credentials are stored securely and validated server-side.
-
-## 📱 Pages Structure
+## 📁 Project Structure
 
 ```
-/
-├── / (Landing Page)
-├── /products (Product Catalog)
-├── /products/[id] (Product Detail + Quotation)
-├── /admin (Admin Login)
-└── /admin/
-    ├── /dashboard (Admin Dashboard)
-    ├── /inventory (Inventory Management)
-    ├── /products (Product Management)
-    ├── /enquiries (CRM Management)
-    └── /templates (Template Management)
+SKSAdminDesktop.App/
+├── Models/                 # Data models
+│   ├── Product.cs         # Product entity
+│   ├── Customer.cs        # Customer entity
+│   ├── Enquiry.cs         # Product enquiry
+│   └── CustomOrder.cs     # Custom order
+├── Services/              # Business logic
+│   └── AppDbContext.cs    # Database context
+├── ViewModels/            # View models (MVVM)
+├── Views/                 # User interface views
+├── MainWindow.xaml        # Main application window
+├── App.xaml              # Application configuration
+└── appsettings.json      # Configuration file
 ```
 
-## 🎨 Customization
+## 🔧 Configuration
 
-### Colors and Theme
-The system uses a custom color palette based on the SKS logo:
-- Primary: Blue tones (#0ea5e9)
-- Secondary: Gray tones (#64748b)
-- Accent: Yellow tones (#eab308)
+### **appsettings.json**
+```json
+{
+  "AppSettings": {
+    "CompanyName": "Shree Krishna Signs",
+    "Version": "1.0.0",
+    "DatabasePath": "SKSAdmin.db"
+  }
+}
+```
 
-### Client Logos
-Replace placeholder logos in the landing page with actual client logos:
-- Update the `clientLogos` array in `app/page.tsx`
-- Add actual logo images to the `public` folder
+## 📊 Data Models
 
-### Company Information
-Update company details throughout the application:
+### **Product**
+- Basic info (name, description, category)
+- Images and specifications
+- Stock and pricing
+- Active status
+
+### **Customer**
+- Company details
 - Contact information
-- Address
-- Phone numbers
-- Email addresses
+- Address and phone
 
-## 🚀 Deployment
+### **Enquiry**
+- Product requests
+- Quantity and specifications
+- Delivery dates
+- Status tracking
 
-### Netlify
-1. Connect your GitHub repository
-2. Set environment variables
-3. Deploy automatically on push
+### **Custom Order**
+- Custom product specifications
+- Materials and sizes
+- Order tracking
+- Invoice management
 
-### Hostinger/GoDaddy
-1. Build the project: `npm run build`
-2. Upload the `out` folder contents
-3. Configure environment variables
+## 🎯 Usage Guide
 
-## 📊 Features Overview
+### **Dashboard**
+- View business overview
+- Monitor key metrics
+- Quick navigation to functions
 
-### Customer Features
-- ✅ Product browsing and search
-- ✅ Category filtering
-- ✅ Quotation request forms
-- ✅ Responsive design
-- ✅ Contact information
+### **Products**
+- Manage product catalog
+- Update stock levels
+- Handle images and descriptions
 
-### Admin Features
-- ✅ Secure authentication
-- ✅ Dashboard with statistics
-- ✅ Product management
-- ✅ Customer enquiry handling
-- ✅ Inventory tracking
-- ✅ Template management
-- ✅ WhatsApp integration for suppliers
+### **Orders**
+- Process customer enquiries
+- Track order status
+- Manage custom orders
+- Generate invoices
 
-### Technical Features
-- ✅ TypeScript support
-- ✅ Responsive design
-- ✅ Real-time database
-- ✅ SEO optimized
-- ✅ Performance optimized
-- ✅ Security features
+### **Customers**
+- Maintain customer database
+- View order history
+- Update contact information
 
-## 🔧 Development
+### **Inventory**
+- Monitor stock levels
+- Set reorder points
+- Track stock movements
 
-### Available Scripts
-```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run start    # Start production server
-npm run lint     # Run ESLint
-```
+## 🔒 Security Features
 
-### Project Structure
-```
-├── app/                 # Next.js app directory
-│   ├── admin/          # Admin panel pages
-│   ├── products/       # Product pages
-│   ├── globals.css     # Global styles
-│   ├── layout.tsx      # Root layout
-│   └── page.tsx        # Landing page
-├── lib/                 # Utility functions
-│   ├── supabase.ts     # Supabase client
-│   └── utils.ts        # Helper functions
-├── components/          # Reusable components
-├── database_schema.sql  # Database setup
-└── README.md           # This file
-```
+- **Local Database**: Data stored locally on your computer
+- **User Authentication**: Admin access control
+- **Data Validation**: Input validation and sanitization
+- **Error Handling**: Comprehensive error management
+
+## 📈 Future Enhancements
+
+- **Data Export**: CSV, Excel export functionality
+- **Reporting**: Advanced analytics and reports
+- **Backup**: Automated data backup
+- **Sync**: Web application synchronization
+- **Multi-user**: Staff access levels
+- **Printing**: Invoice and report printing
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### **Build Errors**
+1. Ensure .NET 8 SDK is installed
+2. Restore NuGet packages
+3. Clean and rebuild solution
 
-1. **Database Connection Error**
-   - Verify Supabase credentials
-   - Check if database schema is properly set up
+### **Runtime Errors**
+1. Check database file permissions
+2. Verify appsettings.json configuration
+3. Check Windows compatibility
 
-2. **Build Errors**
-   - Clear `.next` folder
-   - Reinstall dependencies
-   - Check Node.js version
-
-3. **Authentication Issues**
-   - Verify admin credentials
-   - Check localStorage in browser
+### **Database Issues**
+1. Delete `SKSAdmin.db` file to recreate
+2. Check file path in connection string
+3. Verify SQLite installation
 
 ## 📞 Support
 
-For technical support or questions:
-- Check the database schema in `database_schema.sql`
-- Verify environment variables
-- Ensure all dependencies are installed
+For technical support or feature requests:
+- **Email**: [Your Support Email]
+- **Documentation**: [Your Documentation URL]
+- **Issues**: [Your Issue Tracker]
 
 ## 📄 License
 
-This project is proprietary software for Shree Krishna Signs.
-
-## 🔄 Updates
-
-The system is designed to be easily maintainable and updatable:
-- Modular component structure
-- Centralized configuration
-- Easy database modifications
-- Scalable architecture
+This application is proprietary software for Shree Krishna Signs.
 
 ---
 
-**Built with ❤️ for Shree Krishna Signs**
+**Version**: 1.0.0  
+**Last Updated**: August 2025  
+**Developer**: [Your Name/Company]

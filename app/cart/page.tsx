@@ -1,10 +1,11 @@
 'use client'
 
 import { useCart } from '@/components/cart/CartProvider'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { ArrowLeft, ShoppingBag, Mail } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 export default function CartPage() {
 	const { items, removeItem, clear, updateItem } = useCart()
@@ -16,11 +17,30 @@ export default function CartPage() {
 	const [delivery, setDelivery] = useState('')
 	const [comments, setComments] = useState('')
 
+	// Companies dropdown
+	const [companies, setCompanies] = useState<Array<{ id: string; company_name: string }>>([])
+	const [useCustomCompany, setUseCustomCompany] = useState(false)
+
+	useEffect(() => {
+		const fetchCompanies = async () => {
+			const { data, error } = await supabase
+				.from('customers')
+				.select('id, company_name')
+				.order('company_name')
+			if (!error) setCompanies(data || [])
+		}
+		fetchCompanies()
+	}, [])
+
+	const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), [])
+
 	const handleGetQuotation = async () => {
 		if (items.length === 0) return toast.error('Cart is empty')
 		if (!company.trim()) return toast.error('Please enter Company Name')
 		if (!department.trim()) return toast.error('Please enter Department')
 		if (!email.trim()) return toast.error('Please enter Customer Email')
+		if (!email.includes('@')) return toast.error('Please enter a valid email with @')
+		if (delivery && delivery < todayStr) return toast.error('Delivery date cannot be in the past')
 
 		setSubmitting(true)
 		
@@ -257,12 +277,31 @@ export default function CartPage() {
 					<div className="bg-gray-50 p-6 rounded-lg mb-6">
 						<h3 className="text-lg font-semibold mb-4">Customer Details</h3>
 						<div className="grid md:grid-cols-5 gap-3 mb-4">
-							<input 
-								className="input-field" 
-								placeholder="Company Name *" 
-								value={company} 
-								onChange={(e)=>setCompany(e.target.value)} 
-							/>
+							{/* Company selector */}
+							{!useCustomCompany ? (
+								<select
+									className="input-field min-h-[44px]"
+									value={company}
+									onChange={(e)=>{
+										const v = e.target.value
+										if (v === '__create_new__') { setUseCustomCompany(true); setCompany(''); return }
+										setCompany(v)
+									}}
+								>
+									<option value="">Select Company *</option>
+									{companies.map(c => (
+										<option key={c.id} value={c.company_name}>{c.company_name}</option>
+									))}
+									<option value="__create_new__">+ Create new…</option>
+								</select>
+							) : (
+								<input 
+									className="input-field" 
+									placeholder="Enter Company Name *" 
+									value={company} 
+									onChange={(e)=>setCompany(e.target.value)} 
+								/>
+							)}
 							<input 
 								className="input-field" 
 								type="email" 
@@ -285,6 +324,7 @@ export default function CartPage() {
 							<input 
 								className="input-field" 
 								type="date" 
+								min={todayStr}
 								value={delivery} 
 								onChange={(e)=>setDelivery(e.target.value)} 
 							/>
