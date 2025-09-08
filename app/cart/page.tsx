@@ -151,33 +151,33 @@ export default function CartPage() {
 	return (
 		<div className="max-w-5xl mx-auto px-4 py-8" style={{ background: 'linear-gradient(135deg, #F8FFFE 0%, #E8F5E8 50%, #E3F2FD 100%)' }}>
 			{/* Navigation Header */}
-			<div className="flex items-center justify-between mb-6">
-				<div className="flex items-center gap-4">
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+				<div className="flex flex-wrap items-center gap-2 sm:gap-4">
 					<Link 
 						href="/" 
-						className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+						className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors text-xs sm:text-sm whitespace-nowrap"
 					>
 						<ArrowLeft className="h-4 w-4" />
 						Home
 					</Link>
 					<Link 
 						href="/products" 
-						className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+						className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors text-xs sm:text-sm whitespace-nowrap"
 					>
 						<ArrowLeft className="h-4 w-4" />
 						Back to Products
 					</Link>
 					<Link 
 						href="/custom-order" 
-						className="flex items-center gap-2 text-green-600 hover:text-green-800 transition-colors"
+						className="flex items-center gap-2 text-green-600 hover:text-green-800 transition-colors text-xs sm:text-sm whitespace-nowrap"
 					>
 						<ShoppingBag className="h-4 w-4" />
 						Custom Order
 					</Link>
 				</div>
-				<h1 className="text-2xl font-bold">Your Cart</h1>
+				<h1 className="text-xl sm:text-2xl font-bold">Your Cart</h1>
 				{items.length > 0 && (
-					<button className="text-sm text-red-600 hover:text-red-800" onClick={clear}>
+					<button className="text-xs sm:text-sm text-red-600 hover:text-red-800" onClick={clear}>
 						Clear all
 					</button>
 				)}

@@ -58,11 +58,11 @@ export default function CustomOrderPage() {
 		<div className="max-w-5xl mx-auto px-4 py-8" style={{ background: 'linear-gradient(135deg, #F8FFFE 0%, #E8F5E8 50%, #E3F2FD 100%)' }}>
 			<div className="flex items-center justify-between mb-6">
 				<div>
-					<h1 className="text-2xl font-bold mb-2">Custom Order</h1>
+					<h1 className="text-xl sm:text-2xl font-bold mb-2">Custom Order</h1>
 					<p className="text-gray-600">Add multiple custom items with size units and photos. All will be grouped per item in the quotation email.</p>
 				</div>
-				<div className="flex items-center gap-3">
-					<a href="/" className="btn-secondary">Home</a>
+				<div className="flex flex-wrap items-center gap-2 sm:gap-3">
+					<a href="/" className="btn-secondary text-xs sm:text-sm">Home</a>
 					<CartButton />
 				</div>
 			</div>
