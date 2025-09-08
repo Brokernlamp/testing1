@@ -33,7 +33,7 @@ export default function HomePage() {
       'Laser Cutting': '/services/laser-cutting-machine.png',
       'Eco-Solvent & UV Printing': '/services/Solvent and uv printing.png',
       'Safety Posters & Industrial Labels': '/services/Safety poster.png',
-      'Night Glow Painting': '/services/Glow night.png',
+      'Night Glow Painting': 'Services\Glow night.png',
       'Lamination': '/services/Lamination.png',
     }
     return map[name] || '/services/signboard.png'
