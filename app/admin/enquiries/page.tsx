@@ -81,6 +81,8 @@ export default function AdminEnquiriesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [companyFilter, setCompanyFilter] = useState('')
+  const [allCompanies, setAllCompanies] = useState<Array<{ id: string; company_name: string }>>([])
+  const [useCustomCompanyME, setUseCustomCompanyME] = useState(false)
   const [visibleColumns, setVisibleColumns] = useState<{ [key: string]: boolean }>({
     customer: true,
     product: true,
@@ -157,6 +159,10 @@ export default function AdminEnquiriesPage() {
     fetchTemplates()
     fetchProducts()
     fetchCustomOrders()
+    ;(async () => {
+      const { data } = await supabase.from('customers').select('id, company_name').order('company_name')
+      setAllCompanies(data || [])
+    })()
   }, [router])
 
   // Persist filters and columns
@@ -854,6 +860,9 @@ export default function AdminEnquiriesPage() {
             <a href="/admin/products" className="text-gray-500 hover:text-primary-600 font-medium">
               Products
             </a>
+            <a href="/admin/customers" className="text-gray-500 hover:text-primary-600 font-medium">
+              Customers
+            </a>
             <a href="/admin/enquiries" className="text-primary-600 border-b-2 border-primary-600 pb-2 font-medium">
               Enquiries
             </a>
@@ -945,17 +954,19 @@ export default function AdminEnquiriesPage() {
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center space-x-2">
               {selectedIds.size > 0 && (() => {
-                const selectedCompanies = new Set(
-                  unified.filter(u => selectedIds.has(u.id)).map(u => (u.customer.company_name || '').toLowerCase())
-                )
-                const canReply = selectedCompanies.size === 1
+                const selected = unified.filter(u => selectedIds.has(u.id))
+                const companies = new Set(selected.map(u => (u.customer.company_name || '').toLowerCase()))
+                const sameCompany = companies.size === 1
+                const isSingle = selectedIds.size === 1
                 return (
                 <>
-                  <select className="input-field text-sm" value={bulkTemplateId} onChange={(e)=> setBulkTemplateId(e.target.value)}>
-                    <option value="">Select template…</option>
-                    {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
-                  </select>
-                  {canReply && (
+                  {isSingle && (
+                    <select className="input-field text-sm" value={bulkTemplateId} onChange={(e)=> setBulkTemplateId(e.target.value)}>
+                      <option value="">Select template…</option>
+                      {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
+                    </select>
+                  )}
+                  {selectedIds.size > 1 && sameCompany && (
                     <button className="btn-primary text-sm" onClick={handleBulkReply}>
                       Reply to customer (selected)
                     </button>
@@ -1344,14 +1355,33 @@ export default function AdminEnquiriesPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Company Name *
                     </label>
-                    <input
-                      type="text"
-                      value={manualEnquiryData.company_name}
-                      onChange={(e) => setManualEnquiryData(prev => ({ ...prev, company_name: e.target.value }))}
-                      className="input-field"
-                      placeholder="Enter company name"
-                      required
-                    />
+                    {!useCustomCompanyME ? (
+                      <select
+                        className="input-field"
+                        value={manualEnquiryData.company_name}
+                        onChange={(e)=>{
+                          const v = e.target.value
+                          if (v === '__create_new__') { setUseCustomCompanyME(true); setManualEnquiryData(prev=>({...prev, company_name: ''})); return }
+                          setManualEnquiryData(prev => ({ ...prev, company_name: v }))
+                        }}
+                        required
+                      >
+                        <option value="">Select Company</option>
+                        {allCompanies.map(c => (
+                          <option key={c.id} value={c.company_name}>{c.company_name}</option>
+                        ))}
+                        <option value="__create_new__">+ Create new…</option>
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        value={manualEnquiryData.company_name}
+                        onChange={(e) => setManualEnquiryData(prev => ({ ...prev, company_name: e.target.value }))}
+                        className="input-field"
+                        placeholder="Enter company name"
+                        required
+                      />
+                    )}
                   </div>
                   
                   <div>

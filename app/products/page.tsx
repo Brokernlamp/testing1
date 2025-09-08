@@ -355,7 +355,7 @@ function ProductImageSlider({ imageUrls, productName }: { imageUrls: string, pro
       <img
         src={urls[currentImageIndex]}
         alt={`${productName} - Image ${currentImageIndex + 1}`}
-        className="w-full h-full object-cover"
+        className="w-full h-full object-contain bg-white"
         onError={(e) => {
           e.currentTarget.style.display = 'none'
           e.currentTarget.nextElementSibling?.classList.remove('hidden')

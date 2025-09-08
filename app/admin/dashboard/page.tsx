@@ -205,6 +205,9 @@ export default function AdminDashboard() {
             <a href="/admin/products" className="text-gray-500 hover:text-primary-600 font-medium">
               Products
             </a>
+            <a href="/admin/customers" className="text-gray-500 hover:text-primary-600 font-medium">
+              Customers
+            </a>
             <a href="/admin/enquiries" className="text-gray-500 hover:text-primary-600 font-medium">
               Enquiries
             </a>
