@@ -121,7 +121,7 @@ export default function CustomersPage() {
             </div>
             <div className="flex gap-2">
               <input className="input-field" placeholder="Search companies..." value={search} onChange={(e)=>setSearch(e.target.value)} />
-              <button className="btn-primary" onClick={()=>{ setShowForm(true); setEditing(null); setForm({ company_name:'', email:'', phone:'' }) }}><Plus className="w-4 h-4 inline" /> Add</button>
+              <button className="btn-primary" onClick={()=>{ setShowForm(true); setEditing(null); setForm({ company_name:'' }) }}><Plus className="w-4 h-4 inline" /> Add</button>
             </div>
           </div>
         </div>
