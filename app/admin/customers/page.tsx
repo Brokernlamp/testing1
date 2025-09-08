@@ -9,8 +9,6 @@ import toast from 'react-hot-toast'
 interface Customer {
   id: string
   company_name: string
-  email: string | null
-  phone: string | null
   created_at: string
 }
 
@@ -20,7 +18,7 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Customer | null>(null)
-  const [form, setForm] = useState<{ company_name: string; email: string; phone: string }>({ company_name: '', email: '', phone: '' })
+  const [form, setForm] = useState<{ company_name: string }>({ company_name: '' })
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -35,7 +33,7 @@ export default function CustomersPage() {
   const load = async () => {
     try {
       setLoading(true)
-      const { data, error } = await supabase.from('customers').select('id, company_name, email, phone, created_at').order('company_name')
+      const { data, error } = await supabase.from('customers').select('id, company_name, created_at').order('company_name')
       if (error) throw error
       setCustomers(data || [])
     } catch (e) {
@@ -45,18 +43,18 @@ export default function CustomersPage() {
     }
   }
 
-  const resetForm = () => { setShowForm(false); setEditing(null); setForm({ company_name: '', email: '', phone: '' }) }
+  const resetForm = () => { setShowForm(false); setEditing(null); setForm({ company_name: '' }) }
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.company_name.trim()) { toast.error('Company name is required'); return }
     try {
       if (editing) {
-        const { error } = await supabase.from('customers').update({ company_name: form.company_name.trim(), email: form.email.trim() || null, phone: form.phone.trim() || null }).eq('id', editing.id)
+        const { error } = await supabase.from('customers').update({ company_name: form.company_name.trim() }).eq('id', editing.id)
         if (error) throw error
         toast.success('Customer updated')
       } else {
-        const { error } = await supabase.from('customers').insert({ company_name: form.company_name.trim(), email: form.email.trim() || null, phone: form.phone.trim() || null, source: 'admin' })
+        const { error } = await supabase.from('customers').insert({ company_name: form.company_name.trim(), source: 'admin' })
         if (error) throw error
         toast.success('Customer created')
       }
@@ -67,7 +65,7 @@ export default function CustomersPage() {
     }
   }
 
-  const startEdit = (c: Customer) => { setEditing(c); setForm({ company_name: c.company_name, email: c.email || '', phone: c.phone || '' }); setShowForm(true) }
+  const startEdit = (c: Customer) => { setEditing(c); setForm({ company_name: c.company_name }); setShowForm(true) }
 
   const del = async (id: string) => {
     if (!confirm('Delete this customer?')) return
@@ -136,8 +134,7 @@ export default function CustomersPage() {
             </div>
             <form onSubmit={submit} className="grid md:grid-cols-3 gap-3">
               <input className="input-field" placeholder="Company name *" value={form.company_name} onChange={(e)=>setForm(prev=>({...prev, company_name: e.target.value}))} required />
-              <input className="input-field" type="email" placeholder="Email" value={form.email} onChange={(e)=>setForm(prev=>({...prev, email: e.target.value}))} />
-              <input className="input-field" placeholder="Phone" value={form.phone} onChange={(e)=>setForm(prev=>({...prev, phone: e.target.value}))} />
+              <div className="md:col-span-2" />
               <div className="md:col-span-3 flex gap-2">
                 <button type="submit" className="btn-primary"><Save className="w-4 h-4 inline" /> Save</button>
                 <button type="button" className="btn-secondary" onClick={resetForm}>Cancel</button>
@@ -151,8 +148,7 @@ export default function CustomersPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -160,8 +156,7 @@ export default function CustomersPage() {
               {filtered.map(c => (
                 <tr key={c.id} className="hover:bg-gray-50">
                   <td className="px-6 py-3">{c.company_name}</td>
-                  <td className="px-6 py-3">{c.email}</td>
-                  <td className="px-6 py-3">{c.phone}</td>
+                  
                   <td className="px-6 py-3">
                     <div className="flex gap-2">
                       <button className="btn-secondary text-xs" onClick={()=>startEdit(c)}><Edit className="w-4 h-4 inline" /> Edit</button>

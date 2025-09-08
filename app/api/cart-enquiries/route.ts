@@ -41,12 +41,10 @@ export async function POST(req: Request) {
         .single()
       if (existing) {
         customerId = existing.id
-        // Update email/phone if provided
-        await admin.from('customers').update({ email: body.email || null, phone: body.contact || null }).eq('id', existing.id)
       } else {
         const { data: created, error: createErr } = await admin
           .from('customers')
-          .insert({ company_name: body.company_name.trim(), email: body.email || null, phone: body.contact || null, source: 'web' })
+          .insert({ company_name: body.company_name.trim(), source: 'web' })
           .select('id')
           .single()
         if (createErr) throw createErr
