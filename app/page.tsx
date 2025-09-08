@@ -28,12 +28,12 @@ export default function HomePage() {
     const map: Record<string, string> = {
       'Signage Boards': '/services/signboard.png',
       'Letter Painting': '/services/Letter painting.png',
-      'Screen Printing': '/services/Screen printing.png',
+      'Screen Printing': '/services/Screen printing .png',
       'Engraving & Etching': '/services/laser-cutting-machine.png',
       'Laser Cutting': '/services/laser-cutting-machine.png',
-      'Eco-Solvent & UV Printing': '/services/Solvent and uv printing.png',
+      'Eco-Solvent & UV Printing': '/services/Solvent and uv printing .png',
       'Safety Posters & Industrial Labels': '/services/Safety poster.png',
-      'Night Glow Painting': 'Services\Glow night.png',
+      'Night Glow Painting': '/services/Glow night.png',
       'Lamination': '/services/Lamination.png',
     }
     return map[name] || '/services/signboard.png'
