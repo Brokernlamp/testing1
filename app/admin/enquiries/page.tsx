@@ -534,11 +534,15 @@ export default function AdminEnquiriesPage() {
     if (!bulkTemplateId) return toast.error('Select a template')
     try {
       setSubmittingReply(true)
+      const ids = Array.from(selectedIds)
+      const productIds = ids.filter(id => idToType.get(id) === 'product')
+      const customIds = ids.filter(id => idToType.get(id) === 'custom')
       const res = await fetch('/api/admin-send-reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          enquiryIds: Array.from(selectedIds),
+          enquiryIds: productIds,
+          customOrderIds: customIds,
           templateId: bulkTemplateId,
           status: bulkStatus || 'replied',
           extraImages: bulkReplyData.images,
@@ -972,7 +976,7 @@ export default function AdminEnquiriesPage() {
                       {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
                     </select>
                   )}
-                  {selectedIds.size > 1 && sameCompany && (
+                  {(selectedIds.size >= 1) && sameCompany && (
                     <button className="btn-primary text-sm" onClick={handleBulkReply}>
                       Reply to customer (selected)
                     </button>
