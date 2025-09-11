@@ -115,6 +115,7 @@ export default function AdminEnquiriesPage() {
   const [showBulkReply, setShowBulkReply] = useState(false)
   const [bulkReplyData, setBulkReplyData] = useState({ comment: '', images: [] as string[] })
   const [submittingReply, setSubmittingReply] = useState(false)
+  const [replyTargetIds, setReplyTargetIds] = useState<string[] | null>(null)
   const [showManualEnquiryForm, setShowManualEnquiryForm] = useState(false)
   const [manualEnquiryData, setManualEnquiryData] = useState({
     type: 'product' as 'product' | 'custom',
@@ -525,8 +526,10 @@ export default function AdminEnquiriesPage() {
     }
   }
 
-  const handleBulkReply = async () => {
-    if (selectedIds.size === 0) return toast.error('Select enquiries first')
+  const handleBulkReply = async (ids?: string[]) => {
+    const finalIds = ids && ids.length > 0 ? ids : Array.from(selectedIds)
+    if (finalIds.length === 0) return toast.error('Select enquiries first')
+    setReplyTargetIds(finalIds)
     setShowBulkReply(true)
   }
 
@@ -534,7 +537,7 @@ export default function AdminEnquiriesPage() {
     if (!bulkTemplateId) return toast.error('Select a template')
     try {
       setSubmittingReply(true)
-      const ids = Array.from(selectedIds)
+      const ids = (replyTargetIds && replyTargetIds.length > 0) ? replyTargetIds : Array.from(selectedIds)
       const productIds = ids.filter(id => idToType.get(id) === 'product')
       const customIds = ids.filter(id => idToType.get(id) === 'custom')
       const res = await fetch('/api/admin-send-reply', {
@@ -556,6 +559,7 @@ export default function AdminEnquiriesPage() {
       toast.success('Replies sent successfully')
       setShowBulkReply(false)
       setSelectedIds(new Set())
+      setReplyTargetIds(null)
       setBulkTemplateId('')
       setBulkStatus('')
       setBulkReplyData({ comment: '', images: [] })
@@ -977,7 +981,7 @@ export default function AdminEnquiriesPage() {
                     </select>
                   )}
                   {selectedIds.size > 1 && sameCompany && (
-                    <button className="btn-primary text-sm" onClick={handleBulkReply}>
+                    <button className="btn-primary text-sm" onClick={()=>handleBulkReply()}>
                       Reply to customer (selected)
                     </button>
                   )}
@@ -1115,7 +1119,7 @@ export default function AdminEnquiriesPage() {
                     </td>)}
                     {visibleColumns.actions && (<td className={cellPad + " whitespace-nowrap text-sm font-medium"}>
                       <div className="flex items-center space-x-2">
-                        <button className="btn-primary text-xs" onClick={()=> { setSelectedIds(new Set([row.id])); handleBulkReply(); }}>Reply</button>
+                        <button className="btn-primary text-xs" onClick={()=> { handleBulkReply([row.id]) }}>Reply</button>
                         <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDeleteUnified(row.id); else handleStatusChangeUnified(row.id, v); e.currentTarget.selectedIndex=0}}>
                           <option value="">Set status…</option>
                           {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
