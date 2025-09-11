@@ -976,7 +976,7 @@ export default function AdminEnquiriesPage() {
                       {templates.map(t => (<option key={t.id} value={t.id}>{t.title}</option>))}
                     </select>
                   )}
-                  {(selectedIds.size >= 1) && sameCompany && (
+                  {selectedIds.size > 1 && sameCompany && (
                     <button className="btn-primary text-sm" onClick={handleBulkReply}>
                       Reply to customer (selected)
                     </button>
@@ -1115,7 +1115,7 @@ export default function AdminEnquiriesPage() {
                     </td>)}
                     {visibleColumns.actions && (<td className={cellPad + " whitespace-nowrap text-sm font-medium"}>
                       <div className="flex items-center space-x-2">
-                        <button className="btn-primary text-xs" disabled={row.type !== 'product'} onClick={()=> row.type==='product' && handleReply((enquiries.find(e=>e.id===row.id) as any) || null)}>Reply</button>
+                        <button className="btn-primary text-xs" onClick={()=> { setSelectedIds(new Set([row.id])); handleBulkReply(); }}>Reply</button>
                         <select className="input-field text-xs" value="" onChange={(e)=>{const v=e.target.value; if(!v) return; if(v==='delete') handleDeleteUnified(row.id); else handleStatusChangeUnified(row.id, v); e.currentTarget.selectedIndex=0}}>
                           <option value="">Set status…</option>
                           {STATUS_OPTIONS.map(s => (<option key={s} value={s}>{s}</option>))}
