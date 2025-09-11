@@ -61,15 +61,8 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check authentication
-    const isAuthenticated = localStorage.getItem('adminAuthenticated')
-    if (!isAuthenticated) {
-      router.push('/admin')
-      return
-    }
-
     fetchDashboardData()
-  }, [router])
+  }, [])
 
   const fetchDashboardData = async () => {
     try {
@@ -136,9 +129,8 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuthenticated')
-    localStorage.removeItem('adminUser')
+  const handleLogout = async () => {
+    await fetch('/api/admin-logout', { method: 'POST' })
     router.push('/admin')
     toast.success('Logged out successfully')
   }

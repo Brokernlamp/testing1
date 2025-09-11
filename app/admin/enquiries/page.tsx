@@ -134,13 +134,6 @@ export default function AdminEnquiriesPage() {
   const todayStr = new Date().toISOString().slice(0, 10)
 
   useEffect(() => {
-    // Check authentication
-    const isAuthenticated = localStorage.getItem('adminAuthenticated')
-    if (!isAuthenticated) {
-      router.push('/admin')
-      return
-    }
-
     // Load persisted filters and column prefs
     try {
       const savedFilters = localStorage.getItem('adminEnq.filters')
@@ -165,7 +158,7 @@ export default function AdminEnquiriesPage() {
       const { data } = await supabase.from('customers').select('id, company_name').order('company_name')
       setAllCompanies(data || [])
     })()
-  }, [router])
+  }, [])
 
   // Persist filters and columns
   useEffect(() => {
@@ -378,30 +371,6 @@ export default function AdminEnquiriesPage() {
         const data = await res.json().catch(() => null)
         throw new Error(data?.error || 'Failed to send reply')
       }
-
-      const updateData: any = {
-        status: 'replied',
-        updated_at: new Date().toISOString()
-      }
-
-      if (replyData.quotation_amount) {
-        updateData.quotation_amount = parseFloat(replyData.quotation_amount)
-      }
-
-      if (replyData.template_id) {
-        updateData.reply_template_id = replyData.template_id
-      }
-
-      const { error } = await supabase
-        .from('enquiries')
-        .update(updateData)
-        .eq('id', selectedEnquiry.id)
-
-      if (error) throw error
-
-      // log activity
-      await supabase.from('enquiry_activity').insert({ enquiry_id: selectedEnquiry.id, action: 'reply', note: `template: ${replyData.template_id}${replyData.quotation_amount ? `, quotation: ${replyData.quotation_amount}` : ''}` })
-
       toast.success('Reply sent successfully')
       setShowReplyForm(false)
       setSelectedEnquiry(null)
@@ -443,11 +412,12 @@ export default function AdminEnquiriesPage() {
   const confirmCompleteWithInvoice = async () => {
     if (!showInvoicePrompt.id) return
     try {
-      const { error } = await supabase
-        .from('enquiries')
-        .update({ status: 'completed', invoice_number: invoiceNumber, updated_at: new Date().toISOString() })
-        .eq('id', showInvoicePrompt.id)
-      if (error) throw error
+      const res = await fetch('/api/admin-update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productIds: [showInvoicePrompt.id], status: 'completed', invoiceNumber })
+      })
+      if (!res.ok) throw new Error('Failed to complete with invoice')
       await supabase.from('enquiry_activity').insert({ enquiry_id: showInvoicePrompt.id, action: 'status_change', note: `completed with invoice ${invoiceNumber}` })
       toast.success('Marked as completed')
     } catch (e) {
@@ -467,11 +437,12 @@ export default function AdminEnquiriesPage() {
   const saveInvoice = async () => {
     if (!editingInvoiceId) return
     try {
-      const { error } = await supabase
-        .from('enquiries')
-        .update({ invoice_number: editingInvoiceValue.trim() || null, updated_at: new Date().toISOString() })
-        .eq('id', editingInvoiceId)
-      if (error) throw error
+      const res = await fetch('/api/admin-update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productIds: [editingInvoiceId], status: 'replied', invoiceNumber: editingInvoiceValue.trim() || null })
+      })
+      if (!res.ok) throw new Error('Failed to update invoice')
       await supabase.from('enquiry_activity').insert({ enquiry_id: editingInvoiceId, action: 'invoice_update', note: editingInvoiceValue.trim() || '' })
       toast.success('Invoice updated')
       setEditingInvoiceId(null)
@@ -504,20 +475,12 @@ export default function AdminEnquiriesPage() {
           return
         }
       }
-      if (productIds.length) {
-        const { error } = await supabase
-          .from('enquiries')
-          .update({ status, updated_at: new Date().toISOString() })
-          .in('id', productIds)
-        if (error) throw error
-      }
-      if (customIds.length) {
-        const { error } = await supabase
-          .from('custom_orders')
-          .update({ status, updated_at: new Date().toISOString() })
-          .in('id', customIds)
-        if (error) throw error
-      }
+      const res = await fetch('/api/admin-update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productIds, customIds, status })
+      })
+      if (!res.ok) throw new Error('Bulk status update failed')
       toast.success('Status updated')
       setSelectedIds(new Set())
       fetchEnquiries(); fetchCustomOrders()
@@ -608,13 +571,13 @@ export default function AdminEnquiriesPage() {
         setShowInvoicePrompt({ open: true, id: entityId })
         return
       }
-      if (t === 'product') {
-        const { error } = await supabase.from('enquiries').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', entityId)
-        if (error) throw error
-      } else {
-        const { error } = await supabase.from('custom_orders').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', entityId)
-        if (error) throw error
-      }
+      const body = t === 'product' ? { productIds: [entityId], status: newStatus } : { customIds: [entityId], status: newStatus }
+      const res = await fetch('/api/admin-update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      if (!res.ok) throw new Error('Failed to update status')
       toast.success('Status updated successfully')
       fetchEnquiries(); fetchCustomOrders()
     } catch (e) {
@@ -1305,6 +1268,18 @@ export default function AdminEnquiriesPage() {
           <div className="relative top-20 mx-auto p-5 border w-full max-w-xl shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Reply to Selected Enquiries</h3>
+              {/* Summary of selection */}
+              <div className="text-xs text-gray-600 mb-3">
+                {(() => {
+                  const ids = (replyTargetIds && replyTargetIds.length > 0) ? replyTargetIds : Array.from(selectedIds)
+                  const selected = unified.filter(u => ids.includes(u.id))
+                  const companies = new Set(selected.map(u => (u.customer.company_name || '').toLowerCase()))
+                  const emails = new Set(selected.map(u => (u.customer.email || '').toLowerCase()))
+                  const products = selected.filter(u => u.type==='product').length
+                  const customs = selected.filter(u => u.type==='custom').length
+                  return `Items: ${selected.length} (Products: ${products}, Custom: ${customs}) • Company: ${companies.size===1 ? selected[0]?.customer.company_name : '—'} • Email: ${emails.size===1 ? selected[0]?.customer.email : '—'}`
+                })()}
+              </div>
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Template</label>
@@ -1330,8 +1305,39 @@ export default function AdminEnquiriesPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Additional Comment (optional)</label>
                 <textarea className="input-field" rows={3} value={bulkReplyData.comment} onChange={(e)=> setBulkReplyData(prev => ({ ...prev, comment: e.target.value }))} />
               </div>
+              {/* Preview */}
+              <div className="border rounded p-3 bg-gray-50 text-xs text-gray-800 mb-3 max-h-64 overflow-auto">
+                {(() => {
+                  const ids = (replyTargetIds && replyTargetIds.length > 0) ? replyTargetIds : Array.from(selectedIds)
+                  const selected = unified.filter(u => ids.includes(u.id))
+                  const missing: string[] = []
+                  if (!bulkTemplateId) missing.push('template')
+                  const hasEmail = selected.every(s => !!s.customer.email)
+                  if (!hasEmail) missing.push('customer email')
+                  return (
+                    <div>
+                      {missing.length > 0 ? (
+                        <div className="text-red-700 bg-red-50 border border-red-200 rounded p-2 mb-2">Missing: {missing.join(', ')}</div>
+                      ) : null}
+                      {selected.map((s, i) => (
+                        <div key={s.id} className="mb-2">
+                          <div className="font-semibold">Item {i+1}: {s.productName}</div>
+                          <div>Qty: {s.quantity} • Size: {s.size || '-'} • Material: {s.material || '-'}</div>
+                        </div>
+                      ))}
+                      {bulkReplyData.comment && (
+                        <div className="mt-2"><span className="font-semibold">Admin note:</span> {bulkReplyData.comment}</div>
+                      )}
+                      {Array.isArray(bulkReplyData.images) && bulkReplyData.images.length > 0 && (
+                        <div className="mt-2"><span className="font-semibold">Attachments:</span> {bulkReplyData.images.length} image link(s)</div>
+                      )}
+                    </div>
+                  )
+                })()}
+              </div>
+
               <div className="flex space-x-3 pt-2">
-                <button className="btn-primary flex-1" onClick={submitBulkReply}>Send Replies</button>
+                <button className="btn-primary flex-1" disabled={!bulkTemplateId} onClick={submitBulkReply}>Send Replies</button>
                 <button className="btn-secondary flex-1" onClick={()=> setShowBulkReply(false)}>Cancel</button>
               </div>
               {submittingReply && (
