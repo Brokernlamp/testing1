@@ -104,7 +104,7 @@ export default function HomePage() {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <img 
-                  src="/logo.png" 
+                  src="logo.png" 
                   alt="SKS Logo" 
                   className="w-12 h-12 object-contain"
                 />
