@@ -7,12 +7,14 @@ import { supabase } from '@/lib/supabase'
 import Image, { type StaticImageData } from 'next/image'
 import signboardPng from '@/Services/signboard.png'
 import letterPaintingPng from '@/Services/Letter painting.png'
-import screenPrintingPng from '@/Services/Screen printing .png'
+import screenPrintingPng from '@/Services/Screen printing.png'
 import laserCuttingPng from '@/Services/laser-cutting-machine.png'
+import laserPng from '@/Services/laser.png'
 import solventUvPng from '@/Services/Solvent and uv printing .png'
 import safetyPosterPng from '@/Services/Safety poster.png'
 import glowNightPng from '@/Services/Glow night.png'
 import laminationPng from '@/Services/Lamination.png'
+import offsetPng from '@/Services/offset.png'
 
 export default function HomePage() {
   const [topSellerProducts, setTopSellerProducts] = useState<any[]>([])
@@ -30,7 +32,8 @@ export default function HomePage() {
     'Eco-Solvent & UV Printing',
     'Safety Posters & Industrial Labels',
     'Night Glow Painting',
-    'Lamination'
+    'Lamination',
+    'Offset Printing'
   ]
 
   const serviceImageFor = (name: string): StaticImageData => {
@@ -39,11 +42,12 @@ export default function HomePage() {
       'Letter Painting': letterPaintingPng,
       'Screen Printing': screenPrintingPng,
       'Engraving & Etching': laserCuttingPng,
-      'Laser Cutting': laserCuttingPng,
+      'Laser Cutting': laserPng,
       'Eco-Solvent & UV Printing': solventUvPng,
       'Safety Posters & Industrial Labels': safetyPosterPng,
       'Night Glow Painting': glowNightPng,
       'Lamination': laminationPng,
+      'Offset Printing': offsetPng,
     }
     return map[name] || signboardPng
   }
