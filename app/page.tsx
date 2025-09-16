@@ -4,6 +4,15 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ShoppingCart, Phone, Mail, MapPin, ChevronLeft, ChevronRight, Menu, X, Play, Award, Users, Calendar, Facebook, Instagram, Linkedin, ArrowRight, Star, Check, Zap } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import Image, { type StaticImageData } from 'next/image'
+import signboardPng from '@/Services/signboard.png'
+import letterPaintingPng from '@/Services/Letter painting.png'
+import screenPrintingPng from '@/Services/Screen printing .png'
+import laserCuttingPng from '@/Services/laser-cutting-machine.png'
+import solventUvPng from '@/Services/Solvent and uv printing .png'
+import safetyPosterPng from '@/Services/Safety poster.png'
+import glowNightPng from '@/Services/Glow night.png'
+import laminationPng from '@/Services/Lamination.png'
 
 export default function HomePage() {
   const [topSellerProducts, setTopSellerProducts] = useState<any[]>([])
@@ -24,19 +33,19 @@ export default function HomePage() {
     'Lamination'
   ]
 
-  const serviceImageFor = (name: string): string => {
-    const map: Record<string, string> = {
-      'Signage Boards': '/services/signboard.png',
-      'Letter Painting': '/services/Letter painting.png',
-      'Screen Printing': '/services/Screen printing .png',
-      'Engraving & Etching': '/services/laser-cutting-machine.png',
-      'Laser Cutting': '/services/laser-cutting-machine.png',
-      'Eco-Solvent & UV Printing': '/services/Solvent and uv printing .png',
-      'Safety Posters & Industrial Labels': '/services/Safety poster.png',
-      'Night Glow Painting': '/services/Glow night.png',
-      'Lamination': '/services/Lamination.png',
+  const serviceImageFor = (name: string): StaticImageData => {
+    const map: Record<string, StaticImageData> = {
+      'Signage Boards': signboardPng,
+      'Letter Painting': letterPaintingPng,
+      'Screen Printing': screenPrintingPng,
+      'Engraving & Etching': laserCuttingPng,
+      'Laser Cutting': laserCuttingPng,
+      'Eco-Solvent & UV Printing': solventUvPng,
+      'Safety Posters & Industrial Labels': safetyPosterPng,
+      'Night Glow Painting': glowNightPng,
+      'Lamination': laminationPng,
     }
-    return map[name] || '/services/signboard.png'
+    return map[name] || signboardPng
   }
 
   // Fetch top seller products
@@ -360,7 +369,7 @@ export default function HomePage() {
                 className="group bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="w-14 h-14 bg-gray-100 group-hover:bg-blue-100 rounded-2xl flex items-center justify-center mb-6 overflow-hidden">
-                  <img src={serviceImageFor(service)} alt={service} className="w-12 h-12 object-contain" />
+                  <Image src={serviceImageFor(service)} alt={service} width={48} height={48} className="w-12 h-12 object-contain" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">{service}</h3>
                 <p className="text-gray-600 leading-relaxed">Premium quality solutions with durable and long-lasting results for your business.</p>
