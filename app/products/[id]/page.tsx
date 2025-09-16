@@ -164,7 +164,7 @@ export default function ProductDetailPage() {
         <div className="grid lg:grid-cols-2 gap-12">
                      {/* Product Images */}
                        <div>
-              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+              <div className="bg-gray-100 rounded-lg overflow-hidden h-[25vh] sm:aspect-square sm:h-auto">
                 {product.image_url ? (
                   <ProductImageSlider imageUrls={product.image_url} productName={product.name} />
                 ) : (
