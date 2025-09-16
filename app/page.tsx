@@ -108,7 +108,6 @@ export default function HomePage() {
                   alt="SKS Logo" 
                   className="w-12 h-12 object-contain"
                 />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full"></div>
               </div>
               <div>
                 <h1 className="text-gray-900 font-bold text-xl tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
