@@ -217,32 +217,4 @@ This application is proprietary software for Shree Krishna Signs.
 
 ---
 
-## Web Push Notifications (Website)
-
-If you deploy the Next.js website in this repo, it supports browser push notifications.
-
-1) Generate VAPID keys:
-```
-npx web-push generate-vapid-keys
-```
-
-2) Set env vars:
-```
-VAPID_PUBLIC_KEY=...
-VAPID_PRIVATE_KEY=...
-VAPID_CONTACT=mailto:you@example.com
-NEXT_PUBLIC_VAPID_PUBLIC_KEY=... (same as VAPID_PUBLIC_KEY)
-```
-
-3) Service worker: `public/sw.js`
-
-4) Client subscription UI: `components/PushManager.tsx` (auto-mounted in `app/layout.tsx`).
-
-5) Test send endpoint:
-```
-POST /api/push/send-test
-```
-
-Notes:
-- Requires HTTPS or localhost.
-- Some browsers need a user gesture to show the permission prompt.
+<!-- Push notification docs removed as the feature was reverted. -->
