@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
-
-// In-memory store for demo. Replace with DB (Supabase) in production.
-const subscriptions = new Set<string>()
+import { addSubscription, getCount } from '@/lib/pushStore'
 
 export async function POST(request: Request) {
   try {
@@ -9,7 +7,7 @@ export async function POST(request: Request) {
     if (!body || !body.endpoint) {
       return NextResponse.json({ error: 'Invalid subscription' }, { status: 400 })
     }
-    subscriptions.add(JSON.stringify(body))
+    addSubscription(body)
     return NextResponse.json({ ok: true })
   } catch (e) {
     return NextResponse.json({ error: 'Failed to save' }, { status: 500 })
@@ -18,21 +16,6 @@ export async function POST(request: Request) {
 
 export async function GET() {
   // for testing only
-  return NextResponse.json({ count: subscriptions.size })
+  return NextResponse.json({ count: getCount() })
 }
-
-export function getAllSubscriptions(): Array<PushSubscriptionJSON> {
-  const list: Array<PushSubscriptionJSON> = []
-  for (const s of subscriptions) {
-    try { list.push(JSON.parse(s)) } catch {}
-  }
-  return list
-}
-
-export type PushSubscriptionJSON = {
-  endpoint: string
-  expirationTime: number | null
-  keys: { p256dh: string; auth: string }
-}
-
 

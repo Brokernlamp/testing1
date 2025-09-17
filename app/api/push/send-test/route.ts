@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import webpush from 'web-push'
-import { getAllSubscriptions, type PushSubscriptionJSON } from '../save-subscription/route'
+import { getAllSubscriptions } from '@/lib/pushStore'
 
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY as string
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY as string
