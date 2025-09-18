@@ -119,7 +119,8 @@ export default function HomePage() {
                 <img 
                   src="/logo.png?v=2" 
                   alt="SKS Logo" 
-                  className="w-12 h-12 object-contain"
+                  className="object-contain"
+                  style={{ width: '70px', height: '70px' }}
                 />
               </div>
               <div>
