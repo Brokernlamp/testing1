@@ -42,14 +42,6 @@
   .card {
     @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
   }
-  
-  .floating-logo {
-    @apply animate-float;
-  }
-  
-  .gliding-logo {
-    @apply animate-glide;
-  }
 }
 
 @layer utilities {
@@ -75,4 +67,24 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee-left, .animate-marquee-right { animation-duration: 0s; }
+}
+
+@keyframes float {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -14px, 0) scale(1.02); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes float-alt {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, 12px, 0) scale(0.98); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+.floating-logo {
+  animation: float 6s ease-in-out infinite;
+}
+
+.floating-logo-alt {
+  animation: float-alt 7s ease-in-out infinite;
 }

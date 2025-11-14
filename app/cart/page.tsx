@@ -267,7 +267,10 @@ export default function CartPage() {
 			) : (
 				<>
 					<ul className="space-y-3 mb-6">
-						{items.map((i, idx) => (
+						{items.map((i, idx) => {
+							const needsSize = !(i.size || '').trim()
+							const needsMaterial = !(i.material || '').trim()
+							return (
 							<li key={i.id} className="p-4 border rounded-md bg-white shadow-sm">
 								<div className="flex justify-between items-start">
 									<div className="flex-1">
@@ -320,13 +323,27 @@ export default function CartPage() {
 										onChange={(e)=>updateItem(i.id,{comments:e.target.value})} 
 									/>
 								</div>
+
+								{(needsSize || needsMaterial) && (
+									<div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900 flex flex-col gap-1">
+										<p className="font-semibold tracking-wide uppercase">
+											Missing details detected
+										</p>
+										<p>
+											{needsSize && 'Size '}
+											{needsSize && needsMaterial && 'and '}
+											{needsMaterial && 'Material '}
+											{(needsSize && !needsMaterial) || (!needsSize && needsMaterial) ? 'is' : 'are'} required for an accurate quotation. Use the custom builders below to fill them in.
+										</p>
+									</div>
+								)}
 								
 									<div className="mt-3 space-y-3">
 										<div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
 											<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-gray-700 text-[10px]">i</span>
 											<span>Customize size & material below</span>
 										</div>
-										<div className="p-3 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+										<div className={`p-3 border border-dashed rounded-lg ${needsSize ? 'border-amber-300 bg-amber-50/70' : 'border-gray-300 bg-gray-50'}`}>
 											<div className="flex items-center justify-between">
 												<p className="text-sm font-semibold text-gray-700">Custom Size Builder</p>
 												<button
@@ -373,7 +390,7 @@ export default function CartPage() {
 											<p className="text-xs text-gray-500 mt-2">Result will be saved to the Size field above.</p>
 										</div>
 
-										<div className="p-3 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+										<div className={`p-3 border border-dashed rounded-lg ${needsMaterial ? 'border-amber-300 bg-amber-50/70' : 'border-gray-300 bg-gray-50'}`}>
 											<p className="text-sm font-semibold text-gray-700 mb-2">Material Options</p>
 											<div className="flex flex-wrap gap-2 mb-3">
 												{['ACP', 'Acrylic', 'Vinyl', 'Sunboard', 'Steel', 'Flex'].map((materialOption) => (
@@ -434,7 +451,8 @@ export default function CartPage() {
 									</div>
 								)}
 							</li>
-						))}
+							)
+						})}
 					</ul>
 
 					{/* Customer Details Form */}

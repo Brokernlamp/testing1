@@ -17,7 +17,7 @@ export default function Header() {
                 src="/logo.png?v=2" 
                 alt="SKS Logo" 
                 className="object-contain"
-                style={{ width: '70px', height: '70px' }}
+                style={{ width: '90px', height: '90px' }}
               />
             </div>
             <div>
@@ -30,12 +30,12 @@ export default function Header() {
 
           <nav className="hidden lg:flex items-center space-x-8">
             {[
-              { name: 'Services', href: '#services' },
+              { name: 'Services', href: '/#services' },
               { name: 'Products', href: '/products' },
-              { name: 'About', href: '#about' },
-              { name: 'Clients', href: '#clients' },
-              { name: 'Visit Us', href: '#visit' },
-              { name: 'Contact', href: '#contact' }
+              { name: 'About', href: '/#about' },
+              { name: 'Clients', href: '/#clients' },
+              { name: 'Visit Us', href: '/#visit' },
+              { name: 'Contact', href: '/#contact' }
             ].map((item) => (
               <Link 
                 key={item.name}
@@ -78,12 +78,12 @@ export default function Header() {
         <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg">
           <nav className="px-6 py-6 space-y-4">
             {[
-              { name: 'Services', href: '#services' },
+              { name: 'Services', href: '/#services' },
               { name: 'Products', href: '/products' },
-              { name: 'About', href: '#about' },
-              { name: 'Clients', href: '#clients' },
-              { name: 'Visit Us', href: '#visit' },
-              { name: 'Contact', href: '#contact' }
+              { name: 'About', href: '/#about' },
+              { name: 'Clients', href: '/#clients' },
+              { name: 'Visit Us', href: '/#visit' },
+              { name: 'Contact', href: '/#contact' }
             ].map((item) => (
               <Link
                 key={item.name}

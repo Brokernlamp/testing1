@@ -3,10 +3,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Search, Filter, ShoppingCart, ArrowLeft, ChevronLeft, ChevronRight, Layers, Palette, Ruler, Sparkles } from 'lucide-react'
+import { Search, Filter, ShoppingCart, ChevronLeft, ChevronRight, Layers, Palette, Ruler, Sparkles } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
-import { formatDate } from '@/lib/utils'
 import CartButton from '@/components/CartButton'
+import { useCart } from '@/components/cart/CartProvider'
 // import { getOptimizedImageUrl } from '@/lib/imagekit'
 
 interface Product {
@@ -33,12 +34,14 @@ interface Category {
 }
 
 export default function ProductsPage() {
+  const { addItem } = useCart()
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [loading, setLoading] = useState(true)
+  const [addingProductId, setAddingProductId] = useState<string | null>(null)
 
   const tileThemes = [
     { gradient: 'from-blue-50 via-white to-blue-100', accent: 'text-blue-600', glow: 'bg-blue-200', icon: Layers },
@@ -87,6 +90,30 @@ export default function ProductsPage() {
       console.error('Error fetching products:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleQuickAdd = (product: Product) => {
+    setAddingProductId(product.id)
+    try {
+      addItem({
+        id: `${product.id}:${Date.now()}`,
+        type: 'product',
+        name: product.name,
+        category: product.category?.name || null,
+        size: null,
+        quantity: 1,
+        material: null,
+        delivery_date: null,
+        comments: null,
+        images: [],
+      })
+      toast.success(`${product.name} added to cart`)
+    } catch (error) {
+      console.error('quick add error', error)
+      toast.error('Could not add to cart')
+    } finally {
+      setAddingProductId(null)
     }
   }
 
@@ -316,22 +343,30 @@ export default function ProductsPage() {
                           </p>
                         )}
                         
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs text-gray-500">
-                            {product.sizes && product.sizes.length > 0 && (
-                              <span className="block">Sizes: {product.sizes.slice(0, 2).join(', ')}</span>
-                            )}
-                            {product.materials && product.materials.length > 0 && (
-                              <span className="block">Materials: {product.materials.slice(0, 2).join(', ')}</span>
-                            )}
-                          </div>
-                          
+                        <div className="text-xs text-gray-500 space-y-1 mb-3">
+                          {product.sizes && product.sizes.length > 0 && (
+                            <span className="block">Sizes: {product.sizes.slice(0, 2).join(', ')}</span>
+                          )}
+                          {product.materials && product.materials.length > 0 && (
+                            <span className="block">Materials: {product.materials.slice(0, 2).join(', ')}</span>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <Link
                             href={`/products/${product.id}`}
-                            className="btn-primary text-xs sm:text-xs px-3 py-2"
+                            className="btn-primary text-xs sm:text-sm px-3 py-2 text-center"
                           >
                             Get Quote
                           </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleQuickAdd(product)}
+                            className="btn-secondary text-xs sm:text-sm px-3 py-2 flex-1 disabled:opacity-60 disabled:cursor-not-allowed"
+                            disabled={addingProductId === product.id}
+                          >
+                            {addingProductId === product.id ? 'Adding…' : 'Add to Cart'}
+                          </button>
                         </div>
                       </div>
                     </div>

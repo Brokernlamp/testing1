@@ -101,6 +101,17 @@ export default function HomePage() {
     { name: 'Client 9', src: '/clients/logo9.png' },
   ]
 
+  const floatingPositions = [
+    { top: '10%', left: '10%' },
+    { top: '20%', left: '35%' },
+    { top: '15%', left: '65%' },
+    { top: '35%', left: '15%' },
+    { top: '45%', left: '45%' },
+    { top: '30%', left: '75%' },
+    { top: '60%', left: '25%' },
+    { top: '65%', left: '65%' }
+  ]
+
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
       <link
@@ -452,7 +463,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Clients Section - Modern Grid */}
+      {/* Clients Section - Floating Logos */}
       <section id="clients" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
@@ -468,45 +479,39 @@ export default function HomePage() {
             <p className="text-xl text-gray-600">Building partnerships across multiple industries</p>
           </motion.div>
 
-          {/* Two-Row Continuous Moving Client Logos */}
-          <div className="space-y-8">
-            {/* Top Row - Moving Left */}
-            <div className="overflow-hidden">
-              <div className="flex animate-marquee-left space-x-8">
-                {[...clientLogos, ...clientLogos, ...clientLogos].map((client, i) => (
-                  <div key={`top-${i}-${client.name}`} className="flex-shrink-0">
-                    <div className="w-32 h-20 bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-100 rounded-xl flex items-center justify-center hover:shadow-md transition-all duration-300">
-                      <img 
-                        src={client.src} 
-                        alt={`${client.name} logo`} 
-                        className="h-6 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" 
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div className="relative rounded-[48px] bg-gradient-to-r from-blue-50 via-white to-purple-50 border border-blue-100 shadow-[0_20px_60px_rgba(15,23,42,0.08)] overflow-hidden min-h-[360px]">
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute w-64 h-64 bg-blue-100/40 blur-3xl rounded-full -top-10 left-10" />
+              <div className="absolute w-72 h-72 bg-purple-100/40 blur-3xl rounded-full -bottom-8 right-4" />
             </div>
-
-            {/* Bottom Row - Moving Right */}
-            <div className="overflow-hidden">
-              <div className="flex animate-marquee-right space-x-8">
-                {[...clientLogos, ...clientLogos, ...clientLogos].map((client, i) => (
-                  <div key={`bottom-${i}-${client.name}`} className="flex-shrink-0">
-                    <div className="w-32 h-20 bg-gradient-to-br from-green-50 to-yellow-50 border border-green-100 rounded-xl flex items-center justify-center hover:shadow-md transition-all duration-300">
-                      <img 
-                        src={client.src} 
-                        alt={`${client.name} logo`} 
-                        className="h-6 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" 
-                      />
-                    </div>
+            {clientLogos.map((client, index) => {
+              const position = floatingPositions[index % floatingPositions.length]
+              return (
+                <motion.div
+                  key={`${client.name}-${index}`}
+                  className={`absolute floating-logo ${index % 2 ? 'floating-logo-alt' : ''}`}
+                  style={{
+                    top: position.top,
+                    left: position.left,
+                    animationDelay: `${index * 0.35}s`,
+                  }}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                >
+                  <div className="w-32 h-20 rounded-3xl bg-white/90 backdrop-blur border border-white shadow-lg flex items-center justify-center hover:shadow-xl transition-all duration-300">
+                    <img 
+                      src={client.src} 
+                      alt={`${client.name} logo`} 
+                      className="h-7 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" 
+                    />
                   </div>
-                ))}
-              </div>
-            </div>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
-
-        
       </section>
 
       {/* Contact Section */}
