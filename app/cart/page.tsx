@@ -18,6 +18,12 @@ export default function CartPage() {
 	const [comments, setComments] = useState('')
 	const [sizeDrafts, setSizeDrafts] = useState<Record<string, { height: string; width: string; unit: string }>>({})
 	const [materialDrafts, setMaterialDrafts] = useState<Record<string, string>>({})
+	const presetSizes = [
+		{ label: '12" x 12"', value: '12 x 12 inch' },
+		{ label: '24" x 12"', value: '24 x 12 inch' },
+		{ label: '36" x 24"', value: '36 x 24 inch' },
+		{ label: '48" x 36"', value: '48 x 36 inch' }
+	]
 
 	// Companies dropdown
 	const [companies, setCompanies] = useState<Array<{ id: string; company_name: string }>>([])
@@ -342,6 +348,28 @@ export default function CartPage() {
 										<div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
 											<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-gray-700 text-[10px]">i</span>
 											<span>Customize size & material below</span>
+										</div>
+										<div className="p-3 border border-dashed rounded-lg border-gray-200 bg-white">
+											<p className="text-sm font-semibold text-gray-700 mb-2">Quick Size Options</p>
+											<div className="flex flex-wrap gap-2">
+												{presetSizes.map((preset) => (
+													<button
+														type="button"
+														key={preset.value}
+														onClick={() => {
+															updateItem(i.id, { size: preset.value })
+															toast.success('Size applied')
+														}}
+														className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+															i.size === preset.value
+																? 'border-primary-500 bg-primary-50 text-primary-700'
+																: 'border-gray-300 text-gray-600 hover:border-primary-300'
+														}`}
+													>
+														{preset.label}
+													</button>
+												))}
+											</div>
 										</div>
 										<div className={`p-3 border border-dashed rounded-lg ${needsSize ? 'border-amber-300 bg-amber-50/70' : 'border-gray-300 bg-gray-50'}`}>
 											<div className="flex items-center justify-between">
