@@ -57,3 +57,22 @@
     @apply bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent;
   }
 }
+
+/* Global keyframes moved from page */
+@keyframes marquee-left {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+.animate-marquee-left {
+  animation: marquee-left 8.06s linear infinite;
+}
+.animate-marquee-right {
+  animation: marquee-right 8.06s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-left, .animate-marquee-right { animation-duration: 0s; }
+}

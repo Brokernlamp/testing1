@@ -1,0 +1,1685 @@
+{
+    "manifest_version": "1.0.14",
+    "title": "Vagabonds - Travel Blog Template Kit",
+    "page_builder": "elementor",
+    "kit_version": "1.0.0",
+    "templates": [
+        {
+            "name": "Global Kit Styles",
+            "screenshot": "screenshots\/global-kit-styles.jpg",
+            "source": "templates\/global.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com",
+            "type": "section",
+            "category": "page",
+            "metadata": {
+                "template_type": "global-styles",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1",
+                "additional_template_information": [
+                    "These are the global theme styles configured through the Elementor Theme Styles area."
+                ]
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Locations",
+            "screenshot": "screenshots\/locations.jpg",
+            "source": "templates\/locations.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/locations\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Home-2",
+            "screenshot": "screenshots\/home-2.jpg",
+            "source": "templates\/home-2.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/home-2\/",
+            "type": "section",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-home",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1"
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Header default",
+            "screenshot": "screenshots\/header-default.jpg",
+            "source": "templates\/header-default.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/?elementor_library=header-default",
+            "type": "header",
+            "category": "section",
+            "metadata": {
+                "template_type": "section-header",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1",
+                "elementor_library_type": "header",
+                "elementor_pro_conditions": [
+                    "include\/general"
+                ],
+                "additional_template_information": [
+                    "This is a \"Header\" template for Elementor Pro.",
+                    "This template will display on: Entire Site."
+                ]
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Header style-1",
+            "screenshot": "screenshots\/header-style-1.jpg",
+            "source": "templates\/header-style-1.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/?elementor_library=header-style-1",
+            "type": "header",
+            "category": "section",
+            "metadata": {
+                "template_type": "section-header",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1",
+                "elementor_library_type": "header",
+                "additional_template_information": [
+                    "This is a \"Header\" template for Elementor Pro."
+                ]
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Footer default",
+            "screenshot": "screenshots\/footer-default.jpg",
+            "source": "templates\/footer-default.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/?elementor_library=footer-default",
+            "type": "footer",
+            "category": "section",
+            "metadata": {
+                "template_type": "section-footer",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1",
+                "elementor_library_type": "footer",
+                "elementor_pro_conditions": [
+                    "include\/general"
+                ],
+                "additional_template_information": [
+                    "This is a \"Footer\" template for Elementor Pro.",
+                    "This template will display on: Entire Site."
+                ]
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Header style-2",
+            "screenshot": "screenshots\/header-style-2.jpg",
+            "source": "templates\/header-style-2.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/?elementor_library=header-style-2",
+            "type": "header",
+            "category": "section",
+            "metadata": {
+                "template_type": "section-header",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1",
+                "elementor_library_type": "header",
+                "additional_template_information": [
+                    "This is a \"Header\" template for Elementor Pro."
+                ]
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Footer style-1",
+            "screenshot": "screenshots\/footer-style-1.jpg",
+            "source": "templates\/footer-style-1.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/?elementor_library=footer-style-1",
+            "type": "footer",
+            "category": "section",
+            "metadata": {
+                "template_type": "section-footer",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1",
+                "elementor_library_type": "footer",
+                "additional_template_information": [
+                    "This is a \"Footer\" template for Elementor Pro."
+                ]
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Footer style-2",
+            "screenshot": "screenshots\/footer-style-2.jpg",
+            "source": "templates\/footer-style-2.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/?elementor_library=footer-style-2",
+            "type": "footer",
+            "category": "section",
+            "metadata": {
+                "template_type": "section-footer",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1",
+                "elementor_library_type": "footer",
+                "additional_template_information": [
+                    "This is a \"Footer\" template for Elementor Pro."
+                ]
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Header style-3",
+            "screenshot": "screenshots\/header-style-3.jpg",
+            "source": "templates\/header-style-3.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/?elementor_library=header-style-3",
+            "type": "header",
+            "category": "section",
+            "metadata": {
+                "template_type": "section-header",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1",
+                "elementor_library_type": "header",
+                "additional_template_information": [
+                    "This is a \"Header\" template for Elementor Pro."
+                ]
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Home-1",
+            "screenshot": "screenshots\/home-1.jpg",
+            "source": "templates\/home-1.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/home-1\/",
+            "type": "section",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-home",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1"
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Home-3",
+            "screenshot": "screenshots\/home-3.jpg",
+            "source": "templates\/home-3.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/home-3\/",
+            "type": "section",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-home",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Contacts",
+            "screenshot": "screenshots\/contacts.jpg",
+            "source": "templates\/contacts.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/contacts\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1"
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "About Us",
+            "screenshot": "screenshots\/about-us.jpg",
+            "source": "templates\/about-us.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/about-us\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Our story",
+            "screenshot": "screenshots\/our-story.jpg",
+            "source": "templates\/our-story.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/our-story\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Our staff",
+            "screenshot": "screenshots\/our-staff.jpg",
+            "source": "templates\/our-staff.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/our-staff\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Shop",
+            "screenshot": "screenshots\/shop.jpg",
+            "source": "templates\/shop.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/shop\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1"
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Gallery",
+            "screenshot": "screenshots\/gallery.jpg",
+            "source": "templates\/gallery.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/gallery\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Gallery 2",
+            "screenshot": "screenshots\/gallery-2.jpg",
+            "source": "templates\/gallery-2.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/gallery-2\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Blog",
+            "screenshot": "screenshots\/blog.jpg",
+            "source": "templates\/blog.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/blog\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1"
+            },
+            "elementor_pro_required": true
+        },
+        {
+            "name": "Explore destinations",
+            "screenshot": "screenshots\/explore-destinations.jpg",
+            "source": "templates\/explore-destinations.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/explore-destinations\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Prices",
+            "screenshot": "screenshots\/prices.jpg",
+            "source": "templates\/prices.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/prices\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Start here",
+            "screenshot": "screenshots\/start-here.jpg",
+            "source": "templates\/start-here.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/template-kit\/start-here\/",
+            "type": "page",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-page",
+                "include_in_zip": "1",
+                "elementor_pro_required": null
+            },
+            "elementor_pro_required": false
+        },
+        {
+            "name": "Single Product",
+            "screenshot": "screenshots\/single-product.jpg",
+            "source": "templates\/single-product.json",
+            "preview_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/?elementor_library=single-product",
+            "type": "product",
+            "category": "page",
+            "metadata": {
+                "template_type": "single-product",
+                "include_in_zip": "1",
+                "elementor_pro_required": "1",
+                "elementor_library_type": "product",
+                "elementor_pro_conditions": [
+                    "include\/product"
+                ],
+                "additional_template_information": [
+                    "This is a \"Product\" template for Elementor Pro.",
+                    "This template will display on: Products."
+                ]
+            },
+            "elementor_pro_required": true
+        }
+    ],
+    "required_plugins": [
+        {
+            "name": "WooCommerce",
+            "version": "4.1.1",
+            "file": "woocommerce\/woocommerce.php",
+            "author": "Automattic"
+        },
+        {
+            "name": "Elementor",
+            "version": "2.9.8",
+            "file": "elementor\/elementor.php",
+            "author": "Elementor.com"
+        },
+        {
+            "name": "Elementor Pro",
+            "version": "2.9.3",
+            "file": "elementor-pro\/elementor-pro.php",
+            "author": "Elementor.com"
+        },
+        {
+            "name": "Envato Elements",
+            "version": "2.0.4",
+            "file": "envato-elements\/envato-elements.php",
+            "author": "Envato"
+        }
+    ],
+    "images": [
+        {
+            "filename": "in-search-of-waves-CBLKZE7.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/in-search-of-waves-CBLKZE7-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/locations.json",
+                    "name": "Locations"
+                },
+                {
+                    "source": "templates\/home-1.json",
+                    "name": "Home-1"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/gallery.json",
+                    "name": "Gallery"
+                },
+                {
+                    "source": "templates\/gallery-2.json",
+                    "name": "Gallery 2"
+                },
+                {
+                    "source": "templates\/prices.json",
+                    "name": "Prices"
+                }
+            ],
+            "filesize": 196897,
+            "dimensions": [
+                1920,
+                1280
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-CBLKZE7"
+        },
+        {
+            "filename": "003-location.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/003-location.png",
+            "templates": [
+                {
+                    "source": "templates\/locations.json",
+                    "name": "Locations"
+                },
+                {
+                    "source": "templates\/contacts.json",
+                    "name": "Contacts"
+                }
+            ],
+            "filesize": 1761,
+            "dimensions": [
+                48,
+                65
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "view-of-antelope-canyon-and-sky-DT3XELC.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/view-of-antelope-canyon-and-sky-DT3XELC-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-2.json",
+                    "name": "Home-2"
+                }
+            ],
+            "filesize": 349027,
+            "dimensions": [
+                1920,
+                1281
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/elements.envato.com\/image-DT3XELC"
+        },
+        {
+            "filename": "Forma-1.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/Forma-1.png",
+            "templates": [
+                {
+                    "source": "templates\/home-2.json",
+                    "name": "Home-2"
+                }
+            ],
+            "filesize": 1729,
+            "dimensions": [
+                60,
+                60
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "Forma-1-1.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/Forma-1-1.png",
+            "templates": [
+                {
+                    "source": "templates\/home-2.json",
+                    "name": "Home-2"
+                }
+            ],
+            "filesize": 1378,
+            "dimensions": [
+                60,
+                58
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "beautiful-woman-posing-in-the-park-TEDQ6PZ.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/beautiful-woman-posing-in-the-park-TEDQ6PZ-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-2.json",
+                    "name": "Home-2"
+                },
+                {
+                    "source": "templates\/our-staff.json",
+                    "name": "Our staff"
+                }
+            ],
+            "filesize": 291764,
+            "dimensions": [
+                1920,
+                1280
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-TEDQ6PZ"
+        },
+        {
+            "filename": "photo-1446857932438-372a619fc3fd.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1446857932438-372a619fc3fd-600x398.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-2.json",
+                    "name": "Home-2"
+                },
+                {
+                    "source": "templates\/our-staff.json",
+                    "name": "Our staff"
+                },
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                }
+            ],
+            "filesize": 308791,
+            "dimensions": [
+                1920,
+                1272
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/dtAKbP9O9U4\/"
+        },
+        {
+            "filename": "quote-red.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/quote-red.png",
+            "templates": [
+                {
+                    "source": "templates\/home-2.json",
+                    "name": "Home-2"
+                }
+            ],
+            "filesize": 1340,
+            "dimensions": [
+                31,
+                20
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "Logo-dark.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/Logo-dark.png",
+            "templates": [
+                {
+                    "source": "templates\/header-default.json",
+                    "name": "Header default"
+                },
+                {
+                    "source": "templates\/header-style-3.json",
+                    "name": "Header style-3"
+                }
+            ],
+            "filesize": 2114,
+            "dimensions": [
+                169,
+                27
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "logo.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/logo.png",
+            "templates": [
+                {
+                    "source": "templates\/header-style-1.json",
+                    "name": "Header style-1"
+                },
+                {
+                    "source": "templates\/header-style-2.json",
+                    "name": "Header style-2"
+                }
+            ],
+            "filesize": 1956,
+            "dimensions": [
+                169,
+                27
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "photo-1479030574009-1e48577746e8.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1479030574009-1e48577746e8-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/footer-default.json",
+                    "name": "Footer default"
+                },
+                {
+                    "source": "templates\/footer-style-1.json",
+                    "name": "Footer style-1"
+                },
+                {
+                    "source": "templates\/footer-style-2.json",
+                    "name": "Footer style-2"
+                },
+                {
+                    "source": "templates\/gallery.json",
+                    "name": "Gallery"
+                },
+                {
+                    "source": "templates\/gallery-2.json",
+                    "name": "Gallery 2"
+                },
+                {
+                    "source": "templates\/blog.json",
+                    "name": "Blog"
+                }
+            ],
+            "filesize": 146270,
+            "dimensions": [
+                1050,
+                700
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/iHJOHaUD8RY"
+        },
+        {
+            "filename": "VAGABONDS.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/VAGABONDS.png",
+            "templates": [
+                {
+                    "source": "templates\/footer-default.json",
+                    "name": "Footer default"
+                },
+                {
+                    "source": "templates\/footer-style-2.json",
+                    "name": "Footer style-2"
+                }
+            ],
+            "filesize": 1956,
+            "dimensions": [
+                169,
+                27
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "right-arrow.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/right-arrow.png",
+            "templates": [
+                {
+                    "source": "templates\/footer-style-1.json",
+                    "name": "Footer style-1"
+                }
+            ],
+            "filesize": 193,
+            "dimensions": [
+                11,
+                9
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "photo-1484910292437-025e5d13ce87.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1484910292437-025e5d13ce87-600x381.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-1.json",
+                    "name": "Home-1"
+                }
+            ],
+            "filesize": 114762,
+            "dimensions": [
+                1088,
+                691
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/xu2WYJek5AI"
+        },
+        {
+            "filename": "earth.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/earth.png",
+            "templates": [
+                {
+                    "source": "templates\/home-1.json",
+                    "name": "Home-1"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                },
+                {
+                    "source": "templates\/prices.json",
+                    "name": "Prices"
+                },
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 2779,
+            "dimensions": [
+                65,
+                65
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "calendar.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/calendar.png",
+            "templates": [
+                {
+                    "source": "templates\/home-1.json",
+                    "name": "Home-1"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 1431,
+            "dimensions": [
+                65,
+                62
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "photo.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo.png",
+            "templates": [
+                {
+                    "source": "templates\/home-1.json",
+                    "name": "Home-1"
+                }
+            ],
+            "filesize": 1892,
+            "dimensions": [
+                65,
+                65
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "man.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/man.png",
+            "templates": [
+                {
+                    "source": "templates\/home-1.json",
+                    "name": "Home-1"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                },
+                {
+                    "source": "templates\/prices.json",
+                    "name": "Prices"
+                },
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 2614,
+            "dimensions": [
+                65,
+                65
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "photo-1555334824-b85a0bb65a80.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1555334824-b85a0bb65a80-600x905.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-1.json",
+                    "name": "Home-1"
+                },
+                {
+                    "source": "templates\/about-us.json",
+                    "name": "About Us"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/gallery-2.json",
+                    "name": "Gallery 2"
+                }
+            ],
+            "filesize": 335874,
+            "dimensions": [
+                1698,
+                2560
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/RMX-b8RQkSY"
+        },
+        {
+            "filename": "Group-187.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/Group-187.png",
+            "templates": [
+                {
+                    "source": "templates\/home-1.json",
+                    "name": "Home-1"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                }
+            ],
+            "filesize": 1114,
+            "dimensions": [
+                100,
+                100
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "photo-1478001517127-fccc92f54906.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1478001517127-fccc92f54906-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-3.json",
+                    "name": "Home-3"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/gallery.json",
+                    "name": "Gallery"
+                },
+                {
+                    "source": "templates\/gallery-2.json",
+                    "name": "Gallery 2"
+                },
+                {
+                    "source": "templates\/prices.json",
+                    "name": "Prices"
+                }
+            ],
+            "filesize": 157383,
+            "dimensions": [
+                1050,
+                700
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/xEh4hvxRKXM"
+        },
+        {
+            "filename": "chat-3.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/chat-3.png",
+            "templates": [
+                {
+                    "source": "templates\/home-3.json",
+                    "name": "Home-3"
+                },
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                }
+            ],
+            "filesize": 1678,
+            "dimensions": [
+                66,
+                66
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "chat-4.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/chat-4.png",
+            "templates": [
+                {
+                    "source": "templates\/home-3.json",
+                    "name": "Home-3"
+                },
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                }
+            ],
+            "filesize": 1584,
+            "dimensions": [
+                65,
+                66
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "medal.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/medal.png",
+            "templates": [
+                {
+                    "source": "templates\/home-3.json",
+                    "name": "Home-3"
+                },
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                }
+            ],
+            "filesize": 2304,
+            "dimensions": [
+                48,
+                66
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "photo-1545901444-6651499d0075.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1545901444-6651499d0075-600x450.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-3.json",
+                    "name": "Home-3"
+                },
+                {
+                    "source": "templates\/gallery.json",
+                    "name": "Gallery"
+                },
+                {
+                    "source": "templates\/gallery-2.json",
+                    "name": "Gallery 2"
+                }
+            ],
+            "filesize": 96967,
+            "dimensions": [
+                967,
+                725
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/EqXHIiHAwWs"
+        },
+        {
+            "filename": "smiling-beautiful-girl-in-italy-DSMJWKF-e1585138706975.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/smiling-beautiful-girl-in-italy-DSMJWKF-e1585138706975-600x460.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-3.json",
+                    "name": "Home-3"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/our-staff.json",
+                    "name": "Our staff"
+                },
+                {
+                    "source": "templates\/blog.json",
+                    "name": "Blog"
+                }
+            ],
+            "filesize": 287001,
+            "dimensions": [
+                1920,
+                1472
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-DSMJWKF"
+        },
+        {
+            "filename": "blockuote-white.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/blockuote-white.png",
+            "templates": [
+                {
+                    "source": "templates\/home-3.json",
+                    "name": "Home-3"
+                }
+            ],
+            "filesize": 1454,
+            "dimensions": [
+                50,
+                50
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "photo-1473213795101-471a0f5ef6f6.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1473213795101-471a0f5ef6f6-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-3.json",
+                    "name": "Home-3"
+                }
+            ],
+            "filesize": 107169,
+            "dimensions": [
+                1050,
+                700
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/t5aPwmIWNDI"
+        },
+        {
+            "filename": "photo-1547626740-02cb6aed9ef8-1.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1547626740-02cb6aed9ef8-1-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/home-3.json",
+                    "name": "Home-3"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                }
+            ],
+            "filesize": 218002,
+            "dimensions": [
+                1050,
+                700
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/f3uWi9G-lus"
+        },
+        {
+            "filename": "photo-1499403474843-04e72c14df8e.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1499403474843-04e72c14df8e-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/contacts.json",
+                    "name": "Contacts"
+                },
+                {
+                    "source": "templates\/about-us.json",
+                    "name": "About Us"
+                },
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                }
+            ],
+            "filesize": 242580,
+            "dimensions": [
+                1950,
+                1300
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/nGOK_EqQpY4"
+        },
+        {
+            "filename": "001-mail.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/001-mail.png",
+            "templates": [
+                {
+                    "source": "templates\/contacts.json",
+                    "name": "Contacts"
+                }
+            ],
+            "filesize": 1634,
+            "dimensions": [
+                65,
+                62
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "002-telephone.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/002-telephone.png",
+            "templates": [
+                {
+                    "source": "templates\/contacts.json",
+                    "name": "Contacts"
+                }
+            ],
+            "filesize": 1953,
+            "dimensions": [
+                65,
+                65
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "Forma-1-2.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/Forma-1-2.png",
+            "templates": [
+                {
+                    "source": "templates\/about-us.json",
+                    "name": "About Us"
+                }
+            ],
+            "filesize": 2125,
+            "dimensions": [
+                75,
+                75
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "Forma-1-copy.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/Forma-1-copy.png",
+            "templates": [
+                {
+                    "source": "templates\/about-us.json",
+                    "name": "About Us"
+                }
+            ],
+            "filesize": 2950,
+            "dimensions": [
+                75,
+                75
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "photo-1527248647512-3a668e6dc10b.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1527248647512-3a668e6dc10b-600x900.jpg",
+            "templates": [
+                {
+                    "source": "templates\/about-us.json",
+                    "name": "About Us"
+                },
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/blog.json",
+                    "name": "Blog"
+                },
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                }
+            ],
+            "filesize": 300875,
+            "dimensions": [
+                1700,
+                2550
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/pfXBfFG30TA"
+        },
+        {
+            "filename": "tim-swaan-eOpewngf68w-unsplash.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/tim-swaan-eOpewngf68w-unsplash-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/about-us.json",
+                    "name": "About Us"
+                },
+                {
+                    "source": "templates\/blog.json",
+                    "name": "Blog"
+                }
+            ],
+            "filesize": 302977,
+            "dimensions": [
+                1920,
+                1280
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/eOpewngf68w"
+        },
+        {
+            "filename": "photo-1569670380685-4582bf29a24a-scaled.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1569670380685-4582bf29a24a-600x935.jpg",
+            "templates": [
+                {
+                    "source": "templates\/about-us.json",
+                    "name": "About Us"
+                }
+            ],
+            "filesize": 338036,
+            "dimensions": [
+                1644,
+                2560
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/1waZIrVVgMk"
+        },
+        {
+            "filename": "photo-1521127432826-f4d644402b78.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1521127432826-f4d644402b78-600x750.jpg",
+            "templates": [
+                {
+                    "source": "templates\/about-us.json",
+                    "name": "About Us"
+                }
+            ],
+            "filesize": 402927,
+            "dimensions": [
+                1800,
+                2250
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/9QRPWH8i_3E"
+        },
+        {
+            "filename": "blockuote.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/blockuote.png",
+            "templates": [
+                {
+                    "source": "templates\/about-us.json",
+                    "name": "About Us"
+                },
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 1262,
+            "dimensions": [
+                33,
+                33
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "smiling-young-girl-taking-a-selfie-NR2ZWMP.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/smiling-young-girl-taking-a-selfie-NR2ZWMP-600x524.jpg",
+            "templates": [
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/our-staff.json",
+                    "name": "Our staff"
+                }
+            ],
+            "filesize": 317847,
+            "dimensions": [
+                1920,
+                1676
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-NR2ZWMP"
+        },
+        {
+            "filename": "Forma-1-3.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/Forma-1-3.png",
+            "templates": [
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                },
+                {
+                    "source": "templates\/prices.json",
+                    "name": "Prices"
+                },
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 1813,
+            "dimensions": [
+                64,
+                57
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "photo-1507739992237-9f41bbf6f877.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1507739992237-9f41bbf6f877-600x402.jpg",
+            "templates": [
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                }
+            ],
+            "filesize": 159900,
+            "dimensions": [
+                1920,
+                1285
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/LPNdZS-D1cY"
+        },
+        {
+            "filename": "photo-1521579880562-101f47676ee1.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1521579880562-101f47676ee1-600x782.jpg",
+            "templates": [
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                },
+                {
+                    "source": "templates\/prices.json",
+                    "name": "Prices"
+                }
+            ],
+            "filesize": 106200,
+            "dimensions": [
+                684,
+                892
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/g4B4x6hhkO0"
+        },
+        {
+            "filename": "photo-1509931679165-78561cedc4ee.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1509931679165-78561cedc4ee-600x492.jpg",
+            "templates": [
+                {
+                    "source": "templates\/our-story.json",
+                    "name": "Our story"
+                }
+            ],
+            "filesize": 228348,
+            "dimensions": [
+                909,
+                746
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/ygmjMKqf0kM"
+        },
+        {
+            "filename": "beautiful-girl-with-a-retro-camera-outdoors-XKR6T4G.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/beautiful-girl-with-a-retro-camera-outdoors-XKR6T4G-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/our-staff.json",
+                    "name": "Our staff"
+                }
+            ],
+            "filesize": 293193,
+            "dimensions": [
+                1920,
+                1281
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-XKR6T4G"
+        },
+        {
+            "filename": "smiling-young-girl-in-sunglasses-walking-P54MAVF.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/smiling-young-girl-in-sunglasses-walking-P54MAVF-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/our-staff.json",
+                    "name": "Our staff"
+                }
+            ],
+            "filesize": 257516,
+            "dimensions": [
+                1920,
+                1280
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-P54MAVF"
+        },
+        {
+            "filename": "serious-bearded-young-man-standing-with-hands-PABP4CG.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/serious-bearded-young-man-standing-with-hands-PABP4CG-600x656.jpg",
+            "templates": [
+                {
+                    "source": "templates\/our-staff.json",
+                    "name": "Our staff"
+                }
+            ],
+            "filesize": 260589,
+            "dimensions": [
+                1920,
+                2100
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-PABP4CG"
+        },
+        {
+            "filename": "happy-african-curly-young-woman-wearing-yellow-PFCN4PV.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/happy-african-curly-young-woman-wearing-yellow-PFCN4PV-600x653.jpg",
+            "templates": [
+                {
+                    "source": "templates\/our-staff.json",
+                    "name": "Our staff"
+                }
+            ],
+            "filesize": 168788,
+            "dimensions": [
+                1920,
+                2088
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-PFCN4PV"
+        },
+        {
+            "filename": "millennial-african-guy-with-bib-pants-outdoors-Z6TGFUB.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/millennial-african-guy-with-bib-pants-outdoors-Z6TGFUB-600x552.jpg",
+            "templates": [
+                {
+                    "source": "templates\/our-staff.json",
+                    "name": "Our staff"
+                }
+            ],
+            "filesize": 168274,
+            "dimensions": [
+                1920,
+                1766
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-Z6TGFUB"
+        },
+        {
+            "filename": "young-photographer-with-a-retro-camera-in-the-YMLFP76.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/young-photographer-with-a-retro-camera-in-the-YMLFP76-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/shop.json",
+                    "name": "Shop"
+                },
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 269823,
+            "dimensions": [
+                1920,
+                1281
+            ],
+            "image_source": "envato_elements",
+            "person_or_place": "yes",
+            "image_urls": "https:\/\/elements.envato.com\/image-YMLFP76"
+        },
+        {
+            "filename": "photo-1537557174945-0e5c05a1709c.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1537557174945-0e5c05a1709c-600x900.jpg",
+            "templates": [
+                {
+                    "source": "templates\/gallery.json",
+                    "name": "Gallery"
+                },
+                {
+                    "source": "templates\/gallery-2.json",
+                    "name": "Gallery 2"
+                },
+                {
+                    "source": "templates\/blog.json",
+                    "name": "Blog"
+                }
+            ],
+            "filesize": 257685,
+            "dimensions": [
+                1700,
+                2550
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/zyeUYocFqqY"
+        },
+        {
+            "filename": "wolfgang-hasselmann-pVr6wvUneMk-unsplash.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/wolfgang-hasselmann-pVr6wvUneMk-unsplash-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/explore-destinations.json",
+                    "name": "Explore destinations"
+                },
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 109221,
+            "dimensions": [
+                1920,
+                1280
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/pVr6wvUneMk"
+        },
+        {
+            "filename": "photo-1547626740-02cb6aed9ef8.jpg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1547626740-02cb6aed9ef8-600x400.jpg",
+            "templates": [
+                {
+                    "source": "templates\/prices.json",
+                    "name": "Prices"
+                }
+            ],
+            "filesize": 218002,
+            "dimensions": [
+                1050,
+                700
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/f3uWi9G-lus"
+        },
+        {
+            "filename": "photo-1534777367038-9404f45b869a.jpeg",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/photo-1534777367038-9404f45b869a-600x400.jpeg",
+            "templates": [
+                {
+                    "source": "templates\/prices.json",
+                    "name": "Prices"
+                }
+            ],
+            "filesize": 296835,
+            "dimensions": [
+                1920,
+                1280
+            ],
+            "image_source": "cc0",
+            "person_or_place": "no",
+            "image_urls": "https:\/\/unsplash.com\/photos\/Y6tBl0pTe-g"
+        },
+        {
+            "filename": "hot-coffee.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/hot-coffee.png",
+            "templates": [
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 1754,
+            "dimensions": [
+                66,
+                66
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "credit-card.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/credit-card.png",
+            "templates": [
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 1485,
+            "dimensions": [
+                66,
+                66
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        },
+        {
+            "filename": "bitcoin-1.png",
+            "thumbnail_url": "http:\/\/template-kit.axiomthemes.com\/travel-blog\/wp-content\/uploads\/sites\/12\/2020\/03\/bitcoin-1.png",
+            "templates": [
+                {
+                    "source": "templates\/start-here.json",
+                    "name": "Start here"
+                }
+            ],
+            "filesize": 3100,
+            "dimensions": [
+                57,
+                66
+            ],
+            "image_source": "self_created",
+            "person_or_place": "no",
+            "image_urls": ""
+        }
+    ]
+}

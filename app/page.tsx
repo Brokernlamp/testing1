@@ -103,119 +103,10 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
-      {/* Fonts */}
       <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet"
       />
-
-      {/* Modern Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50 h-20">
-        <div className="max-w-7xl mx-auto px-6 h-full">
-          <div className="flex items-center justify-between h-full">
-            {/* Logo */}
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <img 
-                  src="/logo.png?v=2" 
-                  alt="SKS Logo" 
-                  className="object-contain"
-                  style={{ width: '70px', height: '70px' }}
-                />
-              </div>
-              <div>
-                <h1 className="text-gray-900 font-bold text-xl tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                  Shree Krishna Signs
-                </h1>
-                <p className="text-gray-500 text-sm font-medium">Since 1991</p>
-              </div>
-            </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              {[
-                { name: 'Services', href: '#services' },
-                { name: 'Products', href: '/products' },
-                { name: 'About', href: '#about' },
-                { name: 'Clients', href: '#clients' },
-                { name: 'Contact', href: '#contact' }
-              ].map((item) => (
-                <Link 
-                  key={item.name}
-                  href={item.href} 
-                  className="text-gray-700 hover:text-gray-900 font-medium text-base transition-colors relative group py-2"
-                >
-                  {item.name}
-                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gray-900 group-hover:w-full transition-all duration-300"></div>
-                </Link>
-              ))}
-            </nav>
-
-            {/* CTA Buttons */}
-            <div className="hidden lg:flex items-center space-x-4">
-              <Link 
-                href="/products" 
-                className="px-5 py-2.5 text-gray-700 hover:text-gray-900 font-semibold text-sm transition-colors"
-              >
-                Get Quote
-              </Link>
-              <a
-                href="tel:+919689941047"
-                className="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-xl transition-colors flex items-center gap-2"
-              >
-                Call +91 9689941047
-                <ArrowRight size={16} />
-              </a>
-            </div>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              className="lg:hidden p-2 text-gray-700 hover:text-gray-900"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg">
-            <nav className="px-6 py-6 space-y-4">
-              {[
-                { name: 'Services', href: '#services' },
-                { name: 'Products', href: '/products' },
-                { name: 'About', href: '#about' },
-                { name: 'Clients', href: '#clients' },
-                { name: 'Contact', href: '#contact' }
-              ].map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block py-2 text-gray-700 hover:text-gray-900 font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <div className="pt-4 space-y-3">
-                <Link 
-                  href="/products"
-                  className="block px-4 py-2 text-center border border-gray-200 rounded-lg font-semibold"
-                >
-                  Get Quote
-                </Link>
-                <a
-                  href="tel:+919689941047"
-                  className="block px-4 py-2 text-center bg-gray-900 text-white rounded-lg font-semibold"
-                >
-                  Call +91 9689941047
-                </a>
-              </div>
-            </nav>
-          </div>
-        )}
-      </header>
 
       {/* Hero Section - Modern Layout */}
       <section className="pt-12 pb-20 bg-white">
@@ -256,11 +147,11 @@ export default function HomePage() {
                   <ArrowRight size={20} />
                 </Link>
                 <a
-                  href="tel:+919689941047"
+                  href="tel:+918380848305"
                   className="px-8 py-4 border border-gray-200 hover:border-gray-300 text-gray-900 font-semibold text-lg rounded-xl transition-colors flex items-center gap-2 justify-center"
                 >
                   <Phone size={18} />
-                  Call +91 9689941047
+                  Call +91 83808 48305
                 </a>
               </div>
 
@@ -615,25 +506,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <style jsx global>{`
-          @keyframes marquee-left {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
-          }
-          @keyframes marquee-right {
-            0% { transform: translateX(-50%); }
-            100% { transform: translateX(0%); }
-          }
-          .animate-marquee-left {
-            animation: marquee-left 8.06s linear infinite;
-          }
-          .animate-marquee-right {
-            animation: marquee-right 8.06s linear infinite;
-          }
-          @media (prefers-reduced-motion: reduce) {
-            .animate-marquee-left, .animate-marquee-right { animation-duration: 0s; }
-          }
-        `}</style>
+        
       </section>
 
       {/* Contact Section */}
@@ -654,9 +527,9 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             {[
-              { icon: Phone, title: 'Call Us', info: '+91 9689941047', color: 'bg-blue-600' },
-              { icon: Mail, title: 'Email Us', info: 'shreekrishnasigns@gmail.com', color: 'bg-green-600' },
-              { icon: MapPin, title: 'Visit Us', info: 'Daund, Dist- Pune, Maharashtra, India', color: 'bg-purple-600' }
+              { icon: Phone, title: 'Call Us', info: '+91 83808 48305', color: 'bg-blue-600', href: 'tel:+918380848305' },
+              { icon: Mail, title: 'Email Us', info: 'shreekrishnasigns@gmail.com', color: 'bg-green-600', href: 'mailto:shreekrishnasigns@gmail.com' },
+              { icon: MapPin, title: 'Visit Us', info: 'Daund Patas Road, Shree Krishna Signs, Pune', color: 'bg-purple-600', href: 'https://www.google.com/maps/search/?api=1&query=Daund+Patas+Road+Shree+Krishna+Signs' }
             ].map((contact, index) => {
               const IconComponent = contact.icon
               return (
@@ -672,10 +545,46 @@ export default function HomePage() {
                     <IconComponent className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-3">{contact.title}</h3>
-                  <p className="text-gray-300">{contact.info}</p>
+                  {contact.href ? (
+                    <a href={contact.href} target={contact.title === 'Visit Us' ? '_blank' : undefined} rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+                      {contact.info}
+                    </a>
+                  ) : (
+                    <p className="text-gray-300">{contact.info}</p>
+                  )}
                 </motion.div>
               )
             })}
+          </div>
+
+          <div id="visit" className="mt-12 grid gap-8 lg:grid-cols-[1.1fr_1fr]">
+            <div className="bg-gray-800 border border-gray-700 rounded-3xl p-8 text-left">
+              <h3 className="text-2xl font-semibold text-white mb-4">Visit Us</h3>
+              <p className="text-gray-300 mb-4">
+                Daund Patas Road, Shree Krishna Signs, near Patas MIDC, Pune, Maharashtra
+              </p>
+              <p className="text-gray-400 text-sm mb-6">
+                Schedule a visit or drop by our workshop—our team will guide you through signage options and material finishes in person.
+              </p>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Daund+Patas+Road+Shree+Krishna+Signs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-white font-semibold transition-colors"
+              >
+                <MapPin size={18} />
+                Open Google Maps
+              </a>
+            </div>
+            <div className="rounded-3xl overflow-hidden border border-gray-700 shadow-2xl">
+              <iframe
+                src="https://www.google.com/maps?q=Daund+Patas+Road+Shree+Krishna+Signs&output=embed"
+                className="w-full h-80 md:h-full"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Shree Krishna Signs location"
+              />
+            </div>
           </div>
 
           <motion.div
@@ -695,103 +604,7 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-black text-white py-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-            <div>
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center">
-                  <span className="text-black font-bold text-lg">SKS</span>
-                </div>
-                <div>
-                  <h3 className="text-white font-bold text-xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                    Shree Krishna Signs
-                  </h3>
-                  <p className="text-gray-400 text-sm">Since 1991</p>
-                </div>
-              </div>
-              
-              <p className="text-gray-300 mb-6 leading-relaxed">
-                Over three decades of excellence in delivering premium signage and printing solutions.
-              </p>
-              
-              <div className="flex space-x-4">
-                {[Facebook, Instagram, Linkedin].map((Social, index) => (
-                  <a
-                    key={index}
-                    href="#"
-                    className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-xl flex items-center justify-center transition-colors"
-                  >
-                    <Social size={18} />
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-white font-semibold text-lg mb-6">Services</h4>
-              <ul className="space-y-3">
-                {categories.slice(0, 6).map((service) => (
-                  <li key={service} className="text-gray-300 hover:text-white transition-colors cursor-pointer">
-                    {service}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-semibold text-lg mb-6">Company</h4>
-              <ul className="space-y-3">
-                {[
-                  { name: 'About Us', href: '#about' },
-                  { name: 'Services', href: '#services' },
-                  { name: 'Products', href: '/products' },
-                  { name: 'Clients', href: '#clients' },
-                  { name: 'Contact', href: '#contact' }
-                ].map((link) => (
-                  <li key={link.name}>
-                    <Link href={link.href} className="text-gray-300 hover:text-white transition-colors">
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-semibold text-lg mb-6">Contact</h4>
-              <div className="space-y-4">
-                <div className="text-gray-300">
-                  <p className="font-medium">Address</p>
-                  <p className="text-sm">Daund, Dist- Pune, Maharashtra, India</p>
-                </div>
-                <div className="text-gray-300">
-                  <p className="font-medium">Phone</p>
-                  <p className="text-sm">+91 9689941047</p>
-                </div>
-                <div className="text-gray-300">
-                  <p className="font-medium">Email</p>
-                  <p className="text-sm">shreekrishnasigns@gmail.com</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-800 pt-8">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="text-gray-400 text-sm">
-                © 2025 Shree Krishna Signs. All rights reserved.
-              </div>
-              <div className="flex items-center space-x-6 mt-4 md:mt-0">
-                <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
-                <a href="/terms.pdf" download className="text-gray-400 hover:text-white text-sm transition-colors">Terms & Conditions (PDF)</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      
     </div>
   )
 }

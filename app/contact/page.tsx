@@ -256,7 +256,17 @@ ${formData.message}
                   <MapPin className="w-5 h-5 text-primary-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium text-gray-900">Address</h4>
-                    <p className="text-gray-600">Mumbai, Maharashtra, India</p>
+                    <p className="text-gray-600">
+                      Daund Patas Road, Shree Krishna Signs, Pune, Maharashtra
+                    </p>
+                    <a
+                      href="https://www.google.com/maps/search/?api=1&query=Daund+Patas+Road+Shree+Krishna+Signs"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary-600 text-sm font-semibold hover:text-primary-700"
+                    >
+                      Open in Google Maps
+                    </a>
                   </div>
                 </div>
                 
@@ -264,7 +274,12 @@ ${formData.message}
                   <Phone className="w-5 h-5 text-primary-600 mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium text-gray-900">Phone</h4>
-                    <p className="text-gray-600">+91 98765 43210</p>
+                    <a
+                      href="tel:+918380848305"
+                      className="text-gray-600 hover:text-primary-600 transition-colors"
+                    >
+                      +91 83808 48305
+                    </a>
                   </div>
                 </div>
                 
@@ -313,7 +328,7 @@ ${formData.message}
                 Call us directly for urgent inquiries
               </p>
               <a
-                href="tel:+919876543210"
+                href="tel:+918380848305"
                 className="inline-flex items-center space-x-2 bg-white text-primary-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
                 <Phone className="w-4 h-4" />
@@ -330,16 +345,19 @@ ${formData.message}
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mt-16"
         >
-          <div className="card">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Our Location</h2>
-            <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">Interactive map will be displayed here</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Mumbai, Maharashtra, India
-                </p>
-              </div>
+          <div className="card overflow-hidden">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">Visit Us</h2>
+            <p className="text-center text-gray-600 mb-6">
+              Daund Patas Road, Shree Krishna Signs, Pune, Maharashtra
+            </p>
+            <div className="rounded-2xl overflow-hidden border border-gray-200">
+              <iframe
+                src="https://www.google.com/maps?q=Daund+Patas+Road+Shree+Krishna+Signs&output=embed"
+                className="w-full h-80"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Shree Krishna Signs location"
+              />
             </div>
           </div>
         </motion.div>

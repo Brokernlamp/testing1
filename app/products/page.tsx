@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Search, Filter, ShoppingCart, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Filter, ShoppingCart, ArrowLeft, ChevronLeft, ChevronRight, Layers, Palette, Ruler, Sparkles } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 import CartButton from '@/components/CartButton'
@@ -39,6 +39,27 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [loading, setLoading] = useState(true)
+
+  const tileThemes = [
+    { gradient: 'from-blue-50 via-white to-blue-100', accent: 'text-blue-600', glow: 'bg-blue-200', icon: Layers },
+    { gradient: 'from-rose-50 via-white to-rose-100', accent: 'text-rose-600', glow: 'bg-rose-200', icon: Palette },
+    { gradient: 'from-emerald-50 via-white to-emerald-100', accent: 'text-emerald-600', glow: 'bg-emerald-200', icon: Ruler },
+    { gradient: 'from-amber-50 via-white to-amber-100', accent: 'text-amber-600', glow: 'bg-amber-200', icon: Sparkles }
+  ]
+
+  const categoryStats = useMemo(() => {
+    const counts = products.reduce<Record<string, number>>((acc, product) => {
+      const name = product.category?.name
+      if (!name) return acc
+      acc[name] = (acc[name] || 0) + 1
+      return acc
+    }, {})
+
+    return categories.map((category) => ({
+      ...category,
+      count: counts[category.name] || 0,
+    }))
+  }, [products, categories])
 
   useEffect(() => {
     fetchProducts()
@@ -161,6 +182,70 @@ export default function ProductsPage() {
           </div>
         </div>
       </section>
+
+      {categoryStats.length > 0 && (
+        <section className="px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-wide text-primary-600 font-semibold">Product Categories</p>
+                <h2 className="text-2xl font-bold text-gray-900">Browse by tiles</h2>
+              </div>
+              {selectedCategory && (
+                <button
+                  onClick={() => setSelectedCategory('')}
+                  className="text-sm text-primary-600 hover:text-primary-800 font-semibold"
+                >
+                  Clear selection
+                </button>
+              )}
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {categoryStats.map((category, index) => {
+                const isActive = selectedCategory === category.name
+                const theme = tileThemes[index % tileThemes.length]
+                const Icon = theme.icon
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(isActive ? '' : category.name)}
+                    aria-pressed={isActive}
+                    className={`relative overflow-hidden text-left p-5 rounded-3xl border transition-all duration-300 bg-gradient-to-br ${theme.gradient} ${
+                      isActive
+                        ? 'border-transparent ring-2 ring-offset-2 ring-primary-500 shadow-xl'
+                        : 'border-transparent hover:border-primary-200 hover:-translate-y-1 shadow'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">Category</div>
+                        <div className="text-lg font-semibold text-gray-900">{category.name}</div>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-white/80 shadow-inner">
+                        <Icon className={`w-5 h-5 ${theme.accent}`} />
+                      </div>
+                    </div>
+                    {category.description && (
+                      <p className="text-sm text-gray-600 line-clamp-2 mt-3">{category.description}</p>
+                    )}
+                    <div className="mt-6 flex items-center justify-between text-sm font-semibold text-gray-700">
+                      <span>{category.count} product{category.count === 1 ? '' : 's'}</span>
+                      <span className={`flex items-center gap-1 ${theme.accent}`}>
+                        {isActive ? 'Selected' : 'View'}
+                        <ChevronRight className="w-4 h-4" />
+                      </span>
+                    </div>
+                    <span
+                      className={`absolute inset-x-4 -bottom-4 h-10 blur-3xl opacity-40 ${theme.glow}`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Products Grid */}
       <section className="py-8 px-4 sm:px-6 lg:px-8">
@@ -300,9 +385,17 @@ export default function ProductsPage() {
             </div>
             <div>
               <h4 className="text-lg font-semibold mb-4">Contact Info</h4>
-              <p className="text-gray-400 mb-2">+91 98765 43210</p>
-              <p className="text-gray-400 mb-2">info@shreekrishnasigns.com</p>
-              <p className="text-gray-400">Mumbai, Maharashtra, India</p>
+              <p className="text-gray-400 mb-2">
+                <a href="tel:+918380848305" className="hover:text-white transition-colors">
+                  +91 83808 48305
+                </a>
+              </p>
+              <p className="text-gray-400 mb-2">
+                <a href="mailto:shreekrishnasigns@gmail.com" className="hover:text-white transition-colors">
+                  shreekrishnasigns@gmail.com
+                </a>
+              </p>
+              <p className="text-gray-400">Daund Patas Road, Pune, Maharashtra</p>
             </div>
           </div>
           

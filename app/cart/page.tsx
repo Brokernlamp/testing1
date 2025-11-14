@@ -16,10 +16,44 @@ export default function CartPage() {
 	const [contact, setContact] = useState('')
 	const [delivery, setDelivery] = useState('')
 	const [comments, setComments] = useState('')
+	const [sizeDrafts, setSizeDrafts] = useState<Record<string, { height: string; width: string; unit: string }>>({})
+	const [materialDrafts, setMaterialDrafts] = useState<Record<string, string>>({})
 
 	// Companies dropdown
 	const [companies, setCompanies] = useState<Array<{ id: string; company_name: string }>>([])
 	const [useCustomCompany, setUseCustomCompany] = useState(false)
+
+	useEffect(() => {
+		setSizeDrafts((prev) => {
+			const next = { ...prev }
+			let changed = false
+			Object.keys(next).forEach((key) => {
+				if (!items.find((item) => item.id === key)) {
+					delete next[key]
+					changed = true
+				}
+			})
+			return changed ? next : prev
+		})
+		setMaterialDrafts((prev) => {
+			const next = { ...prev }
+			let changed = false
+			Object.keys(next).forEach((key) => {
+				if (!items.find((item) => item.id === key)) {
+					delete next[key]
+					changed = true
+				}
+			})
+			return changed ? next : prev
+		})
+	}, [items])
+
+	const updateSizeDraft = (id: string, patch: Partial<{ height: string; width: string; unit: string }>) => {
+		setSizeDrafts((prev) => {
+			const current = prev[id] || { height: '', width: '', unit: 'inch' }
+			return { ...prev, [id]: { ...current, ...patch } }
+		})
+	}
 
 	useEffect(() => {
 		const fetchCompanies = async () => {
@@ -115,7 +149,7 @@ export default function CartPage() {
 						`   Quantity: ${item.quantity}`,
 						`   Comments: ${item.comments || 'None'}`,
 						...(item.images && item.images.length > 0 ? [
-							`   Reference Images:`,
+							`   ImageKit Links:`,
 							...item.images.map((img, imgIdx) => `      ${imgIdx + 1}. ${img}`)
 						] : []),
 						``
@@ -131,12 +165,46 @@ export default function CartPage() {
 				`${department}`
 			].join('\n')
 
-			// 4) Open email client
-			const mailtoLink = `mailto:shreekrishnasigns@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`
-			window.open(mailtoLink, '_blank')
-			
-			// 5) Show success message and clear cart
-			toast.success(`Order saved! ${result.regularOrders} regular orders, ${result.customOrders} custom orders. Email client opened.`)
+			const manifestPayload = items.map((item) => ({
+				...item,
+				imageCount: item.images?.length || 0,
+			}))
+
+			const sendEmail = async () => {
+				const formData = new FormData()
+				formData.append('subject', subject)
+				formData.append('body', emailBody)
+				formData.append('reply_to', email.trim())
+				formData.append('to', 'shreekrishnasigns@gmail.com')
+				formData.append('cart_manifest', JSON.stringify(manifestPayload))
+				const emailRes = await fetch('/api/send-quotation-email', {
+					method: 'POST',
+					body: formData,
+				})
+				if (!emailRes.ok) {
+					let message = 'Failed to email quotation'
+					try {
+						const payload = await emailRes.json()
+						message = payload?.error || message
+					} catch {}
+					throw new Error(message)
+				}
+			}
+
+			let emailSent = false
+			try {
+				await sendEmail()
+				emailSent = true
+			} catch (err) {
+				console.error('send-email error', err)
+				const fallbackLink = `mailto:shreekrishnasigns@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`
+				window.open(fallbackLink, '_blank')
+				toast.error('Quotation email service unavailable. Opened your email client instead.')
+			}
+
+			if (emailSent) {
+				toast.success(`Order saved & emailed with ImageKit links! ${result.regularOrders} regular and ${result.customOrders} custom items.`)
+			}
 			clear()
 			
 		} catch (e: any) {
@@ -226,18 +294,18 @@ export default function CartPage() {
 								</div>
 								
 								<div className="grid md:grid-cols-4 gap-2 mt-3">
-									<input 
-										className="input-field" 
-										placeholder="Size (e.g. 34*23 inch)" 
-										value={i.size || ''} 
-										onChange={(e)=>updateItem(i.id,{size:e.target.value})} 
-									/>
-									<input 
-										className="input-field" 
-										placeholder="Material" 
-										value={i.material || ''} 
-										onChange={(e)=>updateItem(i.id,{material:e.target.value})} 
-									/>
+										<input 
+											className="input-field" 
+											placeholder="Size (e.g. 34*23 inch) or use builder below" 
+											value={i.size || ''} 
+											onChange={(e)=>updateItem(i.id,{size:e.target.value})} 
+										/>
+										<input 
+											className="input-field" 
+											placeholder="Material (type custom or pick below)" 
+											value={i.material || ''} 
+											onChange={(e)=>updateItem(i.id,{material:e.target.value})} 
+										/>
 									<input 
 										className="input-field" 
 										type="number" 
@@ -253,7 +321,103 @@ export default function CartPage() {
 									/>
 								</div>
 								
-								{/* Display image URLs */}
+									<div className="mt-3 space-y-3">
+										<div className="flex items-center gap-2 text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
+											<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-gray-700 text-[10px]">i</span>
+											<span>Customize size & material below</span>
+										</div>
+										<div className="p-3 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+											<div className="flex items-center justify-between">
+												<p className="text-sm font-semibold text-gray-700">Custom Size Builder</p>
+												<button
+													type="button"
+													onClick={() => {
+														const draft = sizeDrafts[i.id] || { height: '', width: '', unit: 'inch' }
+														if (!draft.height || !draft.width) {
+															toast.error('Enter both height and width to apply custom size')
+															return
+														}
+														const formatted = `${draft.height} x ${draft.width} ${draft.unit}`
+														updateItem(i.id, { size: formatted })
+														toast.success('Custom size applied to item')
+													}}
+													className="text-xs font-semibold text-primary-600 hover:text-primary-800"
+												>
+													Apply
+												</button>
+											</div>
+											<div className="grid grid-cols-1 sm:grid-cols-5 gap-2 mt-2">
+												<input
+													className="input-field sm:col-span-2"
+													placeholder="Height"
+													value={(sizeDrafts[i.id]?.height) || ''}
+													onChange={(e)=>updateSizeDraft(i.id,{height:e.target.value})}
+												/>
+												<input
+													className="input-field sm:col-span-2"
+													placeholder="Width"
+													value={(sizeDrafts[i.id]?.width) || ''}
+													onChange={(e)=>updateSizeDraft(i.id,{width:e.target.value})}
+												/>
+												<select
+													className="input-field sm:col-span-1"
+													value={(sizeDrafts[i.id]?.unit) || 'inch'}
+													onChange={(e)=>updateSizeDraft(i.id,{unit:e.target.value})}
+												>
+													<option value="inch">inch</option>
+													<option value="cm">cm</option>
+													<option value="mm">mm</option>
+													<option value="ft">ft</option>
+												</select>
+											</div>
+											<p className="text-xs text-gray-500 mt-2">Result will be saved to the Size field above.</p>
+										</div>
+
+										<div className="p-3 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+											<p className="text-sm font-semibold text-gray-700 mb-2">Material Options</p>
+											<div className="flex flex-wrap gap-2 mb-3">
+												{['ACP', 'Acrylic', 'Vinyl', 'Sunboard', 'Steel', 'Flex'].map((materialOption) => (
+													<button
+														type="button"
+														key={materialOption}
+														onClick={() => updateItem(i.id,{ material: materialOption })}
+														className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+															i.material === materialOption
+																? 'border-primary-500 bg-primary-50 text-primary-700'
+																: 'border-gray-300 text-gray-600 hover:border-primary-300'
+														}`}
+													>
+														{materialOption}
+													</button>
+												))}
+											</div>
+											<div className="flex flex-col sm:flex-row gap-2">
+												<input
+													className="input-field"
+													placeholder="Custom material"
+													value={materialDrafts[i.id] ?? ''}
+													onChange={(e)=>setMaterialDrafts(prev => ({ ...prev, [i.id]: e.target.value }))}
+												/>
+												<button
+													type="button"
+													onClick={() => {
+														const custom = (materialDrafts[i.id] || '').trim()
+														if (!custom) {
+															toast.error('Enter a custom material first')
+															return
+														}
+														updateItem(i.id, { material: custom })
+														toast.success('Custom material applied')
+													}}
+													className="px-4 py-2 text-sm font-semibold bg-gray-900 text-white rounded-lg w-full sm:w-auto"
+												>
+													Set
+												</button>
+											</div>
+										</div>
+									</div>
+
+									{/* Display image URLs */}
 								{i.images && i.images.length > 0 && (
 									<div className="mt-3">
 										<p className="text-sm font-medium mb-2">Reference Images:</p>

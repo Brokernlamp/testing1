@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, ShoppingCart, Package, ChevronLeft, ChevronRight, Send } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Package, ChevronLeft, ChevronRight, Send, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 import { useCart } from '@/components/cart/CartProvider'
@@ -246,20 +246,22 @@ export default function ProductDetailPage() {
 
         {/* Add To Cart Modal (minimal fields) */}
         {showAddToCart && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-              <div className="mt-3">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">Add {product.name} to Cart</h3>
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-gray-900/60 px-4 py-6">
+            <div className="w-full max-w-2xl bg-white rounded-2xl border shadow-2xl flex flex-col max-h-[90vh]">
+              <form onSubmit={handleAddToCart} className="flex flex-col flex-1">
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b px-6 py-4 bg-white">
+                  <h3 className="text-lg font-semibold text-gray-900">Add {product.name} to Cart</h3>
                   <button
+                    type="button"
                     onClick={() => setShowAddToCart(false)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-500 hover:text-gray-700"
+                    aria-label="Close add to cart dialog"
                   >
-                    ×
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
-                
-                <form onSubmit={handleAddToCart} className="space-y-4">
+
+                <div className="px-6 py-4 space-y-4 overflow-y-auto">
                   {/* Size selection */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Size</label>
@@ -272,10 +274,10 @@ export default function ProductDetailPage() {
                         <option value="custom">Custom size</option>
                       </select>
                       {size === 'custom' && (
-                        <div className="grid grid-cols-5 gap-2">
-                          <input className="input-field col-span-2" placeholder="H" value={customSize.h} onChange={(e)=>setCustomSize({...customSize, h:e.target.value})} />
-                          <input className="input-field col-span-2" placeholder="W" value={customSize.w} onChange={(e)=>setCustomSize({...customSize, w:e.target.value})} />
-                          <select className="input-field" value={customSize.unit} onChange={(e)=>setCustomSize({...customSize, unit:e.target.value})}>
+                        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                          <input className="input-field sm:col-span-2" placeholder="H" value={customSize.h} onChange={(e)=>setCustomSize({...customSize, h:e.target.value})} />
+                          <input className="input-field sm:col-span-2" placeholder="W" value={customSize.w} onChange={(e)=>setCustomSize({...customSize, w:e.target.value})} />
+                          <select className="input-field sm:col-span-1" value={customSize.unit} onChange={(e)=>setCustomSize({...customSize, unit:e.target.value})}>
                             <option value="inch">inch</option>
                             <option value="cm">cm</option>
                             <option value="mm">mm</option>
@@ -303,49 +305,47 @@ export default function ProductDetailPage() {
                     </div>
                   </div>
 
-                                     {/* Quantity */}
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
-                     <input
-                       type="number"
-                       min="1"
-                       value={quantity}
-                       onChange={(e) => setQuantity(parseInt(e.target.value || '1'))}
-                       className="input-field"
-                       required
-                     />
-                   </div>
+                  {/* Quantity */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(parseInt(e.target.value || '1'))}
+                      className="input-field"
+                      required
+                    />
+                  </div>
 
-                                       {/* Image Upload */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Images (optional)</label>
-                      <ImageUpload 
-                        onUploadSuccess={handleImageUploadSuccess} 
-                        multiple={true}
-                        maxFiles={5}
-                      />
-                    </div>
-                                     <div className="flex space-x-3 pt-4">
-                     <button
-                       type="button"
-                       onClick={handleAddToCart}
-                       className="btn-primary flex-1 flex items-center justify-center space-x-2"
-                     >
-                       <Send className="w-4 h-4" />
-                       <span>Add to Cart</span>
-                     </button>
-                     <button
-                       type="button"
-                       onClick={() => setShowAddToCart(false)}
-                       className="btn-secondary flex-1"
-                     >
-                       Cancel
-                     </button>
-                   </div>
-                   
-                   {/* Quotation happens via Cart only */}
-                </form>
-              </div>
+                  {/* Image Upload */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Upload Reference Images (optional)</label>
+                    <ImageUpload 
+                      onUploadSuccess={handleImageUploadSuccess} 
+                      multiple={true}
+                      maxFiles={5}
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t px-6 py-4 flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="submit"
+                    className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Add to Cart</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddToCart(false)}
+                    className="btn-secondary flex-1"
+                  >
+                    Close
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

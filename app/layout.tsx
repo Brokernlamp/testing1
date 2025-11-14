@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import ClientRoot from '@/components/ClientRoot'
+import SiteChrome from '@/components/SiteChrome'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ClientRoot>
-          {children}
+          <SiteChrome>
+            {children}
+          </SiteChrome>
         </ClientRoot>
       </body>
     </html>
